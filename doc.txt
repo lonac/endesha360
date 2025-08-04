@@ -1,0 +1,4 @@
+Here is the list of service to start with
+1. Registration-Service
+2. School-Service
+3. 
