@@ -2,6 +2,15 @@
 Driving School SaaS - Microservices Architecture Analysis.pdf
 *.pdf
 
+# Ignore documentation and planning files
+UserStories
+DrivingSchoolSaaS*
+
+# Log files
+*.log
+logs/
+log/
+
 # OS generated files
 .DS_Store
 .DS_Store?
