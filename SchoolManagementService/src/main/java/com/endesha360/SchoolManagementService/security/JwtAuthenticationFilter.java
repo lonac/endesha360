@@ -40,9 +40,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = null;
         
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7);
+            jwt = authorizationHeader.substring(7).trim();  // TRIM whitespace!
             if (logger.isInfoEnabled()) {
-                logger.info("Received JWT token: " + jwt.substring(0, Math.min(50, jwt.length())) + "...");
+                logger.info("Authorization header: " + authorizationHeader);
+                logger.info("Extracted JWT token (after Bearer removal): " + jwt.substring(0, Math.min(50, jwt.length())) + "...");
+                logger.info("JWT token length: " + jwt.length() + ", first 10 chars: [" + 
+                    jwt.substring(0, Math.min(10, jwt.length())) + "]");
             }
             try {
                 username = jwtUtil.extractUsername(jwt);
@@ -51,6 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             } catch (Exception e) {
                 logger.error("Error extracting username from JWT: " + e.getMessage());
+                logger.error("JWT token that failed: [" + jwt + "]");
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -70,22 +74,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     logger.info("JWT Authentication - Username: " + username + ", Role: " + role + ", UserId: " + userId + ", TenantCode: " + tenantCode);
                 }
                 
-                UsernamePasswordAuthenticationToken authToken = 
-                    new UsernamePasswordAuthenticationToken(
-                        username, 
-                        null, 
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
-                    );
-                
-                // Add user details to authentication
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                
-                // Store additional JWT claims in request attributes
-                request.setAttribute("userId", userId);
-                request.setAttribute("role", role);
-                request.setAttribute("tenantCode", tenantCode);
-                
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (role != null) {  // Only proceed if we successfully extracted a role
+                    UsernamePasswordAuthenticationToken authToken = 
+                        new UsernamePasswordAuthenticationToken(
+                            username, 
+                            null, 
+                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
+                        );
+                    
+                    // Add user details to authentication
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    
+                    // Store additional JWT claims in request attributes
+                    request.setAttribute("userId", userId);
+                    request.setAttribute("role", role);
+                    request.setAttribute("tenantCode", tenantCode);
+                    
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    logger.warn("No valid role found in JWT token for user: " + username);
+                }
             }
         }
         

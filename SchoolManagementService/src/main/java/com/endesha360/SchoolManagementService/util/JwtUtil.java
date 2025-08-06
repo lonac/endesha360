@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class JwtUtil {
@@ -27,11 +29,24 @@ public class JwtUtil {
     }
     
     public String extractUserId(String token) {
-        return extractClaim(token, claims -> claims.get("userId", String.class));
+        // UserManagementService stores userId as Long, we need to convert to String
+        Long userIdLong = extractClaim(token, claims -> claims.get("userId", Long.class));
+        return userIdLong != null ? userIdLong.toString() : null;
     }
     
     public String extractRole(String token) {
-        return extractClaim(token, claims -> claims.get("role", String.class));
+        // UserManagementService stores roles as Set<String>, but JWT parsing returns it as List
+        Object rolesObj = extractClaim(token, claims -> claims.get("roles"));
+        if (rolesObj instanceof List) {
+            @SuppressWarnings("unchecked")
+            List<String> rolesList = (List<String>) rolesObj;
+            return rolesList != null && !rolesList.isEmpty() ? rolesList.get(0) : null;
+        } else if (rolesObj instanceof Set) {
+            @SuppressWarnings("unchecked")
+            Set<String> rolesSet = (Set<String>) rolesObj;
+            return rolesSet != null && !rolesSet.isEmpty() ? rolesSet.iterator().next() : null;
+        }
+        return null;
     }
     
     public String extractTenantCode(String token) {
