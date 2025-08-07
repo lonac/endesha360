@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/register").permitAll()
                 .requestMatchers("/api/auth/login").permitAll()  // Add this for flexibility
                 .requestMatchers("/api/auth/register").permitAll()  // Add this for flexibility
+                .requestMatchers("/api/debug/**").permitAll()  // Debug endpoints
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/admin/**").hasAnyRole("SUPER_ADMIN", "SYSTEM_ADMIN")
