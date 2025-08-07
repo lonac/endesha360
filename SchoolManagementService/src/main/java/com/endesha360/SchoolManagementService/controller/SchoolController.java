@@ -122,4 +122,59 @@ public class SchoolController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    @GetMapping("/pending")
+    @Operation(summary = "Get schools pending approval", description = "Internal API for System Admin Services")
+    public ResponseEntity<java.util.List<School>> getPendingSchoolsForAdmin() {
+        java.util.List<School> schools = schoolService.getPendingApprovalSchools();
+        return ResponseEntity.ok(schools);
+    }
+    
+    @GetMapping("/{schoolId}")
+    @Operation(summary = "Get school by ID", description = "Internal API for System Admin Services")
+    public ResponseEntity<School> getSchoolById(@PathVariable Long schoolId) {
+        Optional<School> school = schoolService.getSchoolById(schoolId);
+        
+        if (school.isPresent()) {
+            return ResponseEntity.ok(school.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    @GetMapping("/all")
+    @Operation(summary = "Get all schools", description = "Internal API for System Admin Services")
+    public ResponseEntity<java.util.List<School>> getAllSchoolsForAdmin() {
+        java.util.List<School> schools = schoolService.getAllSchools();
+        return ResponseEntity.ok(schools);
+    }
+    
+    @PutMapping("/{schoolId}/approve")
+    @Operation(summary = "Approve school", description = "Internal API for System Admin Services")
+    public ResponseEntity<String> approveSchool(@PathVariable Long schoolId) {
+        try {
+            schoolService.approveSchool(schoolId);
+            logger.info("School {} approved", schoolId);
+            return ResponseEntity.ok("School approved successfully");
+        } catch (Exception e) {
+            logger.error("Error approving school {}: {}", schoolId, e.getMessage());
+            return ResponseEntity.badRequest().body("Error approving school: " + e.getMessage());
+        }
+    }
+    
+    @PutMapping("/{schoolId}/reject")
+    @Operation(summary = "Reject school", description = "Internal API for System Admin Services")
+    public ResponseEntity<String> rejectSchool(
+            @PathVariable Long schoolId,
+            @RequestBody(required = false) java.util.Map<String, String> requestBody) {
+        try {
+            String rejectionReason = requestBody != null ? requestBody.get("rejectionReason") : "";
+            schoolService.rejectSchool(schoolId, rejectionReason);
+            logger.info("School {} rejected with reason: {}", schoolId, rejectionReason);
+            return ResponseEntity.ok("School rejected successfully");
+        } catch (Exception e) {
+            logger.error("Error rejecting school {}: {}", schoolId, e.getMessage());
+            return ResponseEntity.badRequest().body("Error rejecting school: " + e.getMessage());
+        }
+    }
 }

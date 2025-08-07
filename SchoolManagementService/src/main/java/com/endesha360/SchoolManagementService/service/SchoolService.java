@@ -129,11 +129,42 @@ public class SchoolService {
         return schoolRepository.findByIsApproved(false);
     }
     
-    /**
-     * Get all active and approved schools
+        /**
+     * Get schools that are active and approved
      */
     public List<School> getActiveSchools() {
         return schoolRepository.findActiveAndApprovedSchools();
+    }
+
+    /**
+     * Get all schools regardless of status
+     */
+    public List<School> getAllSchools() {
+        return schoolRepository.findAll();
+    }
+
+    /**
+     * Get school by ID
+     */
+    public Optional<School> getSchoolById(Long schoolId) {
+        return schoolRepository.findById(schoolId);
+    }
+
+    /**
+     * Reject a school
+     */
+    public void rejectSchool(Long schoolId, String rejectionReason) {
+        School school = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new SchoolNotFoundException("School not found with id: " + schoolId));
+        
+        school.setIsApproved(false);
+        school.setIsActive(false);
+        if (rejectionReason != null && !rejectionReason.isEmpty()) {
+            school.setRejectionReason(rejectionReason);
+        }
+        schoolRepository.save(school);
+        
+        logger.info("School rejected: {} - Reason: {}", schoolId, rejectionReason);
     }
     
     /**

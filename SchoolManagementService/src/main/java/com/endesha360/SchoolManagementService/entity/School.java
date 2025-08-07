@@ -72,6 +72,9 @@ public class School {
     @Column(name = "is_approved", nullable = false)
     private Boolean isApproved = false;
     
+    @Column(name = "rejection_reason", columnDefinition = "TEXT")
+    private String rejectionReason;
+    
     @NotBlank(message = "Tenant code is required")
     @Size(max = 20, message = "Tenant code must not exceed 20 characters")
     @Column(name = "tenant_code", nullable = false, unique = true, length = 20)
@@ -246,6 +249,14 @@ public class School {
     
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+    
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
     
     @Override
