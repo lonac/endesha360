@@ -26,13 +26,18 @@ const Login = () => {
     setError('');
 
     try {
-      await login({
+      const response = await login({
         email: data.email,
-        password: data.password
+        password: data.password,
+        tenantCode: 'PLATFORM' // School owners login to PLATFORM tenant
       });
       
-      // Redirect to dashboard or school registration
-      navigate('/dashboard');
+      // Check user role and redirect accordingly
+      if (response.user.roles?.includes('SCHOOL_OWNER')) {
+        navigate('/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
       
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
@@ -113,6 +118,7 @@ const Login = () => {
                   id="remember-me"
                   type="checkbox"
                   className="h-4 w-4 text-[#00712D] focus:ring-[#00712D] border-[#D5ED9F] rounded"
+                  {...register('rememberMe')}
                 />
                 <label htmlFor="remember-me" className="ml-2 text-sm text-gray-600">
                   Remember me
@@ -133,7 +139,7 @@ const Login = () => {
               className="w-full"
               size="lg"
             >
-              Sign In
+              {loading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
 
@@ -145,7 +151,7 @@ const Login = () => {
                 to="/register" 
                 className="font-medium text-[#00712D] hover:underline"
               >
-                Create one here
+                Register as School Owner
               </Link>
             </p>
           </div>
@@ -159,21 +165,32 @@ const Login = () => {
           <div className="space-y-3">
             <div className="flex items-center space-x-3">
               <div className="w-2 h-2 bg-[#00712D] rounded-full"></div>
-              <span className="text-sm text-gray-600">Comprehensive school management</span>
+              <span className="text-sm text-gray-600">Complete school management solution</span>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-2 h-2 bg-[#00712D] rounded-full"></div>
-              <span className="text-sm text-gray-600">Student progress tracking</span>
+              <span className="text-sm text-gray-600">Student progress tracking & analytics</span>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-2 h-2 bg-[#00712D] rounded-full"></div>
-              <span className="text-sm text-gray-600">Automated scheduling</span>
+              <span className="text-sm text-gray-600">Automated scheduling & notifications</span>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-2 h-2 bg-[#00712D] rounded-full"></div>
-              <span className="text-sm text-gray-600">Real-time analytics</span>
+              <span className="text-sm text-gray-600">Multi-tenant architecture for scalability</span>
             </div>
           </div>
+        </div>
+
+        {/* Login Help */}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <h4 className="text-sm font-semibold text-blue-800 mb-2">
+            First time logging in?
+          </h4>
+          <p className="text-sm text-blue-700">
+            Use the email and password you provided during school owner registration. 
+            If you haven't registered yet, click "Register as School Owner" above.
+          </p>
         </div>
       </div>
     </div>

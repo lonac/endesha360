@@ -1,13 +1,46 @@
 const API_ENDPOINTS = {
-  USER_SERVICE: 'http://localhost:8081/api/users',
+  USER_SERVICE_AUTH: 'http://localhost:8081/api/auth',
+  USER_SERVICE: 'http://localhost:8081/api',
+  SCHOOL_OWNER_SERVICE: 'http://localhost:8081/api/school-owners',
   SCHOOL_SERVICE: 'http://localhost:8082/api/schools'
 };
 
 class ApiService {
-  // User Management Service APIs
+  // School Owner Registration (User Management Service)
+  async registerSchoolOwner(userData) {
+    try {
+      const response = await fetch(`${API_ENDPOINTS.SCHOOL_OWNER_SERVICE}/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: userData.username || userData.email.split('@')[0], // Generate username from email if not provided
+          email: userData.email,
+          password: userData.password,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          phoneNumber: userData.phoneNumber
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('School owner registration error:', error);
+      throw error;
+    }
+  }
+
+  // Regular User Registration (User Management Service)
   async registerUser(userData) {
     try {
-      const response = await fetch(`${API_ENDPOINTS.USER_SERVICE}/register`, {
+      const response = await fetch(`${API_ENDPOINTS.USER_SERVICE_AUTH}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,12 +63,16 @@ class ApiService {
 
   async loginUser(credentials) {
     try {
-      const response = await fetch(`${API_ENDPOINTS.USER_SERVICE}/login`, {
+      const response = await fetch(`${API_ENDPOINTS.USER_SERVICE_AUTH}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify({
+          usernameOrEmail: credentials.email,
+          password: credentials.password,
+          tenantCode: credentials.tenantCode || 'PLATFORM' // Default to PLATFORM tenant for school owners
+        }),
       });
 
       const data = await response.json();
@@ -44,16 +81,78 @@ class ApiService {
         throw new Error(data.message || 'Login failed');
       }
       
-      // Store JWT token
+      // Store JWT token and user data
       if (data.accessToken) {
         localStorage.setItem('token', data.accessToken);
         localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('tenantCode', data.tenantCode);
       }
       
       return data;
     } catch (error) {
       console.error('Login error:', error);
       throw error;
+    }
+  }
+
+  // Authentication validation
+  async validateToken() {
+    try {
+      const token = this.getToken();
+      if (!token) return false;
+
+      const response = await fetch(`${API_ENDPOINTS.USER_SERVICE_AUTH}/validate`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      return response.ok;
+    } catch (error) {
+      console.error('Token validation error:', error);
+      return false;
+    }
+  }
+
+  async getCurrentUser() {
+    try {
+      const token = this.getToken();
+      if (!token) throw new Error('No token found');
+
+      const response = await fetch(`${API_ENDPOINTS.USER_SERVICE_AUTH}/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get user info');
+      }
+
+      const userData = await response.json();
+      localStorage.setItem('user', JSON.stringify(userData));
+      return userData;
+    } catch (error) {
+      console.error('Get current user error:', error);
+      throw error;
+    }
+  }
+
+  async logoutUser() {
+    try {
+      const token = this.getToken();
+      if (token) {
+        await fetch(`${API_ENDPOINTS.USER_SERVICE_AUTH}/logout`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      this.logout(); // Clear local storage regardless
     }
   }
 
@@ -90,6 +189,36 @@ class ApiService {
     }
   }
 
+  async getMySchool() {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/my-school`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 404) {
+        return null; // No school registered yet
+      }
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to get school information');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Get school error:', error);
+      throw error;
+    }
+  }
+
   // Utility methods
   getToken() {
     return localStorage.getItem('token');
@@ -100,9 +229,14 @@ class ApiService {
     return user ? JSON.parse(user) : null;
   }
 
+  getTenantCode() {
+    return localStorage.getItem('tenantCode');
+  }
+
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('tenantCode');
   }
 
   isAuthenticated() {

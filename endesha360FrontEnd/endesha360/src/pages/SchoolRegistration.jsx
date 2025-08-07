@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { School, MapPin, Phone, Mail, Globe, FileText } from 'lucide-react';
 import apiService from '../services/api';
@@ -7,6 +8,7 @@ import Input from '../components/Input';
 import Alert from '../components/Alert';
 
 const SchoolRegistration = () => {
+  const navigate = useNavigate();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,10 +40,17 @@ const SchoolRegistration = () => {
         description: data.description
       };
 
+      console.log('Starting school registration...', schoolData);
       const response = await apiService.registerSchool(schoolData);
+      console.log('School registration successful:', response);
       
-      setSuccess(`School "${response.name}" registered successfully! Your tenant code is: ${response.tenantCode}. Waiting for admin approval.`);
-      reset();
+      // Navigate to dashboard with success message
+      navigate('/dashboard', {
+        state: {
+          message: `School "${response.name}" registered successfully! Your tenant code is: ${response.tenantCode}. Waiting for admin approval.`,
+          type: 'success'
+        }
+      });
       
     } catch (err) {
       if (err.message.includes('Access denied')) {
