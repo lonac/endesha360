@@ -36,6 +36,9 @@ public interface SchoolRepository extends JpaRepository<School, Long> {
     @Query("SELECT COUNT(s) FROM School s WHERE s.isApproved = false AND s.isActive = true")
     Long countPendingApprovalSchools();
     
+    @Query("SELECT s FROM School s WHERE s.isApproved = false AND s.isActive = true")
+    List<School> findPendingApprovalSchools();
+    
     boolean existsByRegistrationNumber(String registrationNumber);
     
     boolean existsByEmail(String email);

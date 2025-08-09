@@ -126,7 +126,7 @@ public class SchoolService {
      * Get all schools pending approval
      */
     public List<School> getPendingApprovalSchools() {
-        return schoolRepository.findByIsApproved(false);
+        return schoolRepository.findPendingApprovalSchools();
     }
     
         /**
