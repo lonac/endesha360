@@ -56,6 +56,12 @@ const Header = () => {
                 >
                   Register
                 </Link>
+                <Link 
+                  to="/admin/login" 
+                  className="text-[#00712D] hover:text-[#FF9100] font-medium transition-colors text-sm"
+                >
+                  Admin Portal
+                </Link>
               </>
             )}
           </nav>

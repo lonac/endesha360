@@ -1,10 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { AdminProvider, useAdmin } from './context/AdminContext';
 
 // Components
 import Header from './components/Header';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 
 // Pages
 import Home from './pages/Home';
@@ -12,6 +14,8 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import SchoolRegistration from './pages/SchoolRegistration';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
 
 // Layout wrapper component
 const Layout = ({ children }) => (
@@ -24,6 +28,7 @@ const Layout = ({ children }) => (
 // App content component
 const AppContent = () => {
   const { isAuthenticated } = useAuth();
+  const { isAdminAuthenticated } = useAdmin();
 
   return (
     <Routes>
@@ -59,6 +64,26 @@ const AppContent = () => {
         } 
       />
       
+      {/* Admin routes */}
+      <Route 
+        path="/admin/login" 
+        element={
+          isAdminAuthenticated ? (
+            <Navigate to="/admin/dashboard" replace />
+          ) : (
+            <AdminLogin />
+          )
+        } 
+      />
+      <Route 
+        path="/admin/dashboard" 
+        element={
+          <AdminProtectedRoute>
+            <AdminDashboard />
+          </AdminProtectedRoute>
+        } 
+      />
+      
       {/* Protected routes */}
       <Route 
         path="/dashboard" 
@@ -90,9 +115,11 @@ const AppContent = () => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <AdminProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </AdminProvider>
     </AuthProvider>
   );
 }

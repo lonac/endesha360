@@ -2,7 +2,8 @@ const API_ENDPOINTS = {
   USER_SERVICE_AUTH: 'http://localhost:8081/api/auth',
   USER_SERVICE: 'http://localhost:8081/api',
   SCHOOL_OWNER_SERVICE: 'http://localhost:8081/api/school-owners',
-  SCHOOL_SERVICE: 'http://localhost:8082/api/schools'
+  SCHOOL_SERVICE: 'http://localhost:8082/api/schools',
+  ADMIN_SERVICE: 'http://localhost:8083/api'
 };
 
 class ApiService {
@@ -241,6 +242,225 @@ class ApiService {
 
   isAuthenticated() {
     return !!this.getToken();
+  }
+
+  // Admin Authentication and Management APIs
+  async loginAdmin(credentials) {
+    try {
+      const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/admin/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          usernameOrEmail: credentials.username,
+          password: credentials.password
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Admin login failed');
+      }
+      
+      // Store admin JWT token and user data
+      if (data.token) {
+        localStorage.setItem('adminToken', data.token);
+        localStorage.setItem('adminUser', JSON.stringify(data.admin));
+        localStorage.setItem('userType', 'admin');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Admin login error:', error);
+      throw error;
+    }
+  }
+
+  async logoutAdmin() {
+    try {
+      const token = this.getAdminToken();
+      if (token) {
+        await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/admin/logout`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Admin logout error:', error);
+    } finally {
+      this.clearAdminSession();
+    }
+  }
+
+  // Admin School Management APIs
+  async getPendingSchools() {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/schools/pending`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch pending schools');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Get pending schools error:', error);
+      throw error;
+    }
+  }
+
+  async getSchoolById(schoolId) {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/schools/${schoolId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch school details');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Get school details error:', error);
+      throw error;
+    }
+  }
+
+  async approveSchool(schoolId, comments = '') {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/schools/${schoolId}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          action: 'APPROVED',
+          comments: comments
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to approve school');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Approve school error:', error);
+      throw error;
+    }
+  }
+
+  async rejectSchool(schoolId, comments) {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/schools/${schoolId}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          action: 'REJECTED',
+          comments: comments
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to reject school');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Reject school error:', error);
+      throw error;
+    }
+  }
+
+  async getSchoolApprovalHistory(schoolId) {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/schools/${schoolId}/history`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch approval history');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Get approval history error:', error);
+      throw error;
+    }
+  }
+
+  // Admin utility methods
+  getAdminToken() {
+    return localStorage.getItem('adminToken');
+  }
+
+  getAdminUser() {
+    const adminUser = localStorage.getItem('adminUser');
+    return adminUser ? JSON.parse(adminUser) : null;
+  }
+
+  getUserType() {
+    return localStorage.getItem('userType');
+  }
+
+  isAdminAuthenticated() {
+    return !!this.getAdminToken();
+  }
+
+  clearAdminSession() {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    localStorage.removeItem('userType');
   }
 }
 
