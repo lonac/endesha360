@@ -6,7 +6,28 @@ import Button from '../components/Button';
 import Alert from '../components/Alert';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, getMySchool } = useAuth();
+  const [school, setSchool] = useState(null);
+  const [schoolLoading, setSchoolLoading] = useState(true);
+  const [schoolError, setSchoolError] = useState(null);
+  // Fetch school info for school owner
+  useEffect(() => {
+    const fetchSchool = async () => {
+      setSchoolLoading(true);
+      setSchoolError(null);
+      try {
+        const data = await getMySchool();
+        setSchool(data);
+      } catch (err) {
+        setSchoolError(err.message);
+      } finally {
+        setSchoolLoading(false);
+      }
+    };
+    if (user && user.role === 'SCHOOL_OWNER') {
+      fetchSchool();
+    }
+  }, [user, getMySchool]);
   const navigate = useNavigate();
   const location = useLocation();
   const [showAlert, setShowAlert] = useState(false);
@@ -194,27 +215,77 @@ const Dashboard = () => {
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-lg font-semibold text-[#14274E] mb-4">School Status</h3>
               <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <AlertCircle className="h-5 w-5 text-yellow-500" />
+                {schoolLoading ? (
+                  <div className="text-gray-500 text-sm">Loading school status...</div>
+                ) : schoolError ? (
+                  <div className="text-red-500 text-sm">{schoolError}</div>
+                ) : !school ? (
                   <div>
-                    <p className="text-sm font-medium text-[#14274E]">Registration</p>
-                    <p className="text-xs text-[#394867]">Not registered</p>
+                    <div className="flex items-center space-x-3">
+                      <AlertCircle className="h-5 w-5 text-yellow-500" />
+                      <div>
+                        <p className="text-sm font-medium text-[#14274E]">Registration</p>
+                        <p className="text-xs text-[#394867]">Not registered</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Clock className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Approval</p>
+                        <p className="text-xs text-gray-400">Pending registration</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Clock className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Active Status</p>
+                        <p className="text-xs text-gray-400">Pending registration</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Clock className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Approval</p>
-                    <p className="text-xs text-gray-400">Pending registration</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Clock className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Active Status</p>
-                    <p className="text-xs text-gray-400">Pending approval</p>
-                  </div>
-                </div>
+                ) : (
+                  <>
+                    <div className="flex items-center space-x-3">
+                      {school.isApproved ? (
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                      ) : (
+                        <Clock className="h-5 w-5 text-yellow-500" />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium text-[#14274E]">Registration</p>
+                        <p className="text-xs text-[#394867]">
+                          {school.name} ({school.registrationNumber})
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      {school.isApproved ? (
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                      ) : (
+                        <Clock className="h-5 w-5 text-yellow-500" />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Approval</p>
+                        <p className="text-xs text-gray-500">
+                          {school.isApproved ? 'Approved' : 'Pending admin approval'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      {school.isActive && school.isApproved ? (
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                      ) : (
+                        <Clock className="h-5 w-5 text-gray-400" />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Active Status</p>
+                        <p className="text-xs text-gray-500">
+                          {school.isActive && school.isApproved ? 'Active' : 'Inactive or pending approval'}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
