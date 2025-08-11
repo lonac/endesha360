@@ -356,15 +356,16 @@ class ApiService {
         throw new Error('No admin authentication token found');
       }
 
-      const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/schools/${schoolId}/approve`, {
+      const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/schools/approve`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          action: 'APPROVED',
-          comments: comments
+          schoolId: schoolId,
+          action: 'APPROVE',
+          adminComment: comments
         }),
       });
 
@@ -388,15 +389,16 @@ class ApiService {
         throw new Error('No admin authentication token found');
       }
 
-      const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/schools/${schoolId}/approve`, {
+      const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/schools/approve`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          action: 'REJECTED',
-          comments: comments
+          schoolId: schoolId,
+          action: 'REJECT',
+          adminComment: comments
         }),
       });
 

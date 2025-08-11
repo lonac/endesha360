@@ -9,6 +9,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -35,13 +38,43 @@ public class DataInitializer implements CommandLineRunner {
             defaultAdmin.setRole(SystemAdmin.AdminRole.SUPER_ADMIN);
             defaultAdmin.setStatus(SystemAdmin.AdminStatus.ACTIVE);
             
+            // Add all permissions for super admin
+            Set<SystemAdmin.Permission> permissions = createAllPermissions();
+            defaultAdmin.setPermissions(permissions);
+            
             systemAdminRepository.save(defaultAdmin);
             logger.info("Default admin user created successfully");
             logger.info("Username: admin");
             logger.info("Password: admin123");
             logger.info("Role: SUPER_ADMIN");
+            logger.info("Permissions: {}", permissions);
         } else {
-            logger.info("Admin users already exist. Skipping default admin creation.");
+            logger.info("Admin users already exist. Checking if permissions need to be updated...");
+            
+            // Check for admin users without permissions and update them
+            systemAdminRepository.findAll().forEach(admin -> {
+                if (admin.getPermissions().isEmpty() && admin.getRole() == SystemAdmin.AdminRole.SUPER_ADMIN) {
+                    logger.info("Updating permissions for admin user: {}", admin.getUsername());
+                    Set<SystemAdmin.Permission> permissions = createAllPermissions();
+                    admin.setPermissions(permissions);
+                    systemAdminRepository.save(admin);
+                    logger.info("Updated permissions for admin: {} with permissions: {}", admin.getUsername(), permissions);
+                }
+            });
         }
+    }
+    
+    private Set<SystemAdmin.Permission> createAllPermissions() {
+        Set<SystemAdmin.Permission> permissions = new HashSet<>();
+        permissions.add(SystemAdmin.Permission.MANAGE_SCHOOLS);
+        permissions.add(SystemAdmin.Permission.APPROVE_SCHOOLS);
+        permissions.add(SystemAdmin.Permission.REJECT_SCHOOLS);
+        permissions.add(SystemAdmin.Permission.VIEW_SCHOOLS);
+        permissions.add(SystemAdmin.Permission.MANAGE_USERS);
+        permissions.add(SystemAdmin.Permission.VIEW_REPORTS);
+        permissions.add(SystemAdmin.Permission.MANAGE_SYSTEM_SETTINGS);
+        permissions.add(SystemAdmin.Permission.AUDIT_LOGS);
+        permissions.add(SystemAdmin.Permission.MANAGE_ADMINS);
+        return permissions;
     }
 }
