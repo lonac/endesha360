@@ -123,10 +123,16 @@ public class AuthenticationService {
     
     public boolean validateToken(String token) {
         try {
+            org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthenticationService.class);
+            logger.debug("Validating token in AuthenticationService: {}", token);
             String username = jwtTokenService.getUsernameFromToken(token);
-            return jwtTokenService.validateToken(token, username) && 
-                   sessionService.isSessionValid(token);
+            boolean jwtValid = jwtTokenService.validateToken(token, username);
+            boolean sessionValid = sessionService.isSessionValid(token);
+            logger.debug("JWT valid: {}, Session valid: {}", jwtValid, sessionValid);
+            return jwtValid && sessionValid;
         } catch (Exception e) {
+            org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthenticationService.class);
+            logger.error("Exception during token validation", e);
             return false;
         }
     }

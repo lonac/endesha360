@@ -16,7 +16,9 @@ const Dashboard = () => {
       setSchoolLoading(true);
       setSchoolError(null);
       try {
+        console.log("Calling getMySchool");
         const data = await getMySchool();
+        console.log("getMySchool result:", data);
         setSchool(data);
       } catch (err) {
         setSchoolError(err.message);
@@ -24,7 +26,7 @@ const Dashboard = () => {
         setSchoolLoading(false);
       }
     };
-    if (user && user.role === 'SCHOOL_OWNER') {
+    if (user && (user.role === 'SCHOOL_OWNER' || (user.roles && user.roles.includes('SCHOOL_OWNER')))) {
       fetchSchool();
     }
   }, [user, getMySchool]);
@@ -74,13 +76,22 @@ const Dashboard = () => {
   ];
 
   const quickActions = [
-    {
+    // Show 'Register Your School' if no school exists
+    ...(!school ? [{
       title: 'Register Your School',
       description: 'Complete your school registration to get started',
       icon: School,
       action: () => navigate('/school-registration'),
       variant: 'primary'
-    },
+    }] : []),
+    // Show 'Edit School Details' if school exists and is approved
+    ...(school && school.isApproved ? [{
+      title: 'Edit School Details',
+      description: 'Update your school information',
+      icon: School,
+      action: () => navigate('/school-registration?edit=true'),
+      variant: 'primary'
+    }] : []),
     {
       title: 'Add Students',
       description: 'Enroll new students to your driving school',
@@ -99,6 +110,8 @@ const Dashboard = () => {
     }
   ];
 
+  console.log("Dashboard user:", user, "role:", user.role, "roles:", user.roles);
+
   return (
     <div className="min-h-screen bg-[#FFFBE6]">
       {/* Header */}
@@ -113,13 +126,16 @@ const Dashboard = () => {
                 Here's what's happening with your driving school today
               </p>
             </div>
-            <Button 
-              onClick={() => navigate('/school-registration')}
-              className="flex items-center space-x-2"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Register School</span>
-            </Button>
+            {/* Show Register School button only if no school exists */}
+            {!school && (
+              <Button 
+                onClick={() => navigate('/school-registration')}
+                className="flex items-center space-x-2"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Register School</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -303,37 +319,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Getting Started */}
-            <div className="bg-gradient-to-br from-[#14274E] to-[#394867] rounded-xl shadow-lg p-6 text-white">
-              <h3 className="text-lg font-semibold mb-4">Getting Started</h3>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-bold">1</span>
-                  </div>
-                  <span className="text-sm">Register your school</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-bold">2</span>
-                  </div>
-                  <span className="text-sm">Wait for admin approval</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-bold">3</span>
-                  </div>
-                  <span className="text-sm">Start managing your school</span>
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                className="w-full mt-4 text-white border-white hover:bg-white hover:text-[#14274E]"
-                onClick={() => navigate('/school-registration')}
-              >
-                Get Started
-              </Button>
-            </div>
+            {/* Removed Getting Started section */}
           </div>
         </div>
       </div>
