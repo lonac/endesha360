@@ -7,6 +7,30 @@ const API_ENDPOINTS = {
 };
 
 class ApiService {
+  async updateMySchool(schoolData) {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/my-school`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(schoolData),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update school information');
+      }
+      return data;
+    } catch (error) {
+      console.error('Update school error:', error);
+      throw error;
+    }
+  }
   // School Owner Registration (User Management Service)
   async registerSchoolOwner(userData) {
     try {

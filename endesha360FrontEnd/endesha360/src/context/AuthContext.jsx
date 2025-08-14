@@ -1,3 +1,12 @@
+  // Update school details (edit mode)
+  const updateMySchool = async (schoolData) => {
+    try {
+      const response = await apiService.updateMySchool(schoolData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  };
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import apiService from '../services/api';
 
@@ -109,6 +118,7 @@ export const AuthProvider = ({ children }) => {
     register,
     registerSchoolOwner,
     registerSchool,
+    updateMySchool,
     getMySchool,
     logout,
     isAuthenticated: !!user,

@@ -1,30 +1,35 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { School, MapPin, Phone, Mail, Globe, FileText } from 'lucide-react';
 import apiService from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import Alert from '../components/Alert';
 
 const SchoolRegistration = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { getMySchool, updateMySchool } = useAuth();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  
+  const [editMode, setEditMode] = useState(false);
+  const [initialValues, setInitialValues] = useState({});
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
+    setValue
   } = useForm();
 
   const onSubmit = async (data) => {
     setLoading(true);
     setError('');
     setSuccess('');
-
     try {
       const schoolData = {
         name: data.name,
@@ -39,23 +44,30 @@ const SchoolRegistration = () => {
         website: data.website,
         description: data.description
       };
-
-      console.log('Starting school registration...', schoolData);
-      const response = await apiService.registerSchool(schoolData);
-      console.log('School registration successful:', response);
-      
-      // Navigate to dashboard with success message
-      navigate('/dashboard', {
-        state: {
-          message: `School "${response.name}" registered successfully! Your tenant code is: ${response.tenantCode}. Waiting for admin approval.`,
-          type: 'success'
-        }
-      });
-      
+      if (editMode) {
+        const response = await updateMySchool(schoolData);
+        setSuccess('School details updated successfully!');
+        setTimeout(() => {
+          navigate('/dashboard', {
+            state: {
+              message: `School details updated successfully!`,
+              type: 'success'
+            }
+          });
+        }, 1000);
+      } else {
+        const response = await apiService.registerSchool(schoolData);
+        navigate('/dashboard', {
+          state: {
+            message: `School "${response.name}" registered successfully! Your tenant code is: ${response.tenantCode}. Waiting for admin approval.`,
+            type: 'success'
+          }
+        });
+      }
     } catch (err) {
-      if (err.message.includes('Access denied')) {
+      if (err.message && err.message.includes('Access denied')) {
         setError('Your session has expired. Please login again.');
-      } else if (err.message.includes('Validation Failed')) {
+      } else if (err.message && err.message.includes('Validation Failed')) {
         setError('Please check all required fields and try again.');
       } else {
         setError(err.message || 'School registration failed. Please try again.');
@@ -64,6 +76,32 @@ const SchoolRegistration = () => {
       setLoading(false);
     }
   };
+
+  // Detect edit mode and fetch school data if needed
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const isEdit = params.get('edit') === 'true';
+    setEditMode(isEdit);
+    if (isEdit) {
+      setLoading(true);
+      getMySchool()
+        .then((school) => {
+          if (school) {
+            setInitialValues(school);
+            // Set form values
+            Object.entries(school).forEach(([key, value]) => {
+              if (typeof value === 'string' || typeof value === 'number') {
+                setValue(key, value);
+              }
+            });
+          }
+        })
+        .catch((err) => {
+          setError('Failed to load school details for editing.');
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [location.search, getMySchool, setValue]);
 
   return (
     <div className="min-h-screen bg-[#FFFBE6] py-12 px-4 sm:px-6 lg:px-8">
@@ -328,7 +366,7 @@ const SchoolRegistration = () => {
                 size="lg"
                 className="px-8"
               >
-                Register School
+                {editMode ? 'Update School' : 'Register School'}
               </Button>
             </div>
           </form>
