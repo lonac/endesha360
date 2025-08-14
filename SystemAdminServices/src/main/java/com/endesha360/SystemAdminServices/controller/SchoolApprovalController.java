@@ -27,6 +27,38 @@ public class SchoolApprovalController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    // New endpoint: GET /api/schools?status=...
+    @GetMapping("")
+    public ResponseEntity<Map<String, Object>> getSchoolsByStatus(@RequestParam(value = "status", required = false) String status) {
+        try {
+            List<SchoolDTO> schools;
+            if (status == null || status.isEmpty()) {
+                schools = schoolManagementService.getAllSchools();
+            } else if (status.equalsIgnoreCase("PENDING")) {
+                schools = schoolManagementService.getPendingSchools();
+            } else if (status.equalsIgnoreCase("APPROVED")) {
+                schools = schoolManagementService.getApprovedSchools();
+            } else if (status.equalsIgnoreCase("REJECTED")) {
+                schools = schoolManagementService.getRejectedSchools();
+            } else {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Unsupported status: " + status);
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("schools", schools);
+            response.put("count", schools.size());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Failed to fetch schools: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
     @GetMapping("/pending")
     public ResponseEntity<Map<String, Object>> getPendingSchools() {
         try {

@@ -1,3 +1,10 @@
+  const getSchoolsByStatus = async (status) => {
+    try {
+      return await apiService.getSchoolsByStatus(status);
+    } catch (error) {
+      throw error;
+    }
+  };
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import apiService from '../services/api';
 
@@ -97,6 +104,7 @@ export const AdminProvider = ({ children }) => {
     approveSchool,
     rejectSchool,
     getApprovalHistory,
+    getSchoolsByStatus,
     isAdminAuthenticated: !!admin,
     loading
   };

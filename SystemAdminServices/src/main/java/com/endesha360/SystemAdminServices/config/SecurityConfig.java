@@ -42,11 +42,12 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Allow CORS preflight
                 .requestMatchers("/api/admin/login").permitAll()
                 .requestMatchers("/api/admin/register").permitAll()
-                .requestMatchers("/api/auth/login").permitAll()  // Add this for flexibility
-                .requestMatchers("/api/auth/register").permitAll()  // Add this for flexibility
-                .requestMatchers("/api/debug/**").permitAll()  // Debug endpoints
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/register").permitAll()
+                .requestMatchers("/api/debug/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/admin/**").hasAnyRole("SUPER_ADMIN", "SYSTEM_ADMIN")

@@ -20,6 +20,22 @@ import java.util.UUID;
 @Service
 @Transactional
 public class SchoolService {
+    /**
+     * Get all approved schools
+     */
+    public List<School> getApprovedSchools() {
+        return schoolRepository.findByIsApproved(true);
+    }
+
+    /**
+     * Get all rejected schools (not approved and not active)
+     */
+    public List<School> getRejectedSchools() {
+        // Assuming rejected means isApproved = false and isActive = false
+        return schoolRepository.findAll().stream()
+            .filter(s -> Boolean.FALSE.equals(s.getIsApproved()) && Boolean.FALSE.equals(s.getIsActive()))
+            .toList();
+    }
     
     private static final Logger logger = LoggerFactory.getLogger(SchoolService.class);
     

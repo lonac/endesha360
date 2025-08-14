@@ -24,6 +24,20 @@ import java.util.Optional;
 @Tag(name = "School Management", description = "APIs for managing driving schools")
 public class SchoolController {
     
+    @GetMapping("/approved")
+    @Operation(summary = "Get approved schools", description = "Internal API for System Admin Services")
+    public ResponseEntity<java.util.List<School>> getApprovedSchoolsForAdmin() {
+        java.util.List<School> schools = schoolService.getApprovedSchools();
+        return ResponseEntity.ok(schools);
+    }
+
+    @GetMapping("/rejected")
+    @Operation(summary = "Get rejected schools", description = "Internal API for System Admin Services")
+    public ResponseEntity<java.util.List<School>> getRejectedSchoolsForAdmin() {
+        java.util.List<School> schools = schoolService.getRejectedSchools();
+        return ResponseEntity.ok(schools);
+    }
+    
     private static final Logger logger = LoggerFactory.getLogger(SchoolController.class);
     
     @Autowired

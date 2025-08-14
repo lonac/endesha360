@@ -18,6 +18,25 @@ import java.util.Map;
 
 @Service
 public class SchoolManagementService {
+    public List<SchoolDTO> getApprovedSchools() {
+        try {
+            ResponseEntity<SchoolDTO[]> response = restTemplate.getForEntity(
+                SCHOOL_SERVICE_URL + "/approved", SchoolDTO[].class);
+            return List.of(response.getBody());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch approved schools: " + e.getMessage());
+        }
+    }
+
+    public List<SchoolDTO> getRejectedSchools() {
+        try {
+            ResponseEntity<SchoolDTO[]> response = restTemplate.getForEntity(
+                SCHOOL_SERVICE_URL + "/rejected", SchoolDTO[].class);
+            return List.of(response.getBody());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch rejected schools: " + e.getMessage());
+        }
+    }
 
     @Autowired
     private SchoolApprovalActionRepository approvalActionRepository;

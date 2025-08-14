@@ -7,6 +7,28 @@ const API_ENDPOINTS = {
 };
 
 class ApiService {
+  // Fetch schools by status (for admin dashboard tabs)
+  async getSchoolsByStatus(status) {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+      const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/schools?status=${status}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || `Failed to fetch ${status} schools`);
+      }
+      return data;
+    } catch (error) {
+      console.error(`Get ${status} schools error:`, error);
+      throw error;
+    }
+  }
   async updateMySchool(schoolData) {
     try {
       const token = localStorage.getItem('token');

@@ -16,6 +16,9 @@ import Alert from '../components/Alert';
 
 const AdminDashboard = () => {
   const [pendingSchools, setPendingSchools] = useState([]);
+  const [approvedSchools, setApprovedSchools] = useState([]);
+  const [rejectedSchools, setRejectedSchools] = useState([]);
+  const [activeTab, setActiveTab] = useState('PENDING');
   const [selectedSchool, setSelectedSchool] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -33,21 +36,32 @@ const AdminDashboard = () => {
     getSchoolDetails, 
     approveSchool, 
     rejectSchool,
-    getApprovalHistory 
+    getApprovalHistory,
+    getSchoolsByStatus
   } = useAdmin();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadPendingSchools();
-  }, []);
 
-  const loadPendingSchools = async () => {
+  useEffect(() => {
+    loadSchoolsByTab(activeTab);
+    // eslint-disable-next-line
+  }, [activeTab]);
+
+  const loadSchoolsByTab = async (tab) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      const response = await getPendingSchools();
-      setPendingSchools(response.schools || []);
+      if (tab === 'PENDING') {
+        const response = await getSchoolsByStatus('PENDING');
+        setPendingSchools(response.schools || []);
+      } else if (tab === 'APPROVED') {
+        const response = await getSchoolsByStatus('APPROVED');
+        setApprovedSchools(response.schools || []);
+      } else if (tab === 'REJECTED') {
+        const response = await getSchoolsByStatus('REJECTED');
+        setRejectedSchools(response.schools || []);
+      }
     } catch (error) {
-      setError('Failed to load pending schools: ' + error.message);
+      setError('Failed to load schools: ' + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +81,7 @@ const AdminDashboard = () => {
       setActionLoading(true);
       await approveSchool(schoolId, 'School approved by admin');
       setSuccess('School approved successfully!');
-      await loadPendingSchools();
+      await loadSchoolsByTab('PENDING');
       setSelectedSchool(null);
     } catch (error) {
       setError('Failed to approve school: ' + error.message);
@@ -86,7 +100,7 @@ const AdminDashboard = () => {
       setActionLoading(true);
       await rejectSchool(selectedSchool.id, rejectComments);
       setSuccess('School rejected successfully!');
-      await loadPendingSchools();
+      await loadSchoolsByTab('PENDING');
       setSelectedSchool(null);
       setShowRejectModal(false);
       setRejectComments('');
@@ -208,18 +222,36 @@ const AdminDashboard = () => {
           </div>
         </div>
 
+
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Schools List */}
+          {/* Schools List with Tabs */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-sm">
               <div className="px-6 py-4 border-b border-gray-200">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-semibold text-gray-900">Pending School Approvals</h2>
+                  <div className="flex space-x-4">
+                    {['PENDING', 'APPROVED', 'REJECTED'].map((tab) => (
+                      <button
+                        key={tab}
+                        className={`px-4 py-2 rounded-t-lg font-semibold focus:outline-none transition-colors ${
+                          activeTab === tab
+                            ? 'bg-[#00712D] text-white shadow'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                        onClick={() => {
+                          setActiveTab(tab);
+                          setSelectedSchool(null);
+                        }}
+                      >
+                        {tab.charAt(0) + tab.slice(1).toLowerCase()}
+                      </button>
+                    ))}
+                  </div>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={loadPendingSchools}
+                    onClick={() => loadSchoolsByTab(activeTab)}
                     disabled={isLoading}
                     className="flex items-center space-x-1"
                   >
@@ -228,54 +260,55 @@ const AdminDashboard = () => {
                   </Button>
                 </div>
               </div>
-              
               <div className="p-6">
                 {isLoading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00712D] mx-auto"></div>
                     <p className="mt-2 text-gray-600">Loading schools...</p>
                   </div>
-                ) : pendingSchools.length === 0 ? (
-                  <div className="text-center py-8">
-                    <School className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600">No pending schools to review</p>
-                  </div>
                 ) : (
                   <div className="space-y-4">
-                    {pendingSchools.map((school) => (
-                      <div
-                        key={school.id}
-                        className={`border rounded-lg p-4 transition-colors cursor-pointer ${
-                          selectedSchool?.id === school.id
-                            ? 'border-[#00712D] bg-green-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                        onClick={() => handleViewDetails(school.id)}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-gray-900">{school.name}</h3>
-                            <p className="text-sm text-gray-600 mt-1">{school.email}</p>
-                            <p className="text-sm text-gray-600">{school.address}</p>
-                            <p className="text-xs text-gray-500 mt-2">
-                              Owner: {school.ownerName || 'N/A'}
-                            </p>
-                          </div>
-                          <div className="flex items-center space-x-2 ml-4">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleViewHistory(school.id);
-                              }}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
+                    {(activeTab === 'PENDING' ? pendingSchools : activeTab === 'APPROVED' ? approvedSchools : rejectedSchools).length === 0 ? (
+                      <div className="text-center py-8">
+                        <School className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                        <p className="text-gray-600">No {activeTab.toLowerCase()} schools to display</p>
+                      </div>
+                    ) : (
+                      (activeTab === 'PENDING' ? pendingSchools : activeTab === 'APPROVED' ? approvedSchools : rejectedSchools).map((school) => (
+                        <div
+                          key={school.id}
+                          className={`border rounded-lg p-4 transition-colors cursor-pointer ${
+                            selectedSchool?.id === school.id
+                              ? 'border-[#00712D] bg-green-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                          onClick={() => handleViewDetails(school.id)}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-gray-900">{school.name}</h3>
+                              <p className="text-sm text-gray-600 mt-1">{school.email}</p>
+                              <p className="text-sm text-gray-600">{school.address}</p>
+                              <p className="text-xs text-gray-500 mt-2">
+                                Owner: {school.ownerName || 'N/A'}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-2 ml-4">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleViewHistory(school.id);
+                                }}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 )}
               </div>
