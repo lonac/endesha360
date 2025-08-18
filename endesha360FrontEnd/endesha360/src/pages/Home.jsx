@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Car, Users, BookOpen, BarChart3, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
@@ -66,30 +66,26 @@ const Home = () => {
                 </Button>
               ) : (
                 <>
-                  <Button 
-                    size="lg" 
-                    onClick={() => navigate('/register')}
-                    className="bg-[#FF9100] text-white hover:bg-[#e6820e] text-lg px-8 py-4"
+                  <Link
+                    to="/register?role=owner"
+                    className="bg-[#FF9100] text-white hover:bg-[#e6820e] text-lg px-8 py-4 rounded font-semibold shadow-md transition-colors flex items-center justify-center"
                   >
-                    Get Started Free
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="lg" 
-                    onClick={() => navigate('/login')}
-                    className="border-[#D5ED9F] text-[#D5ED9F] hover:bg-[#D5ED9F] hover:text-[#00712D] text-lg px-8 py-4"
+                    Manage Your Driving School
+                  </Link>
+                  <Link
+                    to="/register?role=student"
+                    className="border-2 border-[#D5ED9F] text-[#D5ED9F] hover:bg-[#D5ED9F] hover:text-[#00712D] text-lg px-8 py-4 rounded font-semibold shadow-md transition-colors flex items-center justify-center"
                   >
-                    Sign In
-                  </Button>
+                    Book Driving Lessons
+                  </Link>
                 </>
               )}
             </div>
           </div>
         </div>
         
-        {/* Decorative elements */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
+        {/* Decorative elements - now not blocking clicks */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#D5ED9F]/10 rounded-full blur-3xl"></div>
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#FF9100]/10 rounded-full blur-3xl"></div>
         </div>

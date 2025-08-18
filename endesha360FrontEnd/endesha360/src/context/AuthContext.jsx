@@ -62,10 +62,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+
   // School owner registration (for the platform)
   const registerSchoolOwner = async (userData) => {
     try {
       const response = await apiService.registerSchoolOwner(userData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // Student registration
+  const registerStudent = async (userData) => {
+    try {
+      const response = await apiService.registerStudent(userData);
       return response;
     } catch (error) {
       throw error;
@@ -117,6 +128,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     registerSchoolOwner,
+    registerStudent,
     registerSchool,
     updateMySchool,
     getMySchool,

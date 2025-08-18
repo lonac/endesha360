@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { UserPlus, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -14,7 +14,10 @@ const Register = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const { registerSchoolOwner } = useAuth();
+  const { registerSchoolOwner, registerStudent } = useAuth();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const role = params.get('role') || 'owner'; // default to owner if not specified
   const navigate = useNavigate();
   
   const {
@@ -34,7 +37,6 @@ const Register = () => {
     try {
       // Generate username from email if not provided
       const username = data.email.split('@')[0];
-      
       const userData = {
         username: username,
         firstName: data.firstName,
@@ -44,14 +46,18 @@ const Register = () => {
         password: data.password
       };
 
-      const response = await registerSchoolOwner(userData);
-      setSuccess('School owner registration successful! You can now login to manage your driving school.');
-      
+      if (role === 'student') {
+        await registerStudent(userData);
+        setSuccess('Student registration successful! You can now login and book your driving lessons.');
+      } else {
+        await registerSchoolOwner(userData);
+        setSuccess('School owner registration successful! You can now login to manage your driving school.');
+      }
+
       // Redirect to login after success
       setTimeout(() => {
         navigate('/login');
       }, 3000);
-      
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
@@ -68,10 +74,12 @@ const Register = () => {
             <UserPlus className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-3xl font-bold text-[#00712D] mb-2">
-            Register as School Owner
+            {role === 'student' ? 'Register as Student' : 'Register as School Owner'}
           </h2>
           <p className="text-gray-600">
-            Create your account to start managing your driving school with Endesha360
+            {role === 'student'
+              ? 'Create your account to book driving lessons and track your progress.'
+              : 'Create your account to start managing your driving school with Endesha360'}
           </p>
         </div>
 
@@ -255,7 +263,11 @@ const Register = () => {
               className="w-full"
               size="lg"
             >
-              {loading ? 'Creating Account...' : 'Create School Owner Account'}
+              {loading
+                ? 'Creating Account...'
+                : role === 'student'
+                  ? 'Create Student Account'
+                  : 'Create School Owner Account'}
             </Button>
           </form>
 
@@ -279,22 +291,41 @@ const Register = () => {
             What happens next?
           </h3>
           <div className="space-y-2 text-sm text-blue-700">
-            <div className="flex items-start space-x-2">
-              <span className="font-semibold">1.</span>
-              <span>Create your school owner account</span>
-            </div>
-            <div className="flex items-start space-x-2">
-              <span className="font-semibold">2.</span>
-              <span>Login to access your dashboard</span>
-            </div>
-            <div className="flex items-start space-x-2">
-              <span className="font-semibold">3.</span>
-              <span>Register your driving school business</span>
-            </div>
-            <div className="flex items-start space-x-2">
-              <span className="font-semibold">4.</span>
-              <span>Start managing students, instructors, and operations</span>
-            </div>
+            {role === 'student' ? (
+              <>
+                <div className="flex items-start space-x-2">
+                  <span className="font-semibold">1.</span>
+                  <span>Create your student account</span>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <span className="font-semibold">2.</span>
+                  <span>Login to book driving lessons</span>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <span className="font-semibold">3.</span>
+                  <span>Track your lesson progress and achievements</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-start space-x-2">
+                  <span className="font-semibold">1.</span>
+                  <span>Create your school owner account</span>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <span className="font-semibold">2.</span>
+                  <span>Login to access your dashboard</span>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <span className="font-semibold">3.</span>
+                  <span>Register your driving school business</span>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <span className="font-semibold">4.</span>
+                  <span>Start managing students, instructors, and operations</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

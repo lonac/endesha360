@@ -7,6 +7,11 @@ const API_ENDPOINTS = {
 };
 
 class ApiService {
+  // Student Registration (User Management Service)
+  async registerStudent(userData) {
+    // This uses the same endpoint as registerUser, which assigns the STUDENT role by default
+    return this.registerUser(userData);
+  }
   // Fetch schools by status (for admin dashboard tabs)
   async getSchoolsByStatus(status) {
     try {
