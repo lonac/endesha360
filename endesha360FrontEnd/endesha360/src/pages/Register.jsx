@@ -102,7 +102,7 @@ const Register = () => {
             <UserPlus className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-3xl font-bold text-[#00712D] mb-2">
-            {role === 'student' ? 'Register as Student' : 'Register as School Owner'}
+            {role === 'student' ? 'Student Registration' : 'Register as School Owner'}
           </h2>
           <p className="text-gray-600">
             {role === 'student'
