@@ -10,13 +10,12 @@ import AdminProtectedRoute from './components/AdminProtectedRoute';
 
 // Pages
 import Home from './pages/Home';
-import Register from './pages/Register';
+import RegisterRoute from './routes/RegisterRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import SchoolRegistration from './pages/SchoolRegistration';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
-import AddStudent from './pages/AddStudent';
 import SelectRole from './pages/SelectRole';
       <Route 
         path="/select-role" 
@@ -50,16 +49,10 @@ const AppContent = () => {
         } 
       />
       
-      {/* Auth routes - redirect to dashboard if already authenticated */}
+      {/* Auth routes - use RegisterRoute for /register logic */}
       <Route 
         path="/register" 
-        element={
-          isAuthenticated ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
-            <Register />
-          )
-        } 
+        element={<RegisterRoute />} 
       />
       <Route 
         path="/login" 
@@ -112,16 +105,6 @@ const AppContent = () => {
             </Layout>
           </ProtectedRoute>
         } 
-      />
-      <Route 
-        path="/add-student"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <AddStudent />
-            </Layout>
-          </ProtectedRoute>
-        }
       />
       
       {/* Catch all route */}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { UserPlus, Eye, EyeOff } from 'lucide-react';
@@ -14,10 +14,26 @@ const Register = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const { registerSchoolOwner, registerStudent } = useAuth();
+  const { registerSchoolOwner, registerStudent, user, getMySchool } = useAuth();
+  const [school, setSchool] = useState(null);
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const role = params.get('role') || 'owner'; // default to owner if not specified
+  const mode = params.get('mode');
+  // If school owner is adding a student, fetch their school info for tenantCode
+  useEffect(() => {
+    const fetchSchool = async () => {
+      if (user && user.roles && user.roles.includes('SCHOOL_OWNER') && mode === 'add') {
+        try {
+          const schoolData = await getMySchool();
+          setSchool(schoolData);
+        } catch (err) {
+          setSchool(null);
+        }
+      }
+    };
+    fetchSchool();
+  }, [user, mode, getMySchool]);
   const navigate = useNavigate();
   
   const {
@@ -48,18 +64,28 @@ const Register = () => {
       };
 
       if (role === 'student') {
-        userData.tenantCode = 'PLATFORM';
-        await registerStudent(userData);
-        setSuccess('Student registration successful! You can now login and book your driving lessons.');
+        // If school owner is adding a student, use their tenantCode
+        if (mode === 'add' && user && user.roles && user.roles.includes('SCHOOL_OWNER') && school && school.tenantCode) {
+          userData.tenantCode = school.tenantCode;
+          console.log('Registering student with userData:', userData);
+          await registerStudent(userData);
+          setSuccess('Student added successfully!');
+        } else {
+          userData.tenantCode = 'PLATFORM';
+          await registerStudent(userData);
+          setSuccess('Student registration successful! You can now login and book your driving lessons.');
+        }
       } else {
         await registerSchoolOwner(userData);
         setSuccess('School owner registration successful! You can now login to manage your driving school.');
       }
 
-      // Redirect to login after success
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000);
+      // Redirect to login after success, unless school owner is adding a student
+      if (!(mode === 'add' && user && user.roles && user.roles.includes('SCHOOL_OWNER'))) {
+        setTimeout(() => {
+          navigate('/login');
+        }, 3000);
+      }
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {

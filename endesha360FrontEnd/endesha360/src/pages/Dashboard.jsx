@@ -92,14 +92,17 @@ const Dashboard = () => {
       action: () => navigate('/school-registration?edit=true'),
       variant: 'primary'
     }] : []),
-    {
+    // Show 'Add Students' only if school is approved
+    ...(school && school.isApproved ? [{
       title: 'Add Students',
       description: 'Enroll new students to your driving school',
       icon: Users,
-      action: () => navigate('/add-student'),
-      variant: 'secondary',
-      comingSoon: true
-    },
+      action: () => {
+        console.log('Add Students clicked');
+        navigate('/register?role=student&mode=add');
+      },
+      variant: 'secondary'
+    }] : []),
     {
       title: 'Create Courses',
       description: 'Set up driving courses and programs',
