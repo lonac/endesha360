@@ -58,7 +58,7 @@ const Login = () => {
             <LogIn className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-3xl font-bold text-[#00712D] mb-2">
-            Welcome Back
+            Sign in to Continue
           </h2>
           <p className="text-gray-600">
             Sign in to your Endesha360 account
