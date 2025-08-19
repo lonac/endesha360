@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogOut, User, Car } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Button from './Button';
+import Modal from './Modal';
+import SelectRole from '../pages/SelectRole';
 
 const Header = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -97,7 +100,7 @@ const Header = () => {
               <Button 
                 variant="primary" 
                 size="sm" 
-                onClick={() => navigate('/register')}
+                onClick={() => setIsRoleModalOpen(true)}
               >
                 Get Started
               </Button>
@@ -105,6 +108,9 @@ const Header = () => {
           )}
         </div>
       </div>
+      <Modal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)}>
+        <SelectRole />
+      </Modal>
     </header>
   );
 };

@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Car, Users, BookOpen, BarChart3, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
+import Modal from '../components/Modal';
+import SelectRole from './SelectRole';
 
 const Home = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 
   const features = [
     {
@@ -66,18 +69,13 @@ const Home = () => {
                 </Button>
               ) : (
                 <>
-                  <Link
-                    to="/register?role=owner"
+                  <Button
+                    onClick={() => setIsRoleModalOpen(true)}
                     className="bg-[#FF9100] text-white hover:bg-[#e6820e] text-lg px-8 py-4 rounded font-semibold shadow-md transition-colors flex items-center justify-center"
                   >
-                    Manage Your Driving School
-                  </Link>
-                  <Link
-                    to="/register?role=student"
-                    className="border-2 border-[#D5ED9F] text-[#D5ED9F] hover:bg-[#D5ED9F] hover:text-[#00712D] text-lg px-8 py-4 rounded font-semibold shadow-md transition-colors flex items-center justify-center"
-                  >
-                    Book Driving Lessons
-                  </Link>
+                    Get Started Now
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
                 </>
               )}
             </div>
@@ -185,7 +183,7 @@ const Home = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg" 
-                onClick={() => navigate('/register')}
+                onClick={() => setIsRoleModalOpen(true)}
                 className="bg-[#FF9100] text-white hover:bg-[#e6820e] text-lg px-8 py-4"
               >
                 Start Free Trial
@@ -203,6 +201,9 @@ const Home = () => {
           )}
         </div>
       </section>
+      <Modal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)}>
+        <SelectRole />
+      </Modal>
     </div>
   );
 };

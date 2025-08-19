@@ -96,9 +96,9 @@ const Dashboard = () => {
       title: 'Add Students',
       description: 'Enroll new students to your driving school',
       icon: Users,
-      action: () => {},
+      action: () => navigate('/add-student'),
       variant: 'secondary',
-      disabled: true
+      comingSoon: true
     },
     {
       title: 'Create Courses',

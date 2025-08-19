@@ -16,6 +16,7 @@ import Dashboard from './pages/Dashboard';
 import SchoolRegistration from './pages/SchoolRegistration';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import AddStudent from './pages/AddStudent';
 import SelectRole from './pages/SelectRole';
       <Route 
         path="/select-role" 
@@ -111,6 +112,16 @@ const AppContent = () => {
             </Layout>
           </ProtectedRoute>
         } 
+      />
+      <Route 
+        path="/add-student"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <AddStudent />
+            </Layout>
+          </ProtectedRoute>
+        }
       />
       
       {/* Catch all route */}
