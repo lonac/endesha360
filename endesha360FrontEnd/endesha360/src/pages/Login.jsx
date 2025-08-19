@@ -6,11 +6,14 @@ import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import Alert from '../components/Alert';
+import Modal from '../components/Modal';
+import SelectRole from './SelectRole';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -150,7 +153,7 @@ const Login = () => {
               <button
                 type="button"
                 className="font-medium text-[#00712D] hover:underline focus:outline-none bg-transparent"
-                onClick={() => navigate('/select-role')}
+                onClick={() => setIsRoleModalOpen(true)}
               >
                 Sign up here
               </button>
@@ -194,6 +197,11 @@ const Login = () => {
           </p>
         </div>
       </div>
+
+      {/* Modal for Role Selection */}
+      <Modal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)}>
+        <SelectRole />
+      </Modal>
     </div>
   );
 };

@@ -30,7 +30,7 @@ const SelectRole = () => {
           onClick={() => navigate('/register?role=student')}
         >
           <User className="mr-2 h-5 w-5" />
-          Book Driving Lessons
+          Continue as a Student
         </Button>
       </div>
     </div>
