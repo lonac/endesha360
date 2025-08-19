@@ -120,7 +120,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-[#00712D]">
-                Welcome back, {user?.firstName}! 👋
+                Welcome, {user?.firstName}! 👋
               </h1>
               <p className="text-gray-600 mt-1">
                 Here's what's happening with your driving school today
