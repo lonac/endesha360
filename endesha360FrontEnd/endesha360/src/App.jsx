@@ -16,6 +16,13 @@ import Dashboard from './pages/Dashboard';
 import SchoolRegistration from './pages/SchoolRegistration';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import SelectRole from './pages/SelectRole';
+      <Route 
+        path="/select-role" 
+        element={
+          <SelectRole />
+        } 
+      />
 
 // Layout wrapper component
 const Layout = ({ children }) => (

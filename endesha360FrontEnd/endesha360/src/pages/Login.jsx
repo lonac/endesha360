@@ -147,12 +147,13 @@ const Login = () => {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Don't have an account?{' '}
-              <Link 
-                to="/register" 
-                className="font-medium text-[#00712D] hover:underline"
+              <button
+                type="button"
+                className="font-medium text-[#00712D] hover:underline focus:outline-none bg-transparent"
+                onClick={() => navigate('/select-role')}
               >
-                Register as School Owner
-              </Link>
+                Sign up here
+              </button>
             </p>
           </div>
         </div>

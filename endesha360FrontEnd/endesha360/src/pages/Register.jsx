@@ -37,7 +37,8 @@ const Register = () => {
     try {
       // Generate username from email if not provided
       const username = data.email.split('@')[0];
-      const userData = {
+
+      let userData = {
         username: username,
         firstName: data.firstName,
         lastName: data.lastName,
@@ -47,6 +48,7 @@ const Register = () => {
       };
 
       if (role === 'student') {
+        userData.tenantCode = 'PLATFORM';
         await registerStudent(userData);
         setSuccess('Student registration successful! You can now login and book your driving lessons.');
       } else {
