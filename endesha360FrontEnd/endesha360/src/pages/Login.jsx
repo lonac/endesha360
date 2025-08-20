@@ -38,6 +38,8 @@ const Login = () => {
       // Check user role and redirect accordingly
       if (response.user.roles?.includes('SCHOOL_OWNER')) {
         navigate('/dashboard');
+      } else if (response.user.roles?.includes('STUDENT')) {
+        navigate('/student-dashboard');
       } else {
         navigate('/dashboard');
       }

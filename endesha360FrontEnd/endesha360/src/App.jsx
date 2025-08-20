@@ -13,6 +13,8 @@ import Home from './pages/Home';
 import RegisterRoute from './routes/RegisterRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import StudentDashboard from './pages/StudentDashboard';
+import StudentProtectedRoute from './components/StudentProtectedRoute';
 import SchoolRegistration from './pages/SchoolRegistration';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
@@ -95,6 +97,16 @@ const AppContent = () => {
             </Layout>
           </ProtectedRoute>
         } 
+      />
+      <Route
+        path="/student-dashboard"
+        element={
+          <StudentProtectedRoute>
+            <Layout>
+              <StudentDashboard />
+            </Layout>
+          </StudentProtectedRoute>
+        }
       />
       <Route 
         path="/school-registration" 

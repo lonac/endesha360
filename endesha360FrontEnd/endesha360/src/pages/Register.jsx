@@ -80,10 +80,14 @@ const Register = () => {
         setSuccess('School owner registration successful! You can now login to manage your driving school.');
       }
 
-      // Redirect to login after success, unless school owner is adding a student
+      // Redirect to dashboard after success, unless school owner is adding a student
       if (!(mode === 'add' && user && user.roles && user.roles.includes('SCHOOL_OWNER'))) {
         setTimeout(() => {
-          navigate('/login');
+          if (role === 'student') {
+            navigate('/student-dashboard');
+          } else {
+            navigate('/login');
+          }
         }, 3000);
       }
     } catch (err) {
