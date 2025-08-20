@@ -36,12 +36,24 @@ const Login = () => {
       });
       
       // Check user role and redirect accordingly
-      if (response.user.roles?.includes('SCHOOL_OWNER')) {
-        navigate('/dashboard');
-      } else if (response.user.roles?.includes('STUDENT')) {
-        navigate('/student-dashboard');
+      console.log('User object after login:', response.user);
+      if (Array.isArray(response.user.roles)) {
+        if (response.user.roles.includes('SCHOOL_OWNER')) {
+          navigate('/dashboard');
+        } else if (response.user.roles.includes('STUDENT')) {
+          navigate('/student-dashboard');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
-        navigate('/dashboard');
+        // fallback: try to handle string or missing roles
+        if (response.user.role === 'SCHOOL_OWNER') {
+          navigate('/dashboard');
+        } else if (response.user.role === 'STUDENT') {
+          navigate('/student-dashboard');
+        } else {
+          navigate('/dashboard');
+        }
       }
       
     } catch (err) {
