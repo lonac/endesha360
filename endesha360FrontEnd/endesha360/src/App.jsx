@@ -6,6 +6,7 @@ import { AdminProvider, useAdmin } from './context/AdminContext';
 // Components
 import Header from './components/Header';
 import ProtectedRoute from './components/ProtectedRoute';
+import SchoolOwnerProtectedRoute from './components/SchoolOwnerProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 
 // Pages
@@ -91,11 +92,11 @@ const AppContent = () => {
       <Route 
         path="/dashboard" 
         element={
-          <ProtectedRoute>
+          <SchoolOwnerProtectedRoute>
             <Layout>
               <Dashboard />
             </Layout>
-          </ProtectedRoute>
+          </SchoolOwnerProtectedRoute>
         } 
       />
       <Route
