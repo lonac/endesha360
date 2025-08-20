@@ -1,31 +1,97 @@
 import React from 'react';
-import StudentStats from '../components/student/StudentStats';
-import StudentProgressChart from '../components/student/StudentProgressChart';
-import UpcomingSessions from '../components/student/UpcomingSessions';
-import InstructorCard from '../components/student/InstructorCard';
-import Notifications from '../components/student/Notifications';
-import PaymentsCard from '../components/student/PaymentsCard';
-import FeedbackBox from '../components/student/FeedbackBox';
+import { FaUser, FaBook, FaCalendarAlt, FaFileAlt, FaMoneyCheckAlt, FaChartBar, FaComments, FaBell, FaCarCrash } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
+
+const cards = [
+  {
+    title: 'My Profile',
+    description: 'View and update your details',
+    icon: <FaUser className="text-4xl text-[#00712D]" />,
+    link: '#',
+  },
+  {
+    title: 'Enroll in Course',
+    description: 'Browse and join driving courses',
+    icon: <FaBook className="text-4xl text-[#FF9100]" />,
+    link: '#',
+  },
+  {
+    title: 'Schedule',
+    description: 'Check upcoming driving sessions',
+    icon: <FaCalendarAlt className="text-4xl text-[#005a24]" />,
+    link: '#',
+  },
+  {
+    title: 'Mock Tests',
+    description: 'Practice for your official exam',
+    icon: <FaFileAlt className="text-4xl text-[#00712D]" />,
+    link: '#',
+  },
+  {
+    title: 'Payments',
+    description: 'Pay fees and download receipts',
+    icon: <FaMoneyCheckAlt className="text-4xl text-[#FF9100]" />,
+    link: '#',
+  },
+  {
+    title: 'Results & Progress',
+    description: 'Track test scores and progress',
+    icon: <FaChartBar className="text-4xl text-[#005a24]" />,
+    link: '#',
+  },
+  {
+    title: 'Messages',
+    description: 'Chat with your instructor',
+    icon: <FaComments className="text-4xl text-[#00712D]" />,
+    link: '#',
+  },
+  {
+    title: 'Notifications',
+    description: 'Stay updated on changes',
+    icon: <FaBell className="text-4xl text-[#FF9100]" />,
+    link: '#',
+  },
+  {
+    title: 'Report Issues',
+    description: 'Submit training or vehicle issues',
+    icon: <FaCarCrash className="text-4xl text-[#005a24]" />,
+    link: '#',
+  },
+];
 
 const StudentDashboard = () => {
+  const { user } = useAuth();
+  const studentName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Student';
   return (
-    <div className="min-h-screen bg-[#FFFBE6] py-8 px-2 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Stats */}
-        <StudentStats />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            <StudentProgressChart />
-            <UpcomingSessions />
-            <FeedbackBox />
-          </div>
-          {/* Sidebar */}
-          <div className="space-y-8">
-            <InstructorCard />
-            <PaymentsCard />
-            <Notifications />
-          </div>
+    <div className="min-h-screen bg-[#F1F6F9] py-8 px-2 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#00712D] mb-2">
+            Welcome, {studentName} <span className="inline-block">👋</span>
+          </h2>
+          <p className="text-gray-600">Here's what's happening with your driving school today.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {cards.map((card, idx) => (
+            <div
+              key={idx}
+              className="bg-white border border-[#D5ED9F] rounded-xl shadow-sm p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-200"
+            >
+              <div className="flex items-center mb-4">
+                {card.icon}
+                <div className="ml-4">
+                  <h3 className="text-lg font-semibold text-[#14274E]">{card.title}</h3>
+                  <p className="text-gray-500 text-sm">{card.description}</p>
+                </div>
+              </div>
+              <button
+                className="mt-4 w-20 py-2 bg-[#FF9100] text-white rounded-lg font-semibold hover:bg-[#e6820e] transition-all"
+                onClick={() => card.link !== '#' && window.location.assign(card.link)}
+              >
+                Go
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     </div>
