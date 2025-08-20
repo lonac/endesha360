@@ -7,11 +7,21 @@ const SchoolOwnerProtectedRoute = ({ children }) => {
 
   if (loading) return null;
 
-  if (!isAuthenticated || !(user?.roles?.includes('SCHOOL_OWNER'))) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  return children;
+  if (user?.roles?.includes('SCHOOL_OWNER')) {
+    return children;
+  }
+
+  // If authenticated but not a school owner, redirect based on role
+  if (user?.roles?.includes('STUDENT')) {
+    return <Navigate to="/student-dashboard" replace />;
+  }
+
+  // Default fallback: redirect to login
+  return <Navigate to="/login" replace />;
 };
 
 export default SchoolOwnerProtectedRoute;
