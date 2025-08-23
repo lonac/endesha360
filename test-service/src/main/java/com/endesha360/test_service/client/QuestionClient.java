@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "question-service")
+@FeignClient(name = "questions-service", configuration = com.endesha360.test_service.config.FeignConfig.class)
 public interface QuestionClient {
 
     @GetMapping("/api/internal/questions/pool")

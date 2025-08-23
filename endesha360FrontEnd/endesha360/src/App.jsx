@@ -15,6 +15,7 @@ import RegisterRoute from './routes/RegisterRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import StudentDashboard from './pages/StudentDashboard';
+import ExamPage from './pages/ExamPage';
 import StudentProtectedRoute from './components/StudentProtectedRoute';
 import SchoolRegistration from './pages/SchoolRegistration';
 import AdminLogin from './pages/AdminLogin';
@@ -105,6 +106,16 @@ const AppContent = () => {
           <StudentProtectedRoute>
             <Layout>
               <StudentDashboard />
+            </Layout>
+          </StudentProtectedRoute>
+        }
+      />
+      <Route
+        path="/exam"
+        element={
+          <StudentProtectedRoute>
+            <Layout>
+              <ExamPage />
             </Layout>
           </StudentProtectedRoute>
         }

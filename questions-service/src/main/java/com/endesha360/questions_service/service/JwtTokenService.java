@@ -1,4 +1,4 @@
-package com.endesha360.UserManagementService.service;
+package com.endesha360.questions_service.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -14,14 +14,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @Service
 public class JwtTokenService {
-
-    private static final Logger logger = LoggerFactory.getLogger(JwtTokenService.class);
-
     @Value("${app.jwt.secret:mySecretKey}")
     private String jwtSecret;
 
@@ -29,35 +23,10 @@ public class JwtTokenService {
     private int jwtExpirationInMs;
 
     private SecretKey getSigningKey() {
-        logger.debug("Using JWT secret: {}", jwtSecret);
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    public String generateToken(String username, Long userId, String tenantCode, Set<String> roles, Set<String> permissions) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId);
-        claims.put("tenantCode", tenantCode);
-        claims.put("roles", roles);
-        claims.put("permissions", permissions);
-
-        return createToken(claims, username);
-    }
-
-    private String createToken(Map<String, Object> claims, String subject) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs * 1000L);
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
-                .compact();
-    }
-
     public String getUsernameFromToken(String token) {
-        logger.debug("Extracting username from token: {}", token);
         return getClaimFromToken(token, Claims::getSubject);
     }
 
@@ -103,12 +72,10 @@ public class JwtTokenService {
 
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaimsFromToken(token);
-        logger.debug("Claims extracted from token: {}", claims);
         return claimsResolver.apply(claims);
     }
 
     private Claims getAllClaimsFromToken(String token) {
-        logger.debug("Parsing all claims from token: {}", token);
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
@@ -118,19 +85,11 @@ public class JwtTokenService {
 
     public Boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
-        boolean expired = expiration.before(new Date());
-        logger.debug("Token expiration: {}, isExpired: {}", expiration, expired);
-        return expired;
+        return expiration.before(new Date());
     }
 
     public Boolean validateToken(String token, String username) {
         final String tokenUsername = getUsernameFromToken(token);
-        boolean valid = (tokenUsername.equals(username) && !isTokenExpired(token));
-        logger.debug("Validating token: {} for username: {}. Token username: {}. Valid: {}", token, username, tokenUsername, valid);
-        return valid;
-    }
-
-    public Long getExpirationTime() {
-        return (long) jwtExpirationInMs;
+        return (tokenUsername.equals(username) && !isTokenExpired(token));
     }
 }

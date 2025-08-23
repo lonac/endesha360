@@ -24,8 +24,8 @@ const cards = [
   {
     title: 'Mock Tests',
     description: 'Practice for your official exam',
-    icon: <FaFileAlt className="text-4xl text-[#00712D]" />,
-    link: '#',
+    icon: <FaFileAlt className="text-4xl text-[#00712D]" />, 
+    link: '/exam',
   },
   {
     title: 'Payments',

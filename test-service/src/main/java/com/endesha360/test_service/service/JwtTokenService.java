@@ -1,4 +1,4 @@
-package com.endesha360.UserManagementService.service;
+package com.endesha360.test_service.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 @Service
 public class JwtTokenService {
-
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenService.class);
 
     @Value("${app.jwt.secret:mySecretKey}")
@@ -39,14 +38,12 @@ public class JwtTokenService {
         claims.put("tenantCode", tenantCode);
         claims.put("roles", roles);
         claims.put("permissions", permissions);
-
         return createToken(claims, username);
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs * 1000L);
-
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)

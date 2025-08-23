@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 
 const StudentProtectedRoute = ({ children }) => {
   const { user, isAuthenticated, loading } = useAuth();
+  // Debug log for troubleshooting
+  console.log('[StudentProtectedRoute]', { user, isAuthenticated, loading });
 
   if (loading) return null;
 
