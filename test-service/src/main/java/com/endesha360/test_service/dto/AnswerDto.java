@@ -3,7 +3,7 @@ package com.endesha360.test_service.dto;
 import lombok.Data;
 
 @Data
-public class AnswerSubmission {
+public class AnswerDto {
     private Long questionId;
-    private String studentAnswer;
+    private String selectedOption;
 }

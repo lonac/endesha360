@@ -1,39 +1,33 @@
 package com.endesha360.test_service.controller;
 
-import com.endesha360.test_service.dto.AnswerSubmission;
-import com.endesha360.test_service.dto.TestRequest;
-import com.endesha360.test_service.model.Test;
+import com.endesha360.test_service.dto.*;
 import com.endesha360.test_service.service.TestService;
-import lombok.RequiredArgsConstructor;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/api/tests")
-@RequiredArgsConstructor
+@RequestMapping("/api/exams")
 public class TestController {
 
-    private final TestService mockTestService;
+    @Autowired private TestService testService;
 
-    @PostMapping
-    public Test createTest(@RequestBody TestRequest request) {
-        return mockTestService.createTest(request);
+    @PostMapping("/start")
+    public StartTestResponse start(@Valid @RequestBody StartTestRequest req, HttpServletRequest http) {
+        return testService.startExam(req, http.getRemoteAddr(), http.getHeader("User-Agent"));
     }
 
-    @PostMapping("/{testId}/submit")
-    public Test submitAnswers(@PathVariable Long testId, @RequestBody List<AnswerSubmission> submissions) {
-        return mockTestService.submitAnswers(testId, submissions);
+    @PostMapping("/{attemptId}/submit")
+    public SubmitTestResponse submit(@PathVariable String attemptId,
+                                     @RequestBody SubmitTestRequest req,
+                                     HttpServletRequest http) {
+        return testService.submit(attemptId, req, http.getRemoteAddr());
     }
 
-    @GetMapping("/student/{studentId}")
-    public List<Test> getTestsByStudent(@PathVariable Long studentId) {
-        return mockTestService.getTestsByStudent(studentId);
-    }
-
-    @GetMapping("/{testId}")
-    public Test getTest(@PathVariable Long testId) {
-        return mockTestService.getTest(testId);
+    // type: TAB_SWITCH | FOCUS_LOSS | FULLSCREEN_EXIT
+    @PostMapping("/{attemptId}/event/{type}")
+    public void event(@PathVariable String attemptId, @PathVariable String type) {
+        testService.recordEvent(attemptId, type);
     }
 }
-
