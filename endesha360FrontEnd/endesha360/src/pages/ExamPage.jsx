@@ -28,7 +28,7 @@ export default function ExamPage() {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify({ studentId: user.id, count: 40, durationSeconds: 2400 })
+  body: JSON.stringify({ studentId: user.id, count: 5, durationSeconds: 60, categoryId: 1 })
     });
     if (!res.ok) {
       throw new Error(`Failed to start exam: ${res.status}`);

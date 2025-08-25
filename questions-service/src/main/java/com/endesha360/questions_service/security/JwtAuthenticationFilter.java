@@ -26,7 +26,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = getTokenFromRequest(request);
+    String token = getTokenFromRequest(request);
+    System.out.println("Received JWT in questions-service: " + token);
         if (StringUtils.hasText(token)) {
             try {
                 if (jwtTokenService.validateToken(token, jwtTokenService.getUsernameFromToken(token))) {
