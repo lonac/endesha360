@@ -81,17 +81,18 @@ export default function ExamPage() {
   useEffect(() => {
     if (!attempt) return;
     const t = setInterval(() => {
-      setSecondsLeft((s) => {
-        if (s <= 1) {
-          clearInterval(t);
-          submitExam(); // auto-submit
-          return 0;
-        }
-        return s - 1;
-      });
+      setSecondsLeft((s) => (s <= 1 ? 0 : s - 1));
     }, 1000);
     return () => clearInterval(t);
   }, [attempt]);
+
+  // Auto-submit when timer reaches 0
+  useEffect(() => {
+    if (!attempt) return;
+    if (secondsLeft === 0) {
+      submitExam();
+    }
+  }, [secondsLeft, attempt]);
 
   const submitExam = async () => {
     if (!attempt) return;
@@ -187,23 +188,36 @@ export default function ExamPage() {
           </button>
         </div>
         <Modal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)}>
-          {console.log('categories in modal:', categories)}
-          <div className="mb-4">
-            <h2 className="text-xl font-bold mb-2 text-[var(--primary-dark)]">Select Exam Category</h2>
-            <p className="text-gray-600 mb-4">Choose a category to start your exam.</p>
-            <CategorySelect
-              categories={categories}
-              value={selectedCategory}
-              onChange={setSelectedCategory}
-            />
+          <div className="text-center p-2 min-w-[320px]">
+            <h2 className="text-2xl font-bold text-[#00712D] mb-2">Select Exam Category</h2>
+            <p className="text-base text-gray-700 mb-5">Choose a category to start your exam.</p>
+            <div className="grid grid-cols-2 gap-2 mb-5">
+              {categories.length === 0 && (
+                <div className="col-span-2 text-gray-500">No categories available.</div>
+              )}
+              {categories.map(cat => (
+                <button
+                  key={cat.id}
+                  className={`flex items-center justify-center px-2 py-2 rounded-lg text-sm font-semibold border-2 transition-colors duration-150
+                    ${selectedCategory === String(cat.id)
+                      ? 'bg-[#FF9100] border-[#FF9100] text-white shadow'
+                      : 'bg-white border-[#D5ED9F] text-[#00712D] hover:bg-[#FF9100]/90 hover:text-white'}
+                  `}
+                  style={{ boxShadow: selectedCategory === String(cat.id) ? '0 2px 8px 0 #FF910055' : undefined }}
+                  onClick={() => setSelectedCategory(String(cat.id))}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={startExam}
+              className="w-full px-4 py-2 rounded-lg bg-[#00712D] text-white font-bold text-base mt-2 shadow-md hover:bg-[#005a24] disabled:opacity-60 transition-colors"
+              disabled={!selectedCategory}
+            >
+              Start Exam
+            </button>
           </div>
-          <button
-            onClick={startExam}
-            className="w-full px-4 py-2 rounded-lg bg-[var(--accent)] text-white font-semibold mt-2 disabled:opacity-60"
-            disabled={!selectedCategory}
-          >
-            Start Exam
-          </button>
         </Modal>
       </div>
     );
