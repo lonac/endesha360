@@ -17,7 +17,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-[#D5ED9F]">
+    <header className="bg-white shadow-sm border-b border-[#D5ED9F] fixed top-0 left-0 w-full z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -29,45 +29,6 @@ const Header = () => {
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            {isAuthenticated ? (
-              <>
-                <Link 
-                  to="/dashboard" 
-                  className="text-[#00712D] hover:text-[#FF9100] font-medium transition-colors"
-                >
-                  Dashboard
-                </Link>
-                <Link 
-                  to="/school-registration" 
-                  className="text-[#00712D] hover:text-[#FF9100] font-medium transition-colors"
-                >
-                  Register School
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link 
-                  to="/login" 
-                  className="text-[#00712D] hover:text-[#FF9100] font-medium transition-colors"
-                >
-                  Login
-                </Link>
-                <Link 
-                  to="/register" 
-                  className="text-[#00712D] hover:text-[#FF9100] font-medium transition-colors"
-                >
-                  Register
-                </Link>
-                <Link 
-                  to="/admin/login" 
-                  className="text-[#00712D] hover:text-[#FF9100] font-medium transition-colors text-sm"
-                >
-                  Admin Portal
-                </Link>
-              </>
-            )}
-          </nav>
 
           {/* User Menu */}
           {isAuthenticated ? (

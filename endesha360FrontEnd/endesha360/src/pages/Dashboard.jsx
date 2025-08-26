@@ -116,7 +116,7 @@ const Dashboard = () => {
   console.log("Dashboard user:", user, "role:", user.role, "roles:", user.roles);
 
   return (
-    <div className="min-h-screen bg-[#FFFBE6]">
+  <div className="min-h-screen bg-[#FFFBE6] pt-16">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-[#D5ED9F]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

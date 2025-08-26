@@ -175,15 +175,15 @@ export default function ExamPage() {
 
   if (!attempt) {
     return (
-      <div className="p-6 bg-[var(--background)] min-h-screen">
-        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow p-8">
-          <h1 className="text-2xl font-bold text-[var(--primary-dark)] mb-4">Mock Exam</h1>
-          <p className="text-gray-700 mb-6">
-            40 MCQs • 40 minutes • Exam mode (no feedback) • Randomized questions & options.
+      <div className="bg-[var(--background)] min-h-screen flex items-center justify-center">
+        <div className="w-full max-w-xl bg-white rounded-2xl shadow p-10 flex flex-col items-center text-center">
+          <h1 className="text-3xl font-extrabold text-[#00712D] mb-4">Ready for Your Mock Exam?</h1>
+          <p className="text-gray-700 mb-8 text-lg">
+            Challenge yourself with a real exam experience! Answer 40 randomized questions in 40 minutes, test your knowledge, and see how you rank. No feedback until the end—just like the real thing. Good luck!
           </p>
           <button
             onClick={() => setIsCategoryModalOpen(true)}
-            className="px-6 py-3 rounded-xl bg-[var(--accent)] text-white font-semibold hover:opacity-90">
+            className="px-8 py-3 rounded-xl bg-[#FF9100] text-white font-bold text-lg shadow-md hover:bg-[#e6820e] transition-colors mb-2">
             Start Exam
           </button>
         </div>
@@ -224,7 +224,7 @@ export default function ExamPage() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 p-6 bg-[var(--background)] min-h-screen">
+  <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 p-6 bg-[var(--background)] min-h-screen pt-20">
       {/* Main sheet */}
       <div className="bg-white rounded-2xl shadow p-6">
         <div className="flex items-center justify-between mb-4">

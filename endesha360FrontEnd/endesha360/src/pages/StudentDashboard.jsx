@@ -63,7 +63,7 @@ const StudentDashboard = () => {
   const { user } = useAuth();
   const studentName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Student';
   return (
-    <div className="min-h-screen bg-[#F1F6F9] py-8 px-2 sm:px-6 lg:px-8">
+  <div className="min-h-screen bg-[#FFFBE6] py-8 px-2 sm:px-6 lg:px-8 pt-18">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h2 className="text-2xl md:text-3xl font-bold text-[#00712D] mb-2">
@@ -80,7 +80,7 @@ const StudentDashboard = () => {
               <div className="flex items-center mb-4">
                 {card.icon}
                 <div className="ml-4">
-                  <h3 className="text-lg font-semibold text-[#14274E]">{card.title}</h3>
+                  <h3 className="text-lg font-semibold text-[#00712D]">{card.title}</h3>
                   <p className="text-gray-500 text-sm">{card.description}</p>
                 </div>
               </div>
