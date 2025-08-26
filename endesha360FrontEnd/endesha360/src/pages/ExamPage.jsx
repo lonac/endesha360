@@ -1,5 +1,5 @@
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { useAuth } from '../context/AuthContext';
@@ -17,6 +17,8 @@ export default function ExamPage() {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const questionRefs = useRef([]);
 
   // Fetch categories when modal opens
   useEffect(() => {
@@ -224,69 +226,92 @@ export default function ExamPage() {
   }
 
   return (
-  <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 p-6 bg-[var(--background)] min-h-screen pt-20">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 p-6 bg-[var(--background)] min-h-screen pt-20">
       {/* Main sheet */}
-      <div className="bg-white rounded-2xl shadow p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-[var(--primary-dark)]">Time Left: {mmss}</h2>
-          <button onClick={submitExam}
-            className="px-4 py-2 rounded-lg bg-[var(--primary-dark)] text-white hover:bg-green-800">
-            Submit
-          </button>
+      <div className="bg-white rounded-2xl shadow p-8 flex flex-col" style={{minHeight: '70vh'}}>
+        {/* Exam Title and Instructions */}
+        <div className="mb-6 text-center">
+          <h1 className="text-2xl md:text-3xl font-bold text-[#00712D] mb-2">
+            {attempt.categoryName ? `${attempt.categoryName} Exam` : 'Mock Exam'}
+          </h1>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-2 mb-2">
+            <span className="inline-block text-lg font-bold text-[#00712D] bg-[#D5ED9F]/60 px-4 py-1 rounded-full">
+              Time Left: {mmss}
+            </span>
+            <span className="text-gray-700 text-base md:text-lg">Read each question carefully and select the best answer. Submit before time runs out!</span>
+          </div>
+          <div className="text-sm text-gray-500 mb-2">You have {attempt.questions.length} questions and {Math.floor(secondsLeft/60)} minutes.</div>
         </div>
 
-        {attempt.questions.map((q) => (
-          <div key={q.questionId} className="border-b border-[var(--primary-light)] py-4">
-            <div className="flex items-start gap-3">
-              <button
-                onClick={() => {
-                  const next = new Set(flags);
-                  next.has(q.questionId) ? next.delete(q.questionId) : next.add(q.questionId);
-                  setFlags(next);
-                }}
-                className={`px-2 py-1 rounded text-xs font-semibold 
-                  ${flags.has(q.questionId) ? 'bg-yellow-400 text-black' : 'bg-gray-200 text-gray-800'}`}>
-                {flags.has(q.questionId) ? 'Flagged' : 'Flag for review'}
-              </button>
-              <p className="text-gray-800">{q.index + 1}. {q.questionText}</p>
+        {/* Questions */}
+        <div className="flex-1">
+          {attempt.questions.map((q, idx) => (
+            <div
+              key={q.questionId}
+              ref={el => questionRefs.current[idx] = el}
+              className={`border-b border-[var(--primary-light)] py-6 ${currentQuestion === idx ? 'bg-[#FFFBE6]/60' : ''}`}
+              id={`question-${idx}`}
+            >
+              <div className="mb-2">
+                <p className="text-gray-800 text-lg md:text-xl font-medium">{idx + 1}. {q.questionText}</p>
+              </div>
+              <div className="mt-3 grid gap-3">
+                {q.options.map(opt => (
+                  <label key={opt} className="flex items-center gap-3 cursor-pointer text-base md:text-lg">
+                    <input
+                      type="radio"
+                      name={`q-${q.questionId}`}
+                      checked={answers[q.questionId] === opt}
+                      onChange={() => setAnswers(a => ({ ...a, [q.questionId]: opt }))}
+                      onFocus={() => setCurrentQuestion(idx)}
+                    />
+                    <span>{opt}</span>
+                  </label>
+                ))}
+              </div>
             </div>
+          ))}
+        </div>
 
-            <div className="mt-3 grid gap-2">
-              {q.options.map(opt => (
-                <label key={opt} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name={`q-${q.questionId}`}
-                    checked={answers[q.questionId] === opt}
-                    onChange={() => setAnswers(a => ({ ...a, [q.questionId]: opt }))}
-                  />
-                  <span>{opt}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        ))}
+        {/* Submit Button at Bottom */}
+        <div className="mt-8 flex justify-center">
+          <button onClick={submitExam}
+            className="px-8 py-3 rounded-xl bg-[#00712D] text-white font-bold text-lg shadow-md hover:bg-green-800 transition-colors">
+            Submit Exam
+          </button>
+        </div>
       </div>
 
       {/* Palette & meta */}
       <div className="bg-white rounded-2xl shadow p-6 h-fit sticky top-6">
         <h3 className="text-lg font-semibold text-[var(--primary-dark)] mb-3">Question Palette</h3>
-        <div className="grid grid-cols-6 gap-2">
+        <div className="grid grid-cols-5 gap-2 mb-4">
           {attempt.questions.map((q, i) => {
             const answered = !!answers[q.questionId];
             const flagged = flags.has(q.questionId);
             return (
-              <div key={q.questionId}
-                className={`w-10 h-10 rounded grid place-items-center text-sm font-semibold
+              <button
+                key={q.questionId}
+                className={`w-10 h-10 rounded grid place-items-center text-base font-semibold border-2 transition-colors
+                  ${currentQuestion === i ? 'border-[#FF9100] ring-2 ring-[#FF9100]' : 'border-gray-200'}
                   ${flagged ? 'bg-yellow-300' :
                     answered ? 'bg-[var(--primary-light)] text-[var(--primary-dark)]' :
-                    'bg-gray-200 text-gray-700'}`}>
-                {i+1}
-              </div>
+                    'bg-gray-200 text-gray-700'}`}
+                onClick={() => {
+                  setCurrentQuestion(i);
+                  questionRefs.current[i]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }}
+                aria-label={`Go to question ${i+1}`}
+              >
+                {answered ? (
+                  <span className="inline-block align-middle">
+                    <svg className="inline w-5 h-5 text-[#00712D]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  </span>
+                ) : i+1}
+              </button>
             );
           })}
         </div>
-
         <div className="mt-6 text-sm text-gray-600">
           <p>Answered: {Object.keys(answers).length} / {attempt.questions.length}</p>
           <p>Flagged: {flags.size}</p>
