@@ -1,19 +1,51 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { useAuth } from '../context/AuthContext';
+import Modal from '../components/Modal';
+import CategorySelect from './CategorySelect';
+
 
 export default function ExamPage() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [attempt, setAttempt] = useState(null); // {attemptId, endsAt, questions[]}
   const [answers, setAnswers] = useState({});   // {questionId: selectedOption}
   const [flags, setFlags] = useState(new Set());
   const [secondsLeft, setSecondsLeft] = useState(0);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  // Fetch categories when modal opens
+  useEffect(() => {
+    if (!isCategoryModalOpen) return;
+    const token = localStorage.getItem('token');
+    console.log('[ExamPage] token for categories:', token);
+    fetch("/questions-service/api/categories", {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
+      .then(res => {
+        console.log('[ExamPage] categories fetch status:', res.status);
+        if (!res.ok) throw new Error('Failed to fetch categories: ' + res.status);
+        return res.json();
+      })
+      .then(data => {
+        console.log('[ExamPage] categories fetch data:', data);
+        Array.isArray(data) ? setCategories(data) : setCategories([]);
+      })
+      .catch(err => {
+        console.error('[ExamPage] categories fetch error:', err);
+        setCategories([]);
+      });
+  }, [isCategoryModalOpen]);
 
   // Start exam once student clicks "Start"
   const startExam = async () => {
     const token = localStorage.getItem('token');
-    console.log('[ExamPage] user:', user);
-    console.log('[ExamPage] token:', token);
     if (!user || !user.id) {
       alert('User not found. Please log in again.');
       return;
@@ -22,13 +54,17 @@ export default function ExamPage() {
       alert('Authentication token missing. Please log in again.');
       return;
     }
+    if (!selectedCategory) {
+      alert('Please select a category.');
+      return;
+    }
     const res = await fetch("/api/exams/start", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-  body: JSON.stringify({ studentId: user.id, count: 5, durationSeconds: 60, categoryId: 1 })
+      body: JSON.stringify({ studentId: user.id, count: 5, durationSeconds: 60, categoryId: Number(selectedCategory) })
     });
     if (!res.ok) {
       throw new Error(`Failed to start exam: ${res.status}`);
@@ -38,6 +74,7 @@ export default function ExamPage() {
     const end = dayjs(data.endsAt);
     setSecondsLeft(end.diff(dayjs(), "second"));
     requestFullscreen();
+    setIsCategoryModalOpen(false);
   };
 
   // Timer + auto-submit
@@ -78,10 +115,9 @@ export default function ExamPage() {
       alert(`Failed to submit exam: ${res.status}`);
       return;
     }
-    const data = await res.json();
-    alert(`Score: ${data.score}/${data.totalQuestions} (${data.percentage.toFixed(1)}%)`);
-    document.exitFullscreen?.();
-    // Navigate to results page if you have one
+  const data = await res.json();
+  document.exitFullscreen?.();
+  navigate("/exam-result", { state: data });
   };
 
   // Proctoring events
@@ -144,11 +180,31 @@ export default function ExamPage() {
           <p className="text-gray-700 mb-6">
             40 MCQs • 40 minutes • Exam mode (no feedback) • Randomized questions & options.
           </p>
-          <button onClick={startExam}
+          <button
+            onClick={() => setIsCategoryModalOpen(true)}
             className="px-6 py-3 rounded-xl bg-[var(--accent)] text-white font-semibold hover:opacity-90">
             Start Exam
           </button>
         </div>
+        <Modal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)}>
+          {console.log('categories in modal:', categories)}
+          <div className="mb-4">
+            <h2 className="text-xl font-bold mb-2 text-[var(--primary-dark)]">Select Exam Category</h2>
+            <p className="text-gray-600 mb-4">Choose a category to start your exam.</p>
+            <CategorySelect
+              categories={categories}
+              value={selectedCategory}
+              onChange={setSelectedCategory}
+            />
+          </div>
+          <button
+            onClick={startExam}
+            className="w-full px-4 py-2 rounded-lg bg-[var(--accent)] text-white font-semibold mt-2 disabled:opacity-60"
+            disabled={!selectedCategory}
+          >
+            Start Exam
+          </button>
+        </Modal>
       </div>
     );
   }
