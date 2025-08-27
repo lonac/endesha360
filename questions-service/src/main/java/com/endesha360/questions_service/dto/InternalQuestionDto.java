@@ -15,4 +15,6 @@ public class InternalQuestionDto {
     private String imageUrl;
     private List<String> options;
     private String correctAnswer;
+    private Long levelId;
+    private String levelName;
 }

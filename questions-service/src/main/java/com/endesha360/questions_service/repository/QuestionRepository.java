@@ -10,4 +10,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     // Automatically generates: SELECT q FROM Question q WHERE q.questionCategory.id = :categoryId
     List<Question> findAllByQuestionCategoryId(Long categoryId);
 
+    // New: filter by both category and level
+    List<Question> findAllByQuestionCategoryIdAndQuestionLevelId(Long categoryId, Long levelId);
+
 }

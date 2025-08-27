@@ -30,9 +30,10 @@ public class TestService {
                 req.getStudentId(), List.of(TestAttempt.Status.CREATED, TestAttempt.Status.ACTIVE)
         ).ifPresent(a -> { throw new RuntimeException("Active attempt exists for this student"); });
 
+
         // Pull pool from question-service (INCLUDES answers; frontend never sees them)
         List<QuestionClient.QuestionInternalDto> pool =
-                questionClient.getPool(req.getCategoryId(), 500);
+                questionClient.getPool(req.getCategoryId(), req.getLevelId(), 500);
         if (pool.isEmpty()) throw new RuntimeException("Question pool is empty");
 
         // Randomize and pick requested count

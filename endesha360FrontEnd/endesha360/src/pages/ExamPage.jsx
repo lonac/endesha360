@@ -1,5 +1,6 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { fetchQuestionLevels } from '../api/levels';
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { useAuth } from '../context/AuthContext';
@@ -18,6 +19,10 @@ export default function ExamPage() {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  // Level selection modal state
+  const [isLevelModalOpen, setIsLevelModalOpen] = useState(false);
+  const [levels, setLevels] = useState([]);
+  const [selectedLevel, setSelectedLevel] = useState("");
   const questionRefs = useRef([]);
 
   // Fetch categories when modal opens
@@ -45,7 +50,7 @@ export default function ExamPage() {
       });
   }, [isCategoryModalOpen]);
 
-  // Start exam once student clicks "Start"
+  // Start exam after both category and level are selected
   const startExam = async () => {
     const token = localStorage.getItem('token');
     if (!user || !user.id) {
@@ -60,13 +65,17 @@ export default function ExamPage() {
       alert('Please select a category.');
       return;
     }
+    if (!selectedLevel) {
+      alert('Please select a level.');
+      return;
+    }
     const res = await fetch("/api/exams/start", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify({ studentId: user.id, count: 5, durationSeconds: 60, categoryId: Number(selectedCategory) })
+      body: JSON.stringify({ studentId: user.id, count: 5, durationSeconds: 60, categoryId: Number(selectedCategory), levelId: Number(selectedLevel) })
     });
     if (!res.ok) {
       throw new Error(`Failed to start exam: ${res.status}`);
@@ -77,6 +86,7 @@ export default function ExamPage() {
     setSecondsLeft(end.diff(dayjs(), "second"));
     requestFullscreen();
     setIsCategoryModalOpen(false);
+    setIsLevelModalOpen(false);
   };
 
   // Timer + auto-submit
@@ -184,11 +194,16 @@ export default function ExamPage() {
             Challenge yourself with a real exam experience! Answer 40 randomized questions in 40 minutes, test your knowledge, and see how you rank. No feedback until the end—just like the real thing. Good luck!
           </p>
           <button
-            onClick={() => setIsCategoryModalOpen(true)}
+            onClick={async () => {
+              setIsCategoryModalOpen(true);
+              setSelectedCategory("");
+              setSelectedLevel("");
+            }}
             className="px-8 py-3 rounded-xl bg-[#FF9100] text-white font-bold text-lg shadow-md hover:bg-[#e6820e] transition-colors mb-2">
             Start Exam
           </button>
         </div>
+        {/* Category Modal */}
         <Modal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)}>
           <div className="text-center p-2 min-w-[320px]">
             <h2 className="text-2xl font-bold text-[#00712D] mb-2">Select Exam Category</h2>
@@ -206,16 +221,53 @@ export default function ExamPage() {
                       : 'bg-white border-[#D5ED9F] text-[#00712D] hover:bg-[#FF9100]/90 hover:text-white'}
                   `}
                   style={{ boxShadow: selectedCategory === String(cat.id) ? '0 2px 8px 0 #FF910055' : undefined }}
-                  onClick={() => setSelectedCategory(String(cat.id))}
+                  onClick={async () => {
+                    setSelectedCategory(String(cat.id));
+                    // Fetch levels when category is selected
+                    try {
+                      const data = await fetchQuestionLevels();
+                      setLevels(data);
+                      setIsLevelModalOpen(true);
+                    } catch (err) {
+                      setLevels([]);
+                      setIsLevelModalOpen(true);
+                    }
+                  }}
                 >
                   {cat.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </Modal>
+        {/* Level Modal */}
+        <Modal isOpen={isLevelModalOpen} onClose={() => setIsLevelModalOpen(false)}>
+          <div className="text-center p-2 min-w-[320px]">
+            <h2 className="text-2xl font-bold text-[#00712D] mb-2">Select Exam Level</h2>
+            <p className="text-base text-gray-700 mb-5">Choose a level for your exam.</p>
+            <div className="grid grid-cols-2 gap-2 mb-5">
+              {levels.length === 0 && (
+                <div className="col-span-2 text-gray-500">No levels available.</div>
+              )}
+              {levels.map(level => (
+                <button
+                  key={level.id}
+                  className={`flex items-center justify-center px-2 py-2 rounded-lg text-sm font-semibold border-2 transition-colors duration-150
+                    ${selectedLevel === String(level.id)
+                      ? 'bg-[#FF9100] border-[#FF9100] text-white shadow'
+                      : 'bg-white border-[#D5ED9F] text-[#00712D] hover:bg-[#FF9100]/90 hover:text-white'}
+                  `}
+                  style={{ boxShadow: selectedLevel === String(level.id) ? '0 2px 8px 0 #FF910055' : undefined }}
+                  onClick={() => setSelectedLevel(String(level.id))}
+                >
+                  {level.name}
                 </button>
               ))}
             </div>
             <button
               onClick={startExam}
               className="w-full px-4 py-2 rounded-lg bg-[#00712D] text-white font-bold text-base mt-2 shadow-md hover:bg-[#005a24] disabled:opacity-60 transition-colors"
-              disabled={!selectedCategory}
+              disabled={!selectedLevel}
             >
               Start Exam
             </button>

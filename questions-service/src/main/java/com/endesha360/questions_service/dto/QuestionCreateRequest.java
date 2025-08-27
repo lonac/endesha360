@@ -12,6 +12,9 @@ public class QuestionCreateRequest {
     @NotNull
     private Long categoryId;
 
+    @NotNull
+    private Long levelId;
+
     @NotBlank
     private String questionText;
 

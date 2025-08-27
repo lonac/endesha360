@@ -29,4 +29,8 @@ public class Question {
 
     @NotBlank
     private String correctAnswer;
+
+    @ManyToOne
+    @JoinColumn(name = "level_id", nullable = false)
+    private QuestionLevel questionLevel;
 }

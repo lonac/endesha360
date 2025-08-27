@@ -12,6 +12,7 @@ public interface QuestionClient {
 
     @GetMapping("/api/internal/questions/pool")
     List<QuestionInternalDto> getPool(@RequestParam(required = false) Long categoryId,
+                                      @RequestParam(required = false) Long levelId,
                                       @RequestParam(defaultValue = "200") int limit);
 
     @Data

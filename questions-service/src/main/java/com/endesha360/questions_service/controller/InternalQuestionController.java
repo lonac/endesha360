@@ -15,7 +15,8 @@ public class InternalQuestionController {
 
     @GetMapping("/pool")
     public List<InternalQuestionDto> pool(@RequestParam(required = false) Long categoryId,
+                                          @RequestParam(required = false) Long levelId,
                                           @RequestParam(defaultValue = "200") int limit) {
-        return questionService.poolInternal(categoryId, limit);
+        return questionService.poolInternal(categoryId, levelId, limit);
     }
 }

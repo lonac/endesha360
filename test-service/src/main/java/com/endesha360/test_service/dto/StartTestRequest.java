@@ -8,5 +8,6 @@ public class StartTestRequest {
     private Integer count;             // e.g., 40
     private Integer durationSeconds;   // e.g., 2400 (40 min)
     private Long categoryId;           // optional
+    private Long levelId;              // optional
 }
 

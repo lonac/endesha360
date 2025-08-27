@@ -14,4 +14,6 @@ public class PublicQuestionDto {
     private String questionText;
     private String imageUrl;
     private List<String> options; // shuffled on test-service side
+    private Long levelId;
+    private String levelName;
 }
