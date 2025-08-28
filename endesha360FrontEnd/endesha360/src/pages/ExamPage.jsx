@@ -189,9 +189,9 @@ export default function ExamPage() {
     return (
       <div className="bg-[var(--background)] min-h-screen flex items-center justify-center">
         <div className="w-full max-w-xl bg-white rounded-2xl shadow p-10 flex flex-col items-center text-center">
-          <h1 className="text-3xl font-extrabold text-[#00712D] mb-4">Ready for Your Mock Exam?</h1>
+          <h1 className="text-3xl font-extrabold text-[#00712D] mb-4">Ready for Your Exam?</h1>
           <p className="text-gray-700 mb-8 text-lg">
-            Challenge yourself with a real exam experience! Answer 40 randomized questions in 40 minutes, test your knowledge, and see how you rank. No feedback until the end—just like the real thing. Good luck!
+            Challenge yourself with a real exam experience! Answer randomized questions in limited time, test your knowledge, and see how you rank. No feedback until the end. Good luck!
           </p>
           <button
             onClick={async () => {
