@@ -37,7 +37,7 @@ const cards = [
     title: 'Results & Progress',
     description: 'Track test scores and progress',
     icon: <FaChartBar className="text-4xl text-[#005a24]" />,
-    link: '#',
+    link: '/results-progress',
   },
   {
     title: 'Messages',
@@ -59,11 +59,14 @@ const cards = [
   },
 ];
 
+
 const StudentDashboard = () => {
   const { user } = useAuth();
   const studentName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Student';
+
+
   return (
-  <div className="min-h-screen bg-[#FFFBE6] py-8 px-2 sm:px-6 lg:px-8 pt-18">
+    <div className="min-h-screen bg-[#FFFBE6] py-8 px-2 sm:px-6 lg:px-8 pt-18">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h2 className="text-2xl md:text-3xl font-bold text-[#00712D] mb-2">
@@ -71,7 +74,7 @@ const StudentDashboard = () => {
           </h2>
           <p className="text-gray-600">Here's what's happening with your driving school today.</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {cards.map((card, idx) => (
             <div
               key={idx}
@@ -86,13 +89,20 @@ const StudentDashboard = () => {
               </div>
               <button
                 className="mt-4 w-20 py-2 bg-[#FF9100] text-white rounded-lg font-semibold hover:bg-[#e6820e] transition-all"
-                onClick={() => card.link !== '#' && window.location.assign(card.link)}
+                onClick={() => {
+                  if (card.title === 'Results & Progress') {
+                    window.location.assign('/results-progress');
+                  } else if (card.link !== '#') {
+                    window.location.assign(card.link);
+                  }
+                }}
               >
                 Go
               </button>
             </div>
           ))}
         </div>
+
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ import RegisterRoute from './routes/RegisterRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import StudentDashboard from './pages/StudentDashboard';
+import ResultsProgressPage from './pages/ResultsProgressPage';
 import ExamPage from './pages/ExamPage';
 import StudentProtectedRoute from './components/StudentProtectedRoute';
 import ExamResultPage from './pages/ExamResultPage';
@@ -111,6 +112,16 @@ const AppContent = () => {
           </StudentProtectedRoute>
         }
       />
+       <Route
+          path="/results-progress"
+          element={
+            <StudentProtectedRoute>
+              <Layout>
+                <ResultsProgressPage />
+              </Layout>
+            </StudentProtectedRoute>
+          }
+        />
       <Route
         path="/exam"
         element={

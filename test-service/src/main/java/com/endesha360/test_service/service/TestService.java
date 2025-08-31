@@ -1,5 +1,8 @@
 package com.endesha360.test_service.service;
 
+import com.endesha360.test_service.client.StudentProgressClient;
+import com.endesha360.test_service.client.ExamResultUpdateRequest;
+
 import com.endesha360.test_service.client.QuestionClient;
 import com.endesha360.test_service.dto.*;
 import com.endesha360.test_service.model.AttemptQuestion;
@@ -21,6 +24,8 @@ public class TestService {
     @Autowired private TestAttemptRepository attemptRepo;
     @Autowired private AttemptQuestionRepository aqRepo;
     @Autowired private QuestionClient questionClient;
+    @Autowired private StudentProgressClient studentProgressClient;
+
 
 
     @Transactional
@@ -137,6 +142,22 @@ public class TestService {
             a.setStatus(TestAttempt.Status.SUBMITTED);
         }
         attemptRepo.save(a);
+
+                // Call Student Management Service to update progress
+                try {
+                        ExamResultUpdateRequest updateReq = new ExamResultUpdateRequest();
+                        updateReq.studentId = a.getStudentId();
+                        // You may need to fetch courseId/moduleName from context or question metadata
+                        updateReq.courseId = null; // Set appropriately
+                        updateReq.moduleName = "Exam"; // Or set dynamically
+                        updateReq.score = (double) a.getScore();
+                        updateReq.passed = a.getScore() != null && a.getScore() >= (a.getTotalQuestions() * 0.7); // Example: 70% pass
+                        updateReq.notes = "Exam completed";
+                        studentProgressClient.updateProgressAfterExam(updateReq);
+                } catch (Exception ex) {
+                        // Log error but do not fail submission
+                        System.err.println("Failed to update student progress: " + ex.getMessage());
+                }
 
         return SubmitTestResponse.builder()
                 .attemptId(a.getId())
