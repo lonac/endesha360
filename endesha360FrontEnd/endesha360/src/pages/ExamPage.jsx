@@ -189,9 +189,9 @@ export default function ExamPage() {
     return (
       <div className="bg-[var(--background)] min-h-screen flex items-center justify-center">
         <div className="w-full max-w-xl bg-white rounded-2xl shadow p-10 flex flex-col items-center text-center">
-          <h1 className="text-3xl font-extrabold text-[#00712D] mb-4">Ready for Your Exam?</h1>
+          <h1 className="text-3xl font-extrabold text-[#00712D] mb-4">Ready for Your Test?</h1>
           <p className="text-gray-700 mb-8 text-lg">
-            Challenge yourself with a real exam experience! Answer randomized questions in limited time, test your knowledge, and see how you rank. No feedback until the end. Good luck!
+            Challenge yourself with a real test experience! Answer randomized questions in limited time, test your knowledge, and see how you rank. No feedback until the end. Good luck!
           </p>
           <button
             onClick={async () => {
@@ -200,14 +200,14 @@ export default function ExamPage() {
               setSelectedLevel("");
             }}
             className="px-8 py-3 rounded-xl bg-[#FF9100] text-white font-bold text-lg shadow-md hover:bg-[#e6820e] transition-colors mb-2">
-            Start Exam
+            Start Test
           </button>
         </div>
         {/* Category Modal */}
         <Modal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)}>
           <div className="text-center p-2 min-w-[320px]">
-            <h2 className="text-2xl font-bold text-[#00712D] mb-2">Select Exam Category</h2>
-            <p className="text-base text-gray-700 mb-5">Choose a category to start your exam.</p>
+            <h2 className="text-2xl font-bold text-[#00712D] mb-2">Select Test Category</h2>
+            <p className="text-base text-gray-700 mb-5">Choose a category to start your test.</p>
             <div className="grid grid-cols-2 gap-2 mb-5">
               {categories.length === 0 && (
                 <div className="col-span-2 text-gray-500">No categories available.</div>
@@ -243,8 +243,8 @@ export default function ExamPage() {
         {/* Level Modal */}
         <Modal isOpen={isLevelModalOpen} onClose={() => setIsLevelModalOpen(false)}>
           <div className="text-center p-2 min-w-[320px]">
-            <h2 className="text-2xl font-bold text-[#00712D] mb-2">Select Exam Level</h2>
-            <p className="text-base text-gray-700 mb-5">Choose a level for your exam.</p>
+            <h2 className="text-2xl font-bold text-[#00712D] mb-2">Select Test Level</h2>
+            <p className="text-base text-gray-700 mb-5">Choose a level for your test.</p>
             <div className="grid grid-cols-2 gap-2 mb-5">
               {levels.length === 0 && (
                 <div className="col-span-2 text-gray-500">No levels available.</div>
@@ -269,7 +269,7 @@ export default function ExamPage() {
               className="w-full px-4 py-2 rounded-lg bg-[#00712D] text-white font-bold text-base mt-2 shadow-md hover:bg-[#005a24] disabled:opacity-60 transition-colors"
               disabled={!selectedLevel}
             >
-              Start Exam
+              Start Test
             </button>
           </div>
         </Modal>
@@ -329,7 +329,7 @@ export default function ExamPage() {
         <div className="mt-8 flex justify-center">
           <button onClick={submitExam}
             className="px-8 py-3 rounded-xl bg-[#00712D] text-white font-bold text-lg shadow-md hover:bg-green-800 transition-colors">
-            Submit Exam
+            Submit Test
           </button>
         </div>
       </div>
@@ -366,7 +366,7 @@ export default function ExamPage() {
         </div>
         <div className="mt-6 text-sm text-gray-600">
           <p>Answered: {Object.keys(answers).length} / {attempt.questions.length}</p>
-          <p>Flagged: {flags.size}</p>
+          {/* <p>Flagged: {flags.size}</p> */}
         </div>
       </div>
     </div>
