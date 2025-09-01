@@ -23,6 +23,9 @@ import SchoolRegistration from './pages/SchoolRegistration';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import SelectRole from './pages/SelectRole';
+import ComingSoon from './pages/ComingSoon';
+import StudentProfile from './pages/student/StudentProfile';
+
       <Route 
         path="/select-role" 
         element={
@@ -152,7 +155,24 @@ const AppContent = () => {
           </ProtectedRoute>
         } 
       />
-      
+      <Route 
+        path="/coming-soon"
+        element={
+          <Layout>
+            <ComingSoon />
+          </Layout>
+        }
+      />
+      <Route
+        path="/student/profile"
+        element={
+          <StudentProtectedRoute>
+            <Layout>
+              <StudentProfile />
+            </Layout>
+          </StudentProtectedRoute>
+        }
+      />
       {/* Catch all route */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

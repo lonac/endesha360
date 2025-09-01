@@ -8,19 +8,19 @@ const cards = [
     title: 'My Profile',
     description: 'View and update your details',
     icon: <FaUser className="text-4xl text-[#00712D]" />,
-    link: '#',
+    link: '/student/profile',
   },
   {
     title: 'Enroll in Course',
     description: 'Browse and join driving courses',
     icon: <FaBook className="text-4xl text-[#FF9100]" />,
-    link: '#',
+    link: '/coming-soon',
   },
   {
     title: 'Schedule',
     description: 'Check upcoming driving sessions',
     icon: <FaCalendarAlt className="text-4xl text-[#005a24]" />,
-    link: '#',
+    link: '/coming-soon',
   },
   {
     title: 'Mock Tests',
@@ -32,7 +32,7 @@ const cards = [
     title: 'Payments',
     description: 'Pay fees and download receipts',
     icon: <FaMoneyCheckAlt className="text-4xl text-[#FF9100]" />,
-    link: '#',
+    link: '/coming-soon',
   },
   {
     title: 'Results & Progress',
@@ -44,19 +44,19 @@ const cards = [
     title: 'Messages',
     description: 'Chat with your instructor',
     icon: <FaComments className="text-4xl text-[#00712D]" />,
-    link: '#',
+    link: '/coming-soon',
   },
   {
     title: 'Notifications',
     description: 'Stay updated on changes',
     icon: <FaBell className="text-4xl text-[#FF9100]" />,
-    link: '#',
+    link: '/coming-soon',
   },
   {
     title: 'Report Issues',
     description: 'Submit training or vehicle issues',
     icon: <FaCarCrash className="text-4xl text-[#005a24]" />,
-    link: '#',
+    link: '/coming-soon',
   },
 ];
 
@@ -89,24 +89,15 @@ const StudentDashboard = () => {
                   <p className="text-gray-500 text-sm">{card.description}</p>
                 </div>
               </div>
-              <button
+                            <button
                 className="mt-4 w-20 py-2 bg-[#FF9100] text-white rounded-lg font-semibold hover:bg-[#e6820e] transition-all"
-                onClick={() => {
-                  if (card.title === 'Results & Progress') {
-                    navigate('/results-progress');
-                  } else if (card.title === 'Practice Test') {
-                    navigate('/exam');
-                  } else if (card.link !== '#') {
-                    navigate(card.link);
-                  }
-                }}
+                onClick={() => navigate(card.link)}
               >
                 Go
               </button>
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );
