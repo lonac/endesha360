@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaUser, FaBook, FaCalendarAlt, FaFileAlt, FaMoneyCheckAlt, FaChartBar, FaComments, FaBell, FaCarCrash } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
@@ -62,6 +63,7 @@ const cards = [
 
 const StudentDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const studentName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Student';
 
 
@@ -91,9 +93,11 @@ const StudentDashboard = () => {
                 className="mt-4 w-20 py-2 bg-[#FF9100] text-white rounded-lg font-semibold hover:bg-[#e6820e] transition-all"
                 onClick={() => {
                   if (card.title === 'Results & Progress') {
-                    window.location.assign('/results-progress');
+                    navigate('/results-progress');
+                  } else if (card.title === 'Practice Test') {
+                    navigate('/exam');
                   } else if (card.link !== '#') {
-                    window.location.assign(card.link);
+                    navigate(card.link);
                   }
                 }}
               >

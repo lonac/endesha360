@@ -11,6 +11,7 @@ export default defineConfig({
       '/api': 'http://localhost:8087', // keep this for test-service or user-management-service
       '/questions-service': 'http://localhost:8765', // for gateway/service discovery
       '/student-management-service': 'http://localhost:8084', // for direct student management service
+      '/test-service': 'http://localhost:8087', // for test service
     },
   },
 })

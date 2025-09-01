@@ -1,7 +1,7 @@
 package com.endesha360.student_management_service.entity;
 
 import lombok.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

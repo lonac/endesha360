@@ -125,6 +125,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    token: apiService.getToken(),
     login,
     register,
     registerSchoolOwner,

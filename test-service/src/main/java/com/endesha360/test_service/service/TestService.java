@@ -181,22 +181,63 @@ public class TestService {
         attemptRepo.save(a);
     }
 
-    // Auto-sweeper: finalize expired attempts (unanswered = wrong)
+        // Auto-sweeper: finalize expired attempts (unanswered = wrong)
     @Scheduled(fixedDelay = 60_000)
     @Transactional
     public void sweepExpired() {
-        List<TestAttempt> toExpire = attemptRepo.findAll().stream()
-                .filter(a -> a.getStatus() == TestAttempt.Status.ACTIVE && Instant.now().isAfter(a.getEndsAt()))
+        List<TestAttempt> expired = attemptRepo.findAll().stream()
+                .filter(a -> a.getStatus() == TestAttempt.Status.ACTIVE)
+                .filter(a -> Instant.now().isAfter(a.getEndsAt()))
                 .toList();
 
-        for (TestAttempt a : toExpire) {
+        for (TestAttempt a : expired) {
+            // Auto-score unanswered = wrong
             int score = 0;
             for (AttemptQuestion aq : a.getQuestions()) {
-                if (aq.getSelectedOption() != null && aq.getSelectedOption().equals(aq.getCorrectAnswer())) score++;
+                if (aq.getSelectedOption() != null && aq.getSelectedOption().equals(aq.getCorrectAnswer())) {
+                    score++;
+                }
             }
             a.setScore(score);
             a.setStatus(TestAttempt.Status.EXPIRED);
-            attemptRepo.save(a);
         }
+        attemptRepo.saveAll(expired);
+    }
+
+    public List<TestResultDto> getStudentTestResults(Long studentId) {
+        List<TestAttempt> attempts = attemptRepo.findByStudentIdAndStatusInOrderByStartedAtDesc(
+                studentId, List.of(TestAttempt.Status.SUBMITTED, TestAttempt.Status.EXPIRED)
+        );
+
+        return attempts.stream()
+                .map(this::convertToTestResultDto)
+                .toList();
+    }
+
+    public Optional<TestResultDto> getTestResult(String attemptId) {
+        return attemptRepo.findById(attemptId)
+                .filter(attempt -> attempt.getStatus() == TestAttempt.Status.SUBMITTED || 
+                                 attempt.getStatus() == TestAttempt.Status.EXPIRED)
+                .map(this::convertToTestResultDto);
+    }
+
+    private TestResultDto convertToTestResultDto(TestAttempt attempt) {
+        double percentage = attempt.getTotalQuestions() == 0 ? 0.0 : 
+                           (attempt.getScore() * 100.0 / attempt.getTotalQuestions());
+        
+        return TestResultDto.builder()
+                .attemptId(attempt.getId())
+                .studentId(attempt.getStudentId())
+                .startedAt(attempt.getStartedAt())
+                .endsAt(attempt.getEndsAt())
+                .durationSeconds(attempt.getDurationSeconds())
+                .totalQuestions(attempt.getTotalQuestions())
+                .score(attempt.getScore())
+                .percentage(percentage)
+                .status(attempt.getStatus().name())
+                .tabSwitches(attempt.getTabSwitches())
+                .focusLosses(attempt.getFocusLosses())
+                .fullscreenExits(attempt.getFullscreenExits())
+                .build();
     }
 }
