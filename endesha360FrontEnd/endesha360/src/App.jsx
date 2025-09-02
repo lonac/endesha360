@@ -24,6 +24,15 @@ import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import QuestionManagement from './pages/QuestionManagement';
 import SelectRole from './pages/SelectRole';
+import ComingSoon from './pages/ComingSoon';
+import StudentProfile from './pages/student/StudentProfile';
+
+      <Route 
+        path="/select-role" 
+        element={
+          <SelectRole />
+        } 
+      />
 
 // Layout wrapper component
 const Layout = ({ children }) => (
@@ -161,7 +170,24 @@ const AppContent = () => {
           </ProtectedRoute>
         } 
       />
-      
+      <Route 
+        path="/coming-soon"
+        element={
+          <Layout>
+            <ComingSoon />
+          </Layout>
+        }
+      />
+      <Route
+        path="/student/profile"
+        element={
+          <StudentProtectedRoute>
+            <Layout>
+              <StudentProfile />
+            </Layout>
+          </StudentProtectedRoute>
+        }
+      />
       {/* Catch all route */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
