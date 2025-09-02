@@ -75,6 +75,10 @@ public class DataInitializer implements CommandLineRunner {
         permissions.add(SystemAdmin.Permission.MANAGE_SYSTEM_SETTINGS);
         permissions.add(SystemAdmin.Permission.AUDIT_LOGS);
         permissions.add(SystemAdmin.Permission.MANAGE_ADMINS);
+        permissions.add(SystemAdmin.Permission.MANAGE_QUESTIONS);
+        permissions.add(SystemAdmin.Permission.APPROVE_QUESTIONS);
+        permissions.add(SystemAdmin.Permission.VIEW_QUESTIONS);
+        permissions.add(SystemAdmin.Permission.BULK_UPLOAD_QUESTIONS);
         return permissions;
     }
 }

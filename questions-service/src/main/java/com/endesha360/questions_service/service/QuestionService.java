@@ -92,4 +92,83 @@ public class QuestionService {
         .levelName(q.getQuestionLevel() != null ? q.getQuestionLevel().getName() : null)
         .build();
     }
+
+    // Admin-specific methods for AdminQuestionController
+    @Transactional
+    public InternalQuestionDto createInternal(QuestionCreateRequest req) {
+        QuestionCategory cat = questionCategoryRepository.findById(req.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        QuestionLevel level = questionLevelRepository.findById(req.getLevelId())
+                .orElseThrow(() -> new RuntimeException("Level not found"));
+
+        if (!req.getOptions().contains(req.getCorrectAnswer())) {
+            throw new RuntimeException("Correct answer must be one of the options");
+        }
+
+        Question q = new Question();
+        q.setQuestionCategory(cat);
+        q.setQuestionText(req.getQuestionText());
+        q.setImageUrl(req.getImageUrl());
+        q.setOptions(req.getOptions());
+        q.setCorrectAnswer(req.getCorrectAnswer());
+        q.setQuestionLevel(level);
+
+        q = questionRepository.save(q);
+        return toInternalDto(q);
+    }
+
+    public InternalQuestionDto getInternalById(Long id) {
+        Question q = questionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+        return toInternalDto(q);
+    }
+
+    @Transactional
+    public InternalQuestionDto updateInternal(Long id, QuestionCreateRequest req) {
+        Question q = questionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        QuestionCategory cat = questionCategoryRepository.findById(req.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        QuestionLevel level = questionLevelRepository.findById(req.getLevelId())
+                .orElseThrow(() -> new RuntimeException("Level not found"));
+
+        if (!req.getOptions().contains(req.getCorrectAnswer())) {
+            throw new RuntimeException("Correct answer must be one of the options");
+        }
+
+        q.setQuestionCategory(cat);
+        q.setQuestionText(req.getQuestionText());
+        q.setImageUrl(req.getImageUrl());
+        q.setOptions(req.getOptions());
+        q.setCorrectAnswer(req.getCorrectAnswer());
+        q.setQuestionLevel(level);
+
+        q = questionRepository.save(q);
+        return toInternalDto(q);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        if (!questionRepository.existsById(id)) {
+            throw new RuntimeException("Question not found");
+        }
+        questionRepository.deleteById(id);
+    }
+
+    @Transactional
+    public List<InternalQuestionDto> bulkCreateInternal(List<QuestionCreateRequest> requests) {
+        List<InternalQuestionDto> results = new ArrayList<>();
+        for (QuestionCreateRequest req : requests) {
+            try {
+                results.add(createInternal(req));
+            } catch (Exception e) {
+                // Log error and continue with next question
+                System.err.println("Failed to create question: " + e.getMessage());
+            }
+        }
+        return results;
+    }
 }

@@ -1,6 +1,7 @@
 package com.endesha360.SystemAdminServices.security;
 
 import com.endesha360.SystemAdminServices.util.JwtUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,23 +52,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 username, role, adminId);
                         }
 
-                        // Create authentication token with admin role
-                        UsernamePasswordAuthenticationToken authToken = 
+                        // Extract authorities from JWT
+                        Claims claims = jwtUtil.getAllClaimsFromToken(token);
+                        Object authClaim = claims.get("authorities");
+                        java.util.List<SimpleGrantedAuthority> authorities = new java.util.ArrayList<>();
+                        if (authClaim instanceof java.util.Collection<?>) {
+                            for (Object a : (java.util.Collection<?>) authClaim) {
+                                authorities.add(new SimpleGrantedAuthority(a.toString()));
+                            }
+                        } else {
+                            authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+                        }
+                        UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
-                                username, 
-                                null, 
-                                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
+                                username,
+                                null,
+                                authorities
                             );
-                        
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        
                         // Store admin info in request attributes
                         request.setAttribute("adminId", adminId);
                         request.setAttribute("adminUsername", username);
                         request.setAttribute("adminRole", role);
-                        
                         SecurityContextHolder.getContext().setAuthentication(authToken);
-                        
                         if (logger.isDebugEnabled()) {
                             logger.debug("Successfully authenticated admin: {}", username);
                         }

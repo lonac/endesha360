@@ -26,13 +26,13 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="CourseManagementService" options="-parameters" />
-      <module name="SchoolManagementService" options="-parameters" />
+      <module name="CourseManagementService" options="" />
+      <module name="SchoolManagementService" options="" />
       <module name="StudentManagementService" options="-parameters" />
       <module name="SystemAdminServices" options="-parameters" />
-      <module name="UserManagementService" options="-parameters" />
-      <module name="api-gateway" options="-parameters" />
-      <module name="service-registry" options="-parameters" />
+      <module name="UserManagementService" options="" />
+      <module name="api-gateway" options="" />
+      <module name="service-registry" options="" />
     </option>
   </component>
 </project>

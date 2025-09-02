@@ -22,13 +22,8 @@ import ExamResultPage from './pages/ExamResultPage';
 import SchoolRegistration from './pages/SchoolRegistration';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import QuestionManagement from './pages/QuestionManagement';
 import SelectRole from './pages/SelectRole';
-      <Route 
-        path="/select-role" 
-        element={
-          <SelectRole />
-        } 
-      />
 
 // Layout wrapper component
 const Layout = ({ children }) => (
@@ -88,6 +83,20 @@ const AppContent = () => {
           <AdminProtectedRoute>
             <AdminDashboard />
           </AdminProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/questions" 
+        element={
+          <AdminProtectedRoute>
+            <QuestionManagement />
+          </AdminProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/select-role" 
+        element={
+          <SelectRole />
         } 
       />
       

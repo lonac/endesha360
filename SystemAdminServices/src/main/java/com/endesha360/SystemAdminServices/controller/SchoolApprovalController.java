@@ -28,8 +28,9 @@ public class SchoolApprovalController {
     private JwtUtil jwtUtil;
 
     // New endpoint: GET /api/schools?status=...
-    @GetMapping("")
-    public ResponseEntity<Map<String, Object>> getSchoolsByStatus(@RequestParam(value = "status", required = false) String status) {
+        @GetMapping("")
+        @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('VIEW_SCHOOLS')")
+        public ResponseEntity<Map<String, Object>> getSchoolsByStatus(@RequestParam(value = "status", required = false) String status) {
         try {
             List<SchoolDTO> schools;
             if (status == null || status.isEmpty()) {
@@ -60,6 +61,7 @@ public class SchoolApprovalController {
     }
 
     @GetMapping("/pending")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('VIEW_SCHOOLS')")
     public ResponseEntity<Map<String, Object>> getPendingSchools() {
         try {
             List<SchoolDTO> pendingSchools = schoolManagementService.getPendingSchools();

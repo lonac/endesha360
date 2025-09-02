@@ -53,8 +53,11 @@ public class SystemAdminService {
         admin.setLastLogin(LocalDateTime.now());
         systemAdminRepository.save(admin);
 
-        // Generate JWT token
-        String token = jwtUtil.generateToken(admin.getUsername(), admin.getId(), admin.getRole().toString());
+        // Generate JWT token with authorities (permissions)
+        java.util.Set<String> authorities = admin.getPermissions().stream()
+            .map(Enum::name)
+            .collect(java.util.stream.Collectors.toSet());
+        String token = jwtUtil.generateToken(admin.getUsername(), admin.getId(), admin.getRole().toString(), authorities);
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);

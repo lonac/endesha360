@@ -8,11 +8,13 @@ import {
   Eye, 
   LogOut,
   Shield,
-  RefreshCw
+  RefreshCw,
+  HelpCircle
 } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
+import AdminLayout from '../components/AdminLayout';
 
 const AdminDashboard = () => {
   const [pendingSchools, setPendingSchools] = useState([]);
@@ -131,40 +133,27 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F1F6F9]">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-[#D5ED9F]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="bg-[#00712D] p-2 rounded-lg">
-                <Shield className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-[#00712D]">Admin Portal</h1>
-                <p className="text-sm text-gray-600">School Management System</p>
-              </div>
+    <AdminLayout>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Header */}
+        <div className="mb-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-[#00712D]">School Management</h2>
+              <p className="text-gray-600 mt-1">Review and approve school registrations</p>
             </div>
-            
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">
-                Welcome, {admin?.username}
-              </span>
+            <div className="flex space-x-3">
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                className="flex items-center space-x-1"
+                variant="outline"
+                onClick={() => navigate('/admin/questions')}
+                className="flex items-center space-x-2"
               >
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
+                <HelpCircle className="h-4 w-4" />
+                <span>Manage Questions</span>
               </Button>
             </div>
           </div>
         </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Alerts */}
         {error && (
           <Alert 
@@ -476,7 +465,7 @@ const AdminDashboard = () => {
           </div>
         </div>
       )}
-    </div>
+    </AdminLayout>
   );
 };
 

@@ -3,7 +3,8 @@ const API_ENDPOINTS = {
   USER_SERVICE: 'http://localhost:8081/api',
   SCHOOL_OWNER_SERVICE: 'http://localhost:8081/api/school-owners',
   SCHOOL_SERVICE: 'http://localhost:8082/api/schools',
-  ADMIN_SERVICE: 'http://localhost:8083/api'
+  ADMIN_SERVICE: 'http://localhost:8083/api',
+  SYSTEM_ADMIN_SERVICE: 'http://localhost:8087/api/admin'
 };
 
 class ApiService {
@@ -514,6 +515,202 @@ class ApiService {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
     localStorage.removeItem('userType');
+  }
+
+  // ===== QUESTION MANAGEMENT APIs =====
+  
+  // Get paginated questions with filtering
+  async getQuestions(page = 0, size = 10, sort = 'id', direction = 'ASC', search = '', categoryId = null) {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+        sort,
+        direction
+      });
+
+      if (search) params.append('search', search);
+      if (categoryId) params.append('categoryId', categoryId.toString());
+
+      const response = await fetch(`${API_ENDPOINTS.SYSTEM_ADMIN_SERVICE}/questions?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch questions');
+      }
+      return data;
+    } catch (error) {
+      console.error('Get questions error:', error);
+      throw error;
+    }
+  }
+
+  // Create a new question
+  async createQuestion(questionData) {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.SYSTEM_ADMIN_SERVICE}/questions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(questionData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to create question');
+      }
+      return data;
+    } catch (error) {
+      console.error('Create question error:', error);
+      throw error;
+    }
+  }
+
+  // Update a question
+  async updateQuestion(questionId, questionData) {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.SYSTEM_ADMIN_SERVICE}/questions/${questionId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(questionData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update question');
+      }
+      return data;
+    } catch (error) {
+      console.error('Update question error:', error);
+      throw error;
+    }
+  }
+
+  // Delete a question
+  async deleteQuestion(questionId) {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.SYSTEM_ADMIN_SERVICE}/questions/${questionId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to delete question');
+      }
+    } catch (error) {
+      console.error('Delete question error:', error);
+      throw error;
+    }
+  }
+
+  // Bulk upload questions
+  async bulkUploadQuestions(questions) {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.SYSTEM_ADMIN_SERVICE}/questions/bulk-upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ questions }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to bulk upload questions');
+      }
+      return data;
+    } catch (error) {
+      console.error('Bulk upload questions error:', error);
+      throw error;
+    }
+  }
+
+  // Get question categories
+  async getQuestionCategories() {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.SYSTEM_ADMIN_SERVICE}/questions/categories`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch categories');
+      }
+      return data;
+    } catch (error) {
+      console.error('Get categories error:', error);
+      throw error;
+    }
+  }
+
+  // Get question statistics
+  async getQuestionStatistics() {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.SYSTEM_ADMIN_SERVICE}/questions/statistics`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch statistics');
+      }
+      return data;
+    } catch (error) {
+      console.error('Get statistics error:', error);
+      throw error;
+    }
   }
 }
 

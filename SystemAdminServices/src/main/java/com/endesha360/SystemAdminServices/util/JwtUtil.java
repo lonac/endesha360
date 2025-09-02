@@ -26,11 +26,12 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generateToken(String username, Long adminId, String role) {
+    public String generateToken(String username, Long adminId, String role, java.util.Collection<String> authorities) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("adminId", adminId);
         claims.put("role", role);
         claims.put("tokenType", "ADMIN");
+        claims.put("authorities", authorities);
         return createToken(claims, username);
     }
 
@@ -72,7 +73,7 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 
-    private Claims getAllClaimsFromToken(String token) {
+    public Claims getAllClaimsFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()

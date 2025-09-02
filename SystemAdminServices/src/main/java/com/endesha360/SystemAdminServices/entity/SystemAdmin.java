@@ -228,6 +228,10 @@ public class SystemAdmin {
         VIEW_REPORTS,
         MANAGE_SYSTEM_SETTINGS,
         AUDIT_LOGS,
-        MANAGE_ADMINS
+        MANAGE_ADMINS,
+        MANAGE_QUESTIONS,
+        APPROVE_QUESTIONS,
+        VIEW_QUESTIONS,
+        BULK_UPLOAD_QUESTIONS
     }
 }
