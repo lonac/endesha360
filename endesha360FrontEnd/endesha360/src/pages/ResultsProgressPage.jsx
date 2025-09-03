@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { fetchComprehensiveProgress, fetchTestResults } from '../api/studentProgress';
 import { useAuth } from '../context/AuthContext';
 
 const ResultsProgressPage = () => {
   const { user, token } = useAuth();
+  const navigate = useNavigate();
   const [comprehensiveProgress, setComprehensiveProgress] = useState([]);
   const [testResults, setTestResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -58,11 +61,10 @@ const ResultsProgressPage = () => {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <h1 className="text-3xl font-bold text-[#00712D] mb-6">Results & Progress</h1>
-      
       {/* Tab Navigation */}
       <div className="mb-6">
         <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
+          <nav className="-mb-px flex space-x-8 items-center">
             <button
               onClick={() => setActiveTab('overview')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
@@ -82,6 +84,14 @@ const ResultsProgressPage = () => {
               }`}
             >
               Test History
+            </button>
+            <button
+              onClick={() => navigate(-1)}
+              className="ml-4 flex items-center py-2 px-3 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-[#FF9100] hover:border-[#FF9100] transition-all"
+              style={{ marginLeft: 'auto' }}
+            >
+              <ArrowLeft className="mr-1 w-4 h-4" />
+              Go Back
             </button>
           </nav>
         </div>
