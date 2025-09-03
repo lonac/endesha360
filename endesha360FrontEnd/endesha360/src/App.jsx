@@ -21,8 +21,14 @@ import StudentProtectedRoute from './components/StudentProtectedRoute';
 import ExamResultPage from './pages/ExamResultPage';
 import SchoolRegistration from './pages/SchoolRegistration';
 import AdminLogin from './pages/AdminLogin';
-import AdminDashboard from './pages/AdminDashboard';
+import AdminOverview from './pages/AdminOverview';
+import SchoolManagement from './pages/SchoolManagement';
 import QuestionManagement from './pages/QuestionManagement';
+import UserManagement from './pages/UserManagement';
+import FinancialManagement from './pages/FinancialManagement';
+import AnalyticsReports from './pages/AnalyticsReports';
+import SystemSettings from './pages/SystemSettings';
+import SupportLogs from './pages/SupportLogs';
 import SelectRole from './pages/SelectRole';
 import ComingSoon from './pages/ComingSoon';
 import StudentProfile from './pages/student/StudentProfile';
@@ -87,10 +93,18 @@ const AppContent = () => {
         } 
       />
       <Route 
+        path="/admin/schools" 
+        element={
+          <AdminProtectedRoute>
+            <SchoolManagement />
+          </AdminProtectedRoute>
+        } 
+      />
+      <Route 
         path="/admin/dashboard" 
         element={
           <AdminProtectedRoute>
-            <AdminDashboard />
+            <AdminOverview />
           </AdminProtectedRoute>
         } 
       />
@@ -99,6 +113,46 @@ const AppContent = () => {
         element={
           <AdminProtectedRoute>
             <QuestionManagement />
+          </AdminProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/users" 
+        element={
+          <AdminProtectedRoute>
+            <UserManagement />
+          </AdminProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/financial" 
+        element={
+          <AdminProtectedRoute>
+            <FinancialManagement />
+          </AdminProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/reports" 
+        element={
+          <AdminProtectedRoute>
+            <AnalyticsReports />
+          </AdminProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/settings" 
+        element={
+          <AdminProtectedRoute>
+            <SystemSettings />
+          </AdminProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/logs" 
+        element={
+          <AdminProtectedRoute>
+            <SupportLogs />
           </AdminProtectedRoute>
         } 
       />

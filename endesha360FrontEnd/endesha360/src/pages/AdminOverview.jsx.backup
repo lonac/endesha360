@@ -1,0 +1,343 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  BarChart3,
+  School,
+  Users,
+  DollarSign,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  TrendingUp,
+  Activity,
+  Bell,
+  FileText,
+  Settings,
+  HelpCircle,
+  Plus,
+  ArrowRight,
+  Calendar,
+  Shield,
+  Globe,
+  XCircle,
+  RefreshCw
+} from 'lucide-react';
+import { useAdmin } from '../context/AdminContext';
+import Button from '../components/Button';
+import Alert from '../components/Alert';
+import AdminLayout from '../components/AdminLayout';
+import { ErrorHandler, createAlertProps } from '../utils/errorHandler';
+
+const AdminOverview = () => {
+  const [stats, setStats] = useState({
+    totalSchools: 0,
+    pendingSchools: 0,
+    approvedSchools: 0,
+    rejectedSchools: 0,
+    totalQuestions: 0,
+    recentActivities: []
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { admin, getSchoolsByStatus } = useAdmin();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Load school statistics
+      const [pendingResponse, approvedResponse, rejectedResponse] = await Promise.all([
+        getSchoolsByStatus('PENDING'),
+        getSchoolsByStatus('APPROVED'), 
+        getSchoolsByStatus('REJECTED')
+      ]);
+
+      const pendingSchools = pendingResponse?.schools || [];
+      const approvedSchools = approvedResponse?.schools || [];
+      const rejectedSchools = rejectedResponse?.schools || [];
+      
+      // Create recent activities from pending schools
+      const recentActivities = pendingSchools
+        .slice(0, 5)
+        .map(school => ({
+          id: school.id,
+          type: 'NEW_REGISTRATION',
+          title: `New school registration: ${school.schoolName}`,
+          description: `${school.ownerFirstName} ${school.ownerLastName} registered ${school.schoolName}`,
+          timestamp: school.createdAt,
+          action: () => navigate('/admin/schools')
+        }));
+
+      setStats({
+        totalSchools: pendingSchools.length + approvedSchools.length + rejectedSchools.length,
+        pendingSchools: pendingSchools.length,
+        approvedSchools: approvedSchools.length,
+        rejectedSchools: rejectedSchools.length,
+        totalQuestions: 0, // Will be loaded from question service later
+        recentActivities
+      });
+
+    } catch (error) {
+      const alertProps = createAlertProps(error, 'dashboard data');
+      setError(alertProps);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const quickActions = [
+    {
+      title: 'School Management',
+      description: 'Review and approve school registrations',
+      icon: School,
+      color: 'bg-blue-500',
+      action: () => navigate('/admin/schools'),
+      badge: stats.pendingSchools > 0 ? stats.pendingSchools : null
+    },
+    {
+      title: 'Question Management', 
+      description: 'Manage exam questions and categories',
+      icon: HelpCircle,
+      color: 'bg-green-500',
+      action: () => navigate('/admin/questions')
+    },
+    {
+      title: 'System Analytics',
+      description: 'View platform usage and statistics',
+      icon: BarChart3,
+      color: 'bg-purple-500',
+      action: () => navigate('/admin/analytics'),
+      comingSoon: true
+    },
+    {
+      title: 'User Management',
+      description: 'Manage admin users and permissions',
+      icon: Users,
+      color: 'bg-orange-500', 
+      action: () => navigate('/admin/users'),
+      comingSoon: true
+    }
+  ];
+
+  const statCards = [
+    {
+      title: 'Total Schools',
+      value: stats.totalSchools,
+      icon: School,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50'
+    },
+    {
+      title: 'Pending Approval',
+      value: stats.pendingSchools,
+      icon: Clock,
+      color: 'text-yellow-600',
+      bgColor: 'bg-yellow-50'
+    },
+    {
+      title: 'Approved Schools',
+      value: stats.approvedSchools,
+      icon: CheckCircle,
+      color: 'text-green-600',
+      bgColor: 'bg-green-50'
+    },
+    {
+      title: 'Total Questions',
+      value: stats.totalQuestions,
+      icon: HelpCircle,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50'
+    }
+  ];
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded mb-6 w-1/3"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-24 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <AdminLayout>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="text-gray-600 mt-2">Welcome back, {admin?.username}! Here's what's happening on your platform.</p>
+        </div>
+
+        {/* Error Alert */}
+        {error?.show && (
+          <Alert
+            type={error.type}
+            message={error.message}
+            details={error.details}
+            onClose={() => setError({ ...error, show: false })}
+            className="mb-6"
+          />
+        )}
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {statCards.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <div key={index} className="bg-white rounded-lg shadow-sm border p-6">
+                <div className="flex items-center">
+                  <div className={`p-3 rounded-lg ${stat.bgColor}`}>
+                    <Icon className={`h-6 w-6 ${stat.color}`} />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+            <div className="space-y-4">
+              {quickActions.map((action, index) => {
+                const Icon = action.icon;
+                return (
+                  <div key={index} className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className={`p-3 rounded-lg ${action.color} text-white`}>
+                          <Icon className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-gray-900 flex items-center">
+                            {action.title}
+                            {action.badge && (
+                              <span className="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                {action.badge}
+                              </span>
+                            )}
+                            {action.comingSoon && (
+                              <span className="ml-2 bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                Coming Soon
+                              </span>
+                            )}
+                          </h3>
+                          <p className="text-sm text-gray-600">{action.description}</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={action.action}
+                        disabled={action.comingSoon}
+                      >
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Recent Activities */}
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Activities</h2>
+            <div className="bg-white rounded-lg shadow-sm border">
+              {stats.recentActivities.length > 0 ? (
+                <div className="divide-y divide-gray-200">
+                  {stats.recentActivities.map((activity, index) => (
+                    <div key={index} className="p-4 hover:bg-gray-50 cursor-pointer" onClick={activity.action}>
+                      <div className="flex items-start space-x-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <Activity className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                          <p className="text-sm text-gray-600">{activity.description}</p>
+                          <p className="text-xs text-gray-500 mt-1">{formatDate(activity.timestamp)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="p-4 text-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate('/admin/schools')}
+                      className="text-[#00712D]"
+                    >
+                      View all activities
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-8 text-center">
+                  <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">No recent activities</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Platform Health */}
+        <div className="bg-white rounded-lg shadow-sm border p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Platform Health</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="inline-flex p-3 bg-green-100 rounded-lg mb-2">
+                <TrendingUp className="h-6 w-6 text-green-600" />
+              </div>
+              <p className="text-sm font-medium text-gray-600">System Status</p>
+              <p className="text-lg font-semibold text-green-600">Operational</p>
+            </div>
+            <div className="text-center">
+              <div className="inline-flex p-3 bg-blue-100 rounded-lg mb-2">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
+              <p className="text-sm font-medium text-gray-600">Active Schools</p>
+              <p className="text-lg font-semibold text-blue-600">{stats.approvedSchools}</p>
+            </div>
+            <div className="text-center">
+              <div className="inline-flex p-3 bg-purple-100 rounded-lg mb-2">
+                <BarChart3 className="h-6 w-6 text-purple-600" />
+              </div>
+              <p className="text-sm font-medium text-gray-600">Response Time</p>
+              <p className="text-lg font-semibold text-purple-600">&lt; 200ms</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </AdminLayout>
+  );
+};
+
+export default AdminOverview;

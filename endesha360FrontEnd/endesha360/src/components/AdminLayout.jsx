@@ -6,7 +6,13 @@ import {
   HelpCircle, 
   LogOut, 
   Menu,
-  X
+  X,
+  LayoutDashboard,
+  Users,
+  DollarSign,
+  BarChart3,
+  Settings,
+  FileText
 } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
 import Button from '../components/Button';
@@ -24,16 +30,59 @@ const AdminLayout = ({ children }) => {
 
   const navigation = [
     {
-      name: 'School Management',
+      name: 'Overview',
       href: '/admin/dashboard',
-      icon: School,
+      icon: LayoutDashboard,
       current: location.pathname === '/admin/dashboard'
+    },
+    {
+      name: 'School Management',
+      href: '/admin/schools',
+      icon: School,
+      current: location.pathname === '/admin/schools',
+      description: 'Approve and manage schools'
     },
     {
       name: 'Question Management',
       href: '/admin/questions',
       icon: HelpCircle,
-      current: location.pathname === '/admin/questions'
+      current: location.pathname === '/admin/questions',
+      description: 'System-wide exam questions'
+    },
+    {
+      name: 'User Management',
+      href: '/admin/users',
+      icon: Users,
+      current: location.pathname === '/admin/users',
+      description: 'Manage system users'
+    },
+    {
+      name: 'Financial Management',
+      href: '/admin/financial',
+      icon: DollarSign,
+      current: location.pathname === '/admin/financial',
+      description: 'Billing and revenue tracking'
+    },
+    {
+      name: 'Analytics & Reports',
+      href: '/admin/reports',
+      icon: BarChart3,
+      current: location.pathname === '/admin/reports',
+      description: 'Usage statistics and reports'
+    },
+    {
+      name: 'System Settings',
+      href: '/admin/settings',
+      icon: Settings,
+      current: location.pathname === '/admin/settings',
+      description: 'Platform configuration'
+    },
+    {
+      name: 'Support & Logs',
+      href: '/admin/logs',
+      icon: FileText,
+      current: location.pathname === '/admin/logs',
+      description: 'System logs and support'
     }
   ];
 
