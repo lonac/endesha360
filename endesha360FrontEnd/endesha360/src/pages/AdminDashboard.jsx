@@ -15,6 +15,7 @@ import { useAdmin } from '../context/AdminContext';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
 import AdminLayout from '../components/AdminLayout';
+import { ErrorHandler, createAlertProps } from '../utils/errorHandler';
 
 const AdminDashboard = () => {
   const [pendingSchools, setPendingSchools] = useState([]);
@@ -51,6 +52,7 @@ const AdminDashboard = () => {
 
   const loadSchoolsByTab = async (tab) => {
     setIsLoading(true);
+    setError('');
     try {
       if (tab === 'PENDING') {
         const response = await getSchoolsByStatus('PENDING');
@@ -63,7 +65,8 @@ const AdminDashboard = () => {
         setRejectedSchools(response.schools || []);
       }
     } catch (error) {
-      setError('Failed to load schools: ' + error.message);
+      const alertProps = createAlertProps(error, 'schools');
+      setError(alertProps);
     } finally {
       setIsLoading(false);
     }
@@ -74,19 +77,22 @@ const AdminDashboard = () => {
       const response = await getSchoolDetails(schoolId);
       setSelectedSchool(response.school);
     } catch (error) {
-      setError('Failed to load school details: ' + error.message);
+      const alertProps = createAlertProps(error, 'schools');
+      setError(alertProps);
     }
   };
 
   const handleApprove = async (schoolId) => {
     try {
       setActionLoading(true);
+      setError('');
       await approveSchool(schoolId, 'School approved by admin');
       setSuccess('School approved successfully!');
       await loadSchoolsByTab('PENDING');
       setSelectedSchool(null);
     } catch (error) {
-      setError('Failed to approve school: ' + error.message);
+      const alertProps = createAlertProps(error, 'approval');
+      setError(alertProps);
     } finally {
       setActionLoading(false);
     }
@@ -94,12 +100,17 @@ const AdminDashboard = () => {
 
   const handleRejectSubmit = async () => {
     if (!selectedSchool || !rejectComments.trim()) {
-      setError('Please provide rejection comments');
+      setError({
+        type: 'warning',
+        title: 'Missing Information',
+        message: 'Please provide rejection comments before proceeding.'
+      });
       return;
     }
 
     try {
       setActionLoading(true);
+      setError('');
       await rejectSchool(selectedSchool.id, rejectComments);
       setSuccess('School rejected successfully!');
       await loadSchoolsByTab('PENDING');
@@ -107,7 +118,8 @@ const AdminDashboard = () => {
       setShowRejectModal(false);
       setRejectComments('');
     } catch (error) {
-      setError('Failed to reject school: ' + error.message);
+      const alertProps = createAlertProps(error, 'rejection');
+      setError(alertProps);
     } finally {
       setActionLoading(false);
     }
@@ -119,7 +131,8 @@ const AdminDashboard = () => {
       setApprovalHistory(response.history || []);
       setShowApprovalHistory(true);
     } catch (error) {
-      setError('Failed to load approval history: ' + error.message);
+      const alertProps = createAlertProps(error, 'history');
+      setError(alertProps);
     }
   };
 
@@ -157,9 +170,12 @@ const AdminDashboard = () => {
         {/* Alerts */}
         {error && (
           <Alert 
-            type="error" 
-            message={error}
+            {...(typeof error === 'string' ? {
+              type: 'error',
+              message: error
+            } : error)}
             onClose={() => setError('')}
+            onRetry={error?.retryable ? () => loadSchoolsByTab(activeTab) : undefined}
             className="mb-6"
           />
         )}

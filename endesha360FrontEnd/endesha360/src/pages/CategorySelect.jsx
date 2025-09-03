@@ -1,17 +1,19 @@
 import React from 'react';
+import CustomSelect from '../components/CustomSelect';
 
-const CategorySelect = ({ categories, value, onChange }) => {
+const CategorySelect = ({ categories, value, onChange, placeholder = "Select a category", label, required = false }) => {
+  const categoryOptions = categories.map(cat => ({ value: cat.id, label: cat.name }));
+
   return (
-    <select
-      className="w-full p-2 border rounded-lg text-gray-700"
-      value={value || ''}
-      onChange={e => onChange(e.target.value)}
-    >
-      <option value="" disabled>Select a category</option>
-      {categories.map(cat => (
-        <option key={cat.id} value={cat.id}>{cat.name}</option>
-      ))}
-    </select>
+    <CustomSelect
+      label={label}
+      options={categoryOptions}
+      value={value}
+      onChange={option => onChange(option ? option.value : '')}
+      placeholder={placeholder}
+      required={required}
+      isClearable={false}
+    />
   );
 };
 
