@@ -278,46 +278,103 @@ export default function ExamPage() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 p-6 bg-[var(--background)] min-h-screen pt-20">
-      {/* Main sheet */}
-      <div className="bg-white rounded-2xl shadow p-8 flex flex-col" style={{minHeight: '70vh'}}>
-        {/* Exam Title and Instructions */}
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl md:text-3xl font-bold text-[#00712D] mb-2">
-            {attempt.categoryName ? `${attempt.categoryName} Exam` : 'Mock Exam'}
-          </h1>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-2 mb-2">
-            <span className="inline-block text-lg font-bold text-[#00712D] bg-[#D5ED9F]/60 px-4 py-1 rounded-full">
-              Time Left: {mmss}
-            </span>
-            <span className="text-gray-700 text-base md:text-lg">Read each question carefully and select the best answer. Submit before time runs out!</span>
+    <div className="relative bg-[var(--background)] min-h-screen pt-20 pb-24">
+      {/* Top Progress Indicator */}
+      <div className="fixed top-16 left-0 right-0 z-30">
+        <div className="w-full bg-gray-200 h-1">
+          <div 
+            className="bg-gradient-to-r from-[#00712D] to-[#D5ED9F] h-1 transition-all duration-300"
+            style={{ width: `${(Object.keys(answers).length / (attempt?.questions.length || 1)) * 100}%` }}
+          />
+        </div>
+      </div>
+      
+      {/* Main content - now full width */}
+      <div className="max-w-5xl mx-auto p-6">
+        <div className="bg-white rounded-2xl shadow p-8 flex flex-col" style={{minHeight: '70vh'}}>
+        {/* Compact Header */}
+        <div className="mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-bold text-[#00712D] mb-1">
+                {attempt.categoryName ? `${attempt.categoryName} Exam` : 'Mock Exam'}
+              </h1>
+              <p className="text-gray-600 text-sm">
+                {attempt.questions.length} questions • {Math.floor(secondsLeft/60)} minutes remaining
+              </p>
+            </div>
+            <div className="mt-3 lg:mt-0 flex items-center gap-4">
+              <div className="bg-gradient-to-r from-[#00712D] to-[#005a24] text-white px-4 py-2 rounded-lg shadow">
+                <div className="text-center">
+                  <div className="text-xl font-mono font-bold">{mmss}</div>
+                  <div className="text-xs text-[#D5ED9F]">Time Left</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="text-sm text-gray-500 mb-2">You have {attempt.questions.length} questions and {Math.floor(secondsLeft/60)} minutes.</div>
         </div>
 
         {/* Questions */}
-        <div className="flex-1">
+        <div className="flex-1 space-y-6">
           {attempt.questions.map((q, idx) => (
             <div
               key={q.questionId}
               ref={el => questionRefs.current[idx] = el}
-              className={`border-b border-[var(--primary-light)] py-6 ${currentQuestion === idx ? 'bg-[#FFFBE6]/60' : ''}`}
+              className={`bg-white border-2 rounded-xl p-6 transition-all duration-200 ${
+                currentQuestion === idx 
+                  ? 'border-[#FF9100] bg-[#FFFBE6]/30 shadow-lg' 
+                  : 'border-[#D5ED9F] hover:border-[#00712D] hover:shadow-md'
+              }`}
               id={`question-${idx}`}
             >
-              <div className="mb-2">
-                <p className="text-gray-800 text-lg md:text-xl font-medium">{idx + 1}. {q.questionText}</p>
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="bg-[#00712D] text-white text-sm font-bold px-3 py-1 rounded-full">
+                      Question {idx + 1}
+                    </span>
+                    {answers[q.questionId] && (
+                      <span className="text-green-600 text-sm font-medium flex items-center gap-1">
+                        ✓ Answered
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-lg lg:text-xl font-medium text-gray-800 leading-relaxed">
+                    {q.questionText}
+                  </h3>
+                </div>
               </div>
-              <div className="mt-3 grid gap-3">
-                {q.options.map(opt => (
-                  <label key={opt} className="flex items-center gap-3 cursor-pointer text-base md:text-lg">
+
+              <div className="space-y-3">
+                {q.options.map((opt, optIdx) => (
+                  <label 
+                    key={opt} 
+                    className={`flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:bg-gray-50 ${
+                      answers[q.questionId] === opt
+                        ? 'border-[#00712D] bg-[#D5ED9F]/20 shadow-sm'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
                     <input
                       type="radio"
                       name={`q-${q.questionId}`}
                       checked={answers[q.questionId] === opt}
                       onChange={() => setAnswers(a => ({ ...a, [q.questionId]: opt }))}
                       onFocus={() => setCurrentQuestion(idx)}
+                      className="sr-only"
                     />
-                    <span>{opt}</span>
+                    <div className={`w-5 h-5 rounded-full border-2 mr-4 flex items-center justify-center transition-all ${
+                      answers[q.questionId] === opt
+                        ? 'border-[#00712D] bg-[#00712D]'
+                        : 'border-gray-300'
+                    }`}>
+                      {answers[q.questionId] === opt && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                      )}
+                    </div>
+                    <span className="text-base lg:text-lg font-medium">
+                      {String.fromCharCode(65 + optIdx)}. {opt}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -332,41 +389,72 @@ export default function ExamPage() {
             Submit Test
           </button>
         </div>
+        </div>
       </div>
 
-      {/* Palette & meta */}
-      <div className="bg-white rounded-2xl shadow p-6 h-fit sticky top-6">
-        <h3 className="text-lg font-semibold text-[var(--primary-dark)] mb-3">Question Palette</h3>
-        <div className="grid grid-cols-5 gap-2 mb-4">
-          {attempt.questions.map((q, i) => {
-            const answered = !!answers[q.questionId];
-            const flagged = flags.has(q.questionId);
-            return (
-              <button
-                key={q.questionId}
-                className={`w-10 h-10 rounded grid place-items-center text-base font-semibold border-2 transition-colors
-                  ${currentQuestion === i ? 'border-[#FF9100] ring-2 ring-[#FF9100]' : 'border-gray-200'}
-                  ${flagged ? 'bg-yellow-300' :
-                    answered ? 'bg-[var(--primary-light)] text-[var(--primary-dark)]' :
-                    'bg-gray-200 text-gray-700'}`}
-                onClick={() => {
-                  setCurrentQuestion(i);
-                  questionRefs.current[i]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }}
-                aria-label={`Go to question ${i+1}`}
-              >
-                {answered ? (
-                  <span className="inline-block align-middle">
-                    <svg className="inline w-5 h-5 text-[#00712D]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                  </span>
-                ) : i+1}
-              </button>
-            );
-          })}
-        </div>
-        <div className="mt-6 text-sm text-gray-600">
-          <p>Answered: {Object.keys(answers).length} / {attempt.questions.length}</p>
-          {/* <p>Flagged: {flags.size}</p> */}
+      {/* Bottom Floating Question Palette */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-[#D5ED9F] shadow-lg z-40">
+        <div className="max-w-5xl mx-auto px-4 lg:px-6 py-3 lg:py-4">
+          {/* Mobile: Compact progress */}
+          <div className="lg:hidden mb-3">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs font-medium text-[#00712D]">
+                {Object.keys(answers).length}/{attempt.questions.length}
+              </span>
+              <span className="text-xs text-gray-600 font-mono">{mmss}</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-1.5">
+              <div 
+                className="bg-gradient-to-r from-[#00712D] to-[#D5ED9F] h-1.5 rounded-full transition-all duration-300"
+                style={{ width: `${(Object.keys(answers).length / attempt.questions.length) * 100}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Desktop: Full progress */}
+          <div className="hidden lg:block mb-3">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-[#00712D]">Progress</span>
+              <span className="text-sm text-gray-600">
+                {Object.keys(answers).length} / {attempt.questions.length} answered
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-[#00712D] to-[#D5ED9F] h-2 rounded-full transition-all duration-300"
+                style={{ width: `${(Object.keys(answers).length / attempt.questions.length) * 100}%` }}
+              />
+            </div>
+          </div>
+          
+          {/* Question palette - horizontal scrollable */}
+          <div className="flex gap-1.5 lg:gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[#D5ED9F]">
+            {attempt.questions.map((q, i) => {
+              const answered = !!answers[q.questionId];
+              const flagged = flags.has(q.questionId);
+              return (
+                <button
+                  key={q.questionId}
+                  className={`flex-shrink-0 w-10 h-10 lg:w-12 lg:h-12 rounded-lg text-xs lg:text-sm font-semibold border-2 transition-all duration-200 ${
+                    currentQuestion === i 
+                      ? 'border-[#FF9100] bg-[#FF9100] text-white shadow-lg scale-105' 
+                      : flagged 
+                      ? 'border-yellow-400 bg-yellow-300 text-yellow-900 hover:bg-yellow-400' 
+                      : answered 
+                      ? 'border-[#D5ED9F] bg-[#D5ED9F] text-[#00712D] hover:bg-green-300' 
+                      : 'border-gray-300 bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                  onClick={() => {
+                    setCurrentQuestion(i);
+                    questionRefs.current[i]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                  aria-label={`Go to question ${i+1}`}
+                >
+                  {answered ? '✓' : i + 1}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
