@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaBook, FaCalendarAlt, FaFileAlt, FaMoneyCheckAlt, FaChartBar, FaComments, FaBell, FaCarCrash } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
+import Modal from '../components/Modal';
+import ComingSoon from './ComingSoon';
 
 const cards = [
   {
@@ -65,7 +67,15 @@ const StudentDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const studentName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Student';
+  const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
 
+  const handleCardClick = (link) => {
+    if (link === '/coming-soon') {
+      setIsComingSoonOpen(true);
+    } else {
+      navigate(link);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#FFFBE6] py-8 px-2 sm:px-6 lg:px-8 pt-18">
@@ -89,9 +99,9 @@ const StudentDashboard = () => {
                   <p className="text-gray-500 text-sm">{card.description}</p>
                 </div>
               </div>
-                            <button
+              <button
                 className="mt-4 w-20 py-2 bg-[#FF9100] text-white rounded-lg font-semibold hover:bg-[#e6820e] transition-all"
-                onClick={() => navigate(card.link)}
+                onClick={() => handleCardClick(card.link)}
               >
                 Go
               </button>
@@ -99,6 +109,9 @@ const StudentDashboard = () => {
           ))}
         </div>
       </div>
+      <Modal isOpen={isComingSoonOpen} onClose={() => setIsComingSoonOpen(false)}>
+        <ComingSoon />
+      </Modal>
     </div>
   );
 };

@@ -6,11 +6,11 @@ const Modal = ({ isOpen, onClose, children, title, className }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/60 z-50 flex justify-center items-center backdrop-blur-sm overflow-y-auto"
+      className="fixed inset-0 bg-black/60 z-50 flex justify-center items-center backdrop-blur-sm py-8"
       onClick={onClose}
     >
       <div 
-        className={`bg-white rounded-lg shadow-xl p-6 relative ${className || 'max-w-md'} w-full m-4 animate-fade-in-up my-8`}
+        className={`bg-white rounded-lg shadow-xl p-6 relative ${className || 'max-w-md'} w-full mx-4 animate-fade-in-up max-h-[90vh] overflow-y-auto`}
         onClick={(e) => e.stopPropagation()}
       >
         <button
