@@ -13,7 +13,7 @@ const cards = [
     link: '/student/profile',
   },
   {
-    title: 'Enroll in Course',
+    title: 'Courses',
     description: 'Browse and join driving courses',
     icon: <FaBook className="text-4xl text-[#FF9100]" />,
     link: '/coming-soon',
@@ -25,7 +25,7 @@ const cards = [
     link: '/coming-soon',
   },
   {
-    title: 'Mock Tests',
+    title: 'Tests',
     description: 'Practice for your official exam',
     icon: <FaFileAlt className="text-4xl text-[#00712D]" />, 
     link: '/exam',
@@ -56,7 +56,7 @@ const cards = [
   },
   {
     title: 'Report Issues',
-    description: 'Submit training or vehicle issues',
+    description: 'Submit training or other issues',
     icon: <FaCarCrash className="text-4xl text-[#005a24]" />,
     link: '/coming-soon',
   },

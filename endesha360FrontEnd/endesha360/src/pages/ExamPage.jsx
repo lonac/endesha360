@@ -75,7 +75,7 @@ export default function ExamPage() {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify({ studentId: user.id, count: 5, durationSeconds: 60, categoryId: Number(selectedCategory), levelId: Number(selectedLevel) })
+      body: JSON.stringify({ studentId: user.id, count: 10, durationSeconds: 120, categoryId: Number(selectedCategory), levelId: Number(selectedLevel) })
     });
     if (!res.ok) {
       throw new Error(`Failed to start exam: ${res.status}`);
@@ -190,14 +190,14 @@ export default function ExamPage() {
       <div className="bg-[var(--background)] min-h-screen flex items-center justify-center">
         <div className="w-full max-w-xl bg-white rounded-2xl shadow p-10 flex flex-col items-center text-center relative">
           {/* Go Back Tab */}
-          <button
+          {/* <button
             onClick={() => navigate(-1)}
             className="absolute left-4 top-4 px-4 py-2 rounded-t-lg bg-[#FFFBE6] border-b-4 border-[#FF9100] text-[#00712D] font-semibold flex items-center gap-2 shadow hover:bg-[#FF9100]/10 transition-colors"
             style={{ zIndex: 10 }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
             Go Back
-          </button>
+          </button> */}
           <h1 className="text-3xl font-extrabold text-[#00712D] mb-4 mt-8">Ready for Your Test?</h1>
           <p className="text-gray-700 mb-8 text-lg">
             Challenge yourself with a real test experience! Answer randomized questions in limited time, test your knowledge, and see how you rank. No feedback until the end. Good luck!
