@@ -229,7 +229,7 @@ const AdminOverview = () => {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-[#00712D]">System Overview</h1>
-              <p className="text-gray-600 mt-1">Welcome back, {admin?.name || 'Admin'}. Here's what's happening across the platform.</p>
+              <p className="text-gray-600 mt-1">Welcome, {admin?.name || 'Admin'}. Here's what's happening across the platform.</p>
             </div>
             <div className="flex items-center space-x-3">
               <Button

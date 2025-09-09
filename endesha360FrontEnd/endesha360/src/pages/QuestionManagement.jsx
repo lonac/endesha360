@@ -47,6 +47,8 @@ const QuestionManagement = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [questionToDelete, setQuestionToDelete] = useState(null);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   
   // State for form data
@@ -379,13 +381,16 @@ const QuestionManagement = () => {
     }
   };
 
-  const handleDeleteQuestion = async (questionId) => {
-    if (!window.confirm('Are you sure you want to delete this question?')) {
-      return;
-    }
+  const handleDeleteQuestion = (questionId) => {
+    setQuestionToDelete(questionId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteQuestion = async () => {
+    if (!questionToDelete) return;
     
     try {
-      const response = await fetch(`/api/admin/questions/${questionId}`, {
+      const response = await fetch(`/api/admin/questions/${questionToDelete}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
@@ -394,6 +399,8 @@ const QuestionManagement = () => {
       
       if (response.ok) {
         showAlert('success', 'Question deleted successfully!');
+        setShowDeleteModal(false);
+        setQuestionToDelete(null);
         loadQuestions();
         loadStatistics();
       } else {
@@ -402,6 +409,8 @@ const QuestionManagement = () => {
       }
     } catch (error) {
       showAlert('error', 'Failed to delete question: ' + error.message);
+      setShowDeleteModal(false);
+      setQuestionToDelete(null);
     }
   };
 
@@ -826,7 +835,7 @@ const QuestionManagement = () => {
           onClose={() => setShowViewModal(false)}
           title="View Question"
         >
-          <QuestionView question={selectedQuestion} categories={categories} />
+          <QuestionView question={selectedQuestion} categories={categories} levels={levels} />
         </Modal>
       )}
 
@@ -845,6 +854,58 @@ const QuestionManagement = () => {
             onCancel={() => setShowBulkUploadModal(false)}
             result={bulkUploadResult}
           />
+        </Modal>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <Modal
+          isOpen={showDeleteModal}
+          onClose={() => {
+            setShowDeleteModal(false);
+            setQuestionToDelete(null);
+          }}
+          title="Confirm Delete"
+        >
+          <div className="space-y-4">
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0">
+                <Trash2 className="h-6 w-6 text-red-500" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Delete Question
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Are you sure you want to delete this question? This action cannot be undone and the question will be permanently removed from the system.
+                </p>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <p className="text-sm text-yellow-800">
+                    <strong>Warning:</strong> Deleting this question may affect any tests or assessments that include it.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex space-x-3 pt-4 border-t border-gray-200">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setQuestionToDelete(null);
+                }}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                onClick={confirmDeleteQuestion}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+              >
+                Delete Question
+              </Button>
+            </div>
+          </div>
         </Modal>
       )}
     </div>
@@ -1034,8 +1095,33 @@ const QuestionForm = ({ questionForm, setQuestionForm, categories, levels, onSub
 };
 
 // Question View Component
-const QuestionView = ({ question, categories }) => {
+const QuestionView = ({ question, categories, levels }) => {
   const category = categories.find(c => c.id === question.categoryId);
+  
+  // Find the level name - using the same logic as the dropdown
+  const getLevelName = () => {
+    if (!levels || !question.levelId) return 'Unknown';
+    
+    // Find the level by matching the stored levelId with the dropdown logic
+    for (let idx = 0; idx < levels.length; idx++) {
+      const l = levels[idx];
+      let levelValue, levelName;
+      
+      if (typeof l === 'string') {
+        levelValue = idx + 1; // Same as dropdown: idx + 1 for string levels
+        levelName = l;
+      } else {
+        levelValue = l.id; // Same as dropdown: l.id for object levels
+        levelName = l.name;
+      }
+      
+      if (levelValue === question.levelId) {
+        return levelName;
+      }
+    }
+    
+    return 'Unknown';
+  };
   
   return (
     <div className="space-y-4">
@@ -1044,9 +1130,17 @@ const QuestionView = ({ question, categories }) => {
         <p className="text-gray-700">{question.questionText}</p>
       </div>
 
-      <div>
-        <h4 className="text-md font-medium text-gray-900 mb-2">Category</h4>
-        <p className="text-gray-700">{category?.name || 'Unknown'}</p>
+      {/* Category and Level in a grid layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h4 className="text-md font-medium text-gray-900 mb-2">Category</h4>
+          <p className="text-gray-700">{category?.name || 'Unknown'}</p>
+        </div>
+
+        <div>
+          <h4 className="text-md font-medium text-gray-900 mb-2">Level</h4>
+          <p className="text-gray-700">{getLevelName()}</p>
+        </div>
       </div>
 
       <div>
