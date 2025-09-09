@@ -196,4 +196,32 @@ public class UserService {
         
         return response;
     }
+
+    public java.util.Map<String, Object> getUserStatistics() {
+        java.util.Map<String, Object> statistics = new java.util.HashMap<>();
+
+        try {
+            // Get total users across all tenants
+            long totalUsers = userRepository.count();
+
+            // Get users by role (this is a simplified approach - you might need to adjust based on your actual data model)
+            long studentsCount = userRepository.countUsersByRole("STUDENT");
+            long instructorsCount = userRepository.countUsersByRole("INSTRUCTOR");
+            long adminsCount = userRepository.countUsersByRole("ADMIN");
+
+            statistics.put("totalUsers", totalUsers);
+            statistics.put("studentsCount", studentsCount);
+            statistics.put("instructorsCount", instructorsCount);
+            statistics.put("adminsCount", adminsCount);
+
+        } catch (Exception e) {
+            // Return default values if there's an error
+            statistics.put("totalUsers", 0L);
+            statistics.put("studentsCount", 0L);
+            statistics.put("instructorsCount", 0L);
+            statistics.put("adminsCount", 0L);
+        }
+
+        return statistics;
+    }
 }

@@ -47,15 +47,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     Set<String> roles = jwtTokenService.getRolesFromToken(token);
                     Set<String> permissions = jwtTokenService.getPermissionsFromToken(token);
                     
-                    // Convert roles to authorities (add ROLE_ prefix)
-                    List<SimpleGrantedAuthority> authorities = roles.stream()
-                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                            .collect(Collectors.toList());
-                    
-                    // Add permissions as authorities
-                    authorities.addAll(permissions.stream()
-                            .map(SimpleGrantedAuthority::new)
-                            .collect(Collectors.toList()));
+            // Always add ROLE_<role> for each role, including SUPER_ADMIN
+            List<SimpleGrantedAuthority> authorities = roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .collect(Collectors.toList());
+            // Add permissions as authorities
+            authorities.addAll(permissions.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList()));
                     
                     // Create authentication token
                     UsernamePasswordAuthenticationToken authentication = 

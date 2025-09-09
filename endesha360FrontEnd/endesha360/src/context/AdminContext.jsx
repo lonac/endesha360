@@ -95,6 +95,54 @@ export const AdminProvider = ({ children }) => {
     }
   };
 
+  const getDashboardData = async () => {
+    try {
+      return await apiService.getDashboardData();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const getSchoolStatistics = async () => {
+    try {
+      return await apiService.getSchoolStatistics();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const getUserStatistics = async () => {
+    try {
+      return await apiService.getUserStatistics();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const getFinancialStatistics = async () => {
+    try {
+      return await apiService.getFinancialStatistics();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const getRecentActivities = async (limit = 10) => {
+    try {
+      return await apiService.getRecentActivities(limit);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const getSystemHealth = async () => {
+    try {
+      return await apiService.getSystemHealth();
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const value = {
     admin,
     loginAdmin,
@@ -105,6 +153,12 @@ export const AdminProvider = ({ children }) => {
     rejectSchool,
     getApprovalHistory,
     getSchoolsByStatus,
+    getDashboardData,
+    getSchoolStatistics,
+    getUserStatistics,
+    getFinancialStatistics,
+    getRecentActivities,
+    getSystemHealth,
     isAdminAuthenticated: !!admin,
     loading
   };

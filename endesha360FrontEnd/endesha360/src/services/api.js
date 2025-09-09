@@ -712,6 +712,158 @@ class ApiService {
       throw error;
     }
   }
+
+  // ===== DASHBOARD APIs =====
+
+  // Get school statistics
+  async getSchoolStatistics() {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/admin/stats`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch school statistics');
+      }
+      return data;
+    } catch (error) {
+      console.error('Get school statistics error:', error);
+      throw error;
+    }
+  }
+
+  // Get user statistics
+  async getUserStatistics() {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.USER_SERVICE}/admin/statistics`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch user statistics');
+      }
+      return data;
+    } catch (error) {
+      console.error('Get user statistics error:', error);
+      throw error;
+    }
+  }
+
+  // Get financial statistics
+  async getFinancialStatistics() {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/financial/statistics`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch financial statistics');
+      }
+      return data;
+    } catch (error) {
+      console.error('Get financial statistics error:', error);
+      throw error;
+    }
+  }
+
+  // Get recent activities
+  async getRecentActivities(limit = 10) {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/activities/recent?limit=${limit}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch recent activities');
+      }
+      return data;
+    } catch (error) {
+      console.error('Get recent activities error:', error);
+      throw error;
+    }
+  }
+
+  // Get system health status
+  async getSystemHealth() {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/system/health`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch system health');
+      }
+      return data;
+    } catch (error) {
+      console.error('Get system health error:', error);
+      throw error;
+    }
+  }
+
+
+  async getDashboardData() {
+    try {
+      const token = this.getAdminToken();
+      if (!token) {
+        throw new Error('No admin authentication token found');
+      }
+
+  const response = await fetch(`${API_ENDPOINTS.ADMIN_SERVICE}/admin/dashboard`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch dashboard data');
+      }
+      return data;
+    } catch (error) {
+      console.error('Get dashboard data error:', error);
+      throw error;
+    }
+  }
 }
 
 export default new ApiService();

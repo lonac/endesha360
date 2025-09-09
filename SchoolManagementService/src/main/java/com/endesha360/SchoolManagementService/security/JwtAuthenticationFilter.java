@@ -75,6 +75,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
                 
                 if (role != null) {  // Only proceed if we successfully extracted a role
+                    // Always add ROLE_<role> for each role, including SUPER_ADMIN
                     UsernamePasswordAuthenticationToken authToken = 
                         new UsernamePasswordAuthenticationToken(
                             username, 

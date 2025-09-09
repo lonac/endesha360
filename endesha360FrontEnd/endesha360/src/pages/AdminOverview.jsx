@@ -30,7 +30,7 @@ import { ErrorHandler, createAlertProps } from '../utils/errorHandler';
 
 const AdminOverview = () => {
   const navigate = useNavigate();
-  const { admin, getSchoolsByStatus } = useAdmin();
+  const { admin, getDashboardData } = useAdmin();
   
   // Enhanced state for comprehensive dashboard
   const [dashboardData, setDashboardData] = useState({
@@ -62,64 +62,59 @@ const AdminOverview = () => {
     try {
       setIsLoading(true);
       
-      // Load school statistics from existing admin context
-      const [pendingResponse, approvedResponse] = await Promise.all([
-        getSchoolsByStatus('PENDING'),
-        getSchoolsByStatus('APPROVED')
-      ]);
+      // Fetch comprehensive dashboard data from backend
+      const dashboardResponse = await getDashboardData();
+      const dashboardData = dashboardResponse.data;
 
-      const pendingSchools = pendingResponse?.schools || [];
-      const approvedSchools = approvedResponse?.schools || [];
-      
-      // Mock additional data for comprehensive dashboard
-      const schoolsData = {
-        total: pendingSchools.length + approvedSchools.length + 3, // +3 for demo suspended schools
-        pending: pendingSchools.length,
-        active: approvedSchools.length,
-        suspended: 3
-      };
-
-      // Mock additional system data based on user stories
-      const usersData = { total: 1250, students: 980, instructors: 65, admins: 12 };
-      const financialData = { monthlyRevenue: 45000, totalRevenue: 180000, pendingPayments: 5000 };
-      const systemData = { questionsCount: 450, activeSchools: approvedSchools.length, systemHealth: 'Good' };
-
+      // Set the real data from backend
       setDashboardData({
-        schools: schoolsData,
-        users: usersData,
-        financial: financialData,
-        system: systemData
+        schools: {
+          total: dashboardData.schools?.total || 0,
+          pending: dashboardData.schools?.pending || 0,
+          active: dashboardData.schools?.active || 0,
+          suspended: dashboardData.schools?.suspended || 0
+        },
+        users: {
+          total: dashboardData.users?.total || 0,
+          students: dashboardData.users?.students || 0,
+          instructors: dashboardData.users?.instructors || 0,
+          admins: dashboardData.users?.admins || 0
+        },
+        financial: {
+          monthlyRevenue: dashboardData.financial?.monthlyRevenue || 0,
+          totalRevenue: dashboardData.financial?.totalRevenue || 0,
+          pendingPayments: dashboardData.financial?.pendingPayments || 0
+        },
+        system: {
+          questionsCount: dashboardData.questions?.totalQuestions || 0,
+          activeSchools: dashboardData.schools?.active || 0,
+          systemHealth: dashboardData.system?.status || 'Unknown'
+        }
       });
 
-      // Create recent activities from pending schools and mock data
-      const activities = [
-        ...pendingSchools.slice(0, 3).map(school => ({
-          id: school.id,
-          type: 'school_registration',
-          message: `New school "${school.schoolName}" registered`,
-          time: new Date(school.createdAt).toLocaleDateString(),
-          icon: School
-        })),
-        { id: 'mock1', type: 'payment', message: 'Payment received from DriveRight School ($500)', time: '4 hours ago', icon: DollarSign },
-        { id: 'mock2', type: 'system', message: 'System backup completed successfully', time: '6 hours ago', icon: Shield },
-        { id: 'mock3', type: 'alert', message: 'High traffic detected on platform', time: '8 hours ago', icon: TrendingUp }
-      ];
-
+      // Set recent activities from backend
+      const activities = (dashboardData.recentActivities || []).map(activity => ({
+        id: activity.id,
+        type: activity.type,
+        message: activity.message,
+        time: activity.time,
+        icon: getIconForActivityType(activity.type)
+      }));
       setRecentActivities(activities);
-      
-      // Generate system alerts based on data
+
+      // Generate system alerts based on real data
       const alerts = [];
-      if (schoolsData.pending > 0) {
+      if (dashboardData.schools?.pending > 0) {
         alerts.push({
           type: 'warning',
-          message: `${schoolsData.pending} school${schoolsData.pending > 1 ? 's' : ''} pending approval`,
+          message: `${dashboardData.schools.pending} school${dashboardData.schools.pending > 1 ? 's' : ''} pending approval`,
           action: () => navigate('/admin/schools')
         });
       }
-      if (financialData.pendingPayments > 1000) {
+      if (dashboardData.financial?.pendingPayments > 1000) {
         alerts.push({
           type: 'info', 
-          message: `$${financialData.pendingPayments.toLocaleString()} in pending payments`,
+          message: `$${dashboardData.financial.pendingPayments.toLocaleString()} in pending payments`,
           action: () => navigate('/admin/financial')
         });
       }
@@ -132,17 +127,31 @@ const AdminOverview = () => {
       
       // Set fallback data
       setDashboardData({
-        schools: { total: 12, pending: 3, active: 8, suspended: 1 },
-        users: { total: 1250, students: 980, instructors: 65, admins: 12 },
-        financial: { monthlyRevenue: 45000, totalRevenue: 180000, pendingPayments: 5000 },
-        system: { questionsCount: 450, activeSchools: 8, systemHealth: 'Good' }
+        schools: { total: 0, pending: 0, active: 0, suspended: 0 },
+        users: { total: 0, students: 0, instructors: 0, admins: 0 },
+        financial: { monthlyRevenue: 0, totalRevenue: 0, pendingPayments: 0 },
+        system: { questionsCount: 0, activeSchools: 0, systemHealth: 'Unknown' }
       });
-      setRecentActivities([
-        { id: 1, type: 'school_registration', message: 'New school "SafeDrive Academy" registered', time: '2 hours ago', icon: School },
-        { id: 2, type: 'payment', message: 'Payment received from DriveRight School ($500)', time: '4 hours ago', icon: DollarSign }
-      ]);
+      setRecentActivities([]);
+      setSystemAlerts([]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Helper function to get icon for activity type
+  const getIconForActivityType = (type) => {
+    switch (type) {
+      case 'school_registration':
+        return School;
+      case 'payment':
+        return DollarSign;
+      case 'system':
+        return Shield;
+      case 'question_management':
+        return HelpCircle;
+      default:
+        return Activity;
     }
   };
 
@@ -191,7 +200,7 @@ const AdminOverview = () => {
         <div>
           <p className="text-sm font-medium text-gray-600">{title}</p>
           <p className="text-2xl font-bold text-gray-900">{value}</p>
-          {change && (
+          {change !== null && (
             <p className={`text-sm ${change > 0 ? 'text-green-600' : 'text-red-600'}`}>
               {change > 0 ? '+' : ''}{change}% from last month
             </p>
@@ -275,7 +284,7 @@ const AdminOverview = () => {
           <StatCard
             title="Total Schools"
             value={dashboardData.schools.total}
-            change={12}
+            change={null} // TODO: Calculate real change percentage
             icon={School}
             color="border-blue-500"
             onClick={() => navigate('/admin/schools')}
@@ -283,7 +292,7 @@ const AdminOverview = () => {
           <StatCard
             title="Total Users"
             value={dashboardData.users.total.toLocaleString()}
-            change={8}
+            change={null} // TODO: Calculate real change percentage
             icon={Users}
             color="border-green-500"
             onClick={() => navigate('/admin/users')}
@@ -291,7 +300,7 @@ const AdminOverview = () => {
           <StatCard
             title="Monthly Revenue"
             value={`$${dashboardData.financial.monthlyRevenue.toLocaleString()}`}
-            change={15}
+            change={null} // TODO: Calculate real change percentage
             icon={DollarSign}
             color="border-purple-500"
             onClick={() => navigate('/admin/financial')}
@@ -343,7 +352,7 @@ const AdminOverview = () => {
               </Button>
             </div>
             <div className="space-y-4">
-              {recentActivities.slice(0, 5).map((activity, index) => (
+              {recentActivities.length > 0 ? recentActivities.slice(0, 5).map((activity, index) => (
                 <div key={activity.id || index} className="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg">
                   <div className="p-2 bg-gray-100 rounded-full">
                     <activity.icon className="h-4 w-4 text-gray-600" />
@@ -353,7 +362,12 @@ const AdminOverview = () => {
                     <p className="text-xs text-gray-500">{activity.time}</p>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="text-center py-8 text-gray-500">
+                  <Activity className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                  <p>No recent activities</p>
+                </div>
+              )}
             </div>
           </div>
 

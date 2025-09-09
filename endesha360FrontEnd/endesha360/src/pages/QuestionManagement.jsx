@@ -415,13 +415,14 @@ const QuestionManagement = () => {
         },
         body: JSON.stringify({ questions: bulkQuestions }),
       });
-      
+
       if (response.ok) {
         const result = await response.json();
         setBulkUploadResult(result);
-        showAlert('success', `Bulk upload completed! ${result.successfullyCreated} questions created.`);
-        loadQuestions();
-        loadStatistics();
+        showAlert('success', `Bulk upload completed!`);
+        setShowBulkUploadModal(false); // Close modal
+        loadQuestions(); // Refresh questions
+        loadStatistics(); // Refresh statistics
       } else {
         const error = await response.json();
         throw new Error(error.message || 'Failed to upload questions');

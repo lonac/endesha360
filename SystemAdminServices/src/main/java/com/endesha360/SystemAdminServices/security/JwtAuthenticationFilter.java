@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 username, role, adminId);
                         }
 
-                        // Extract authorities from JWT
+                        // Extract authorities from JWT and always add ROLE_<role>
                         Claims claims = jwtUtil.getAllClaimsFromToken(token);
                         Object authClaim = claims.get("authorities");
                         java.util.List<SimpleGrantedAuthority> authorities = new java.util.ArrayList<>();
@@ -60,9 +60,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             for (Object a : (java.util.Collection<?>) authClaim) {
                                 authorities.add(new SimpleGrantedAuthority(a.toString()));
                             }
-                        } else {
-                            authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
                         }
+                        // Always add ROLE_<role> to authorities
+                        authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
                         UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                 username,

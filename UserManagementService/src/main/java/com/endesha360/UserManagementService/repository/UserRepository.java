@@ -29,4 +29,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     @Query("SELECT u FROM User u JOIN u.tenantUsers tu JOIN tu.roles r WHERE tu.tenant.id = :tenantId AND r.name = :roleName AND tu.isActive = true")
     List<User> findUsersByTenantIdAndRole(@Param("tenantId") Long tenantId, @Param("roleName") String roleName);
+    
+    @Query("SELECT COUNT(u) FROM User u JOIN u.tenantUsers tu JOIN tu.roles r WHERE r.name = :roleName AND tu.isActive = true")
+    Long countUsersByRole(@Param("roleName") String roleName);
 }

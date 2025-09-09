@@ -43,7 +43,7 @@ public class SecurityConfig {
                 // Authenticated endpoints
                 .requestMatchers("/api/schools/register").authenticated()  // School registration
                 .requestMatchers("/api/schools/my-school").authenticated()  // Owner's school management
-                .requestMatchers("/api/schools/admin/**").hasRole("ADMIN")  // Admin endpoints
+                .requestMatchers("/api/schools/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")  // Admin endpoints
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
