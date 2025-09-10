@@ -26,16 +26,18 @@ public class SchoolAdminController {
     
     @GetMapping("/pending")
     @Operation(summary = "Get schools pending approval")
-    public ResponseEntity<List<School>> getPendingApprovalSchools() {
-        List<School> schools = schoolService.getPendingApprovalSchools();
-        return ResponseEntity.ok(schools);
+        public ResponseEntity<List<com.endesha360.SchoolManagementService.dto.SchoolDTO>> getPendingApprovalSchools() {
+            List<School> schools = schoolService.getPendingApprovalSchools();
+            List<com.endesha360.SchoolManagementService.dto.SchoolDTO> dtos = schoolService.mapSchoolsToDTOs(schools);
+            return ResponseEntity.ok(dtos);
     }
     
     @GetMapping("/active")
     @Operation(summary = "Get all active and approved schools")
-    public ResponseEntity<List<School>> getActiveSchools() {
-        List<School> schools = schoolService.getActiveSchools();
-        return ResponseEntity.ok(schools);
+        public ResponseEntity<List<com.endesha360.SchoolManagementService.dto.SchoolDTO>> getActiveSchools() {
+            List<School> schools = schoolService.getActiveSchools();
+            List<com.endesha360.SchoolManagementService.dto.SchoolDTO> dtos = schoolService.mapSchoolsToDTOs(schools);
+            return ResponseEntity.ok(dtos);
     }
     
     @PostMapping("/{schoolId}/approve")

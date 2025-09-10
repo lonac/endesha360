@@ -11,6 +11,8 @@ import java.util.Optional;
 
 @Repository
 public interface SchoolRepository extends JpaRepository<School, Long> {
+    @Query("SELECT COUNT(s) FROM School s WHERE s.isApproved = false AND s.isActive = false")
+    Long countRejectedSchools();
     
     Optional<School> findByRegistrationNumber(String registrationNumber);
     

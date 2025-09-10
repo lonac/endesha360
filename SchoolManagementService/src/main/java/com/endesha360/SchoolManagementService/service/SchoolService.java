@@ -20,6 +20,40 @@ import java.util.UUID;
 @Service
 @Transactional
 public class SchoolService {
+    // Helper to map School entities to SchoolDTOs with approvalStatus
+    public List<com.endesha360.SchoolManagementService.dto.SchoolDTO> mapSchoolsToDTOs(List<School> schools) {
+        List<com.endesha360.SchoolManagementService.dto.SchoolDTO> dtos = new java.util.ArrayList<>();
+        for (School school : schools) {
+            com.endesha360.SchoolManagementService.dto.SchoolDTO dto = new com.endesha360.SchoolManagementService.dto.SchoolDTO();
+            dto.setId(school.getId());
+            dto.setName(school.getName());
+            dto.setDescription(school.getDescription());
+            dto.setAddress(school.getAddress());
+            dto.setCity(school.getCity());
+            dto.setRegion(school.getRegion());
+            dto.setPostalCode(school.getPostalCode());
+            dto.setCountry(school.getCountry());
+            dto.setPhoneNumber(school.getPhone());
+            dto.setEmail(school.getEmail());
+            dto.setWebsite(school.getWebsite());
+            dto.setLicenseNumber(null); // Set if available
+            dto.setTenantCode(school.getTenantCode());
+            dto.setOwnerId(null); // Set if available
+            dto.setOwnerUserId(school.getOwnerUserId());
+            dto.setOwnerName(null); // Set if available
+            dto.setOwnerEmail(null); // Set if available
+            // Set approvalStatus
+            if (Boolean.TRUE.equals(school.getIsApproved()) && Boolean.TRUE.equals(school.getIsActive())) {
+                dto.setApprovalStatus("APPROVED");
+            } else if (Boolean.FALSE.equals(school.getIsApproved()) && Boolean.FALSE.equals(school.getIsActive())) {
+                dto.setApprovalStatus("REJECTED");
+            } else {
+                dto.setApprovalStatus("PENDING");
+            }
+            dtos.add(dto);
+        }
+        return dtos;
+    }
     /**
      * Get all approved schools
      */
@@ -235,11 +269,11 @@ public class SchoolService {
      * Get school statistics
      */
     public SchoolStats getSchoolStats() {
-        long totalSchools = schoolRepository.count();
-        long activeSchools = schoolRepository.countActiveSchools();
-        long pendingApproval = schoolRepository.countPendingApprovalSchools();
-        
-        return new SchoolStats(totalSchools, activeSchools, pendingApproval);
+    long totalSchools = schoolRepository.count();
+    long activeSchools = schoolRepository.countActiveSchools();
+    long pendingApproval = schoolRepository.countPendingApprovalSchools();
+    long rejectedSchools = schoolRepository.countRejectedSchools();
+    return new SchoolStats(totalSchools, activeSchools, pendingApproval, rejectedSchools);
     }
     
     /**
@@ -249,16 +283,19 @@ public class SchoolService {
         private long totalSchools;
         private long activeSchools;
         private long pendingApproval;
-        
-        public SchoolStats(long totalSchools, long activeSchools, long pendingApproval) {
+        private long rejectedSchools;
+
+        public SchoolStats(long totalSchools, long activeSchools, long pendingApproval, long rejectedSchools) {
             this.totalSchools = totalSchools;
             this.activeSchools = activeSchools;
             this.pendingApproval = pendingApproval;
+            this.rejectedSchools = rejectedSchools;
         }
-        
+
         // Getters
         public long getTotalSchools() { return totalSchools; }
         public long getActiveSchools() { return activeSchools; }
         public long getPendingApproval() { return pendingApproval; }
+        public long getRejectedSchools() { return rejectedSchools; }
     }
 }

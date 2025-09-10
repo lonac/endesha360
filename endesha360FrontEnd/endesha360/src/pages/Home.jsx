@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ApprovedSchools from '../components/ApprovedSchools';
 import { Link, useNavigate } from 'react-router-dom';
 import { Car, Users, BookOpen, BarChart3, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -45,8 +46,8 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-[#FFFBE6]">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#00712D] via-[#005a24] to-[#00712D]">
+  {/* Hero Section */}
+  <section className="relative overflow-hidden bg-gradient-to-br from-[#00712D] via-[#005a24] to-[#00712D]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
@@ -87,7 +88,8 @@ const Home = () => {
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#D5ED9F]/10 rounded-full blur-3xl"></div>
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#FF9100]/10 rounded-full blur-3xl"></div>
         </div>
-      </section>
+  </section>
+
 
       {/* Features Section */}
       <section className="py-20">
@@ -169,7 +171,9 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+  {/* Approved Schools Section */}
+  <ApprovedSchools />
+  {/* CTA Section */}
       <section className="py-20 bg-[#00712D]">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">

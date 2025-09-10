@@ -26,16 +26,18 @@ public class SchoolController {
     
     @GetMapping("/approved")
     @Operation(summary = "Get approved schools", description = "Internal API for System Admin Services")
-    public ResponseEntity<java.util.List<School>> getApprovedSchoolsForAdmin() {
+    public ResponseEntity<java.util.List<com.endesha360.SchoolManagementService.dto.SchoolDTO>> getApprovedSchoolsForAdmin() {
         java.util.List<School> schools = schoolService.getApprovedSchools();
-        return ResponseEntity.ok(schools);
+        java.util.List<com.endesha360.SchoolManagementService.dto.SchoolDTO> dtos = schoolService.mapSchoolsToDTOs(schools);
+        return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/rejected")
     @Operation(summary = "Get rejected schools", description = "Internal API for System Admin Services")
-    public ResponseEntity<java.util.List<School>> getRejectedSchoolsForAdmin() {
+    public ResponseEntity<java.util.List<com.endesha360.SchoolManagementService.dto.SchoolDTO>> getRejectedSchoolsForAdmin() {
         java.util.List<School> schools = schoolService.getRejectedSchools();
-        return ResponseEntity.ok(schools);
+        java.util.List<com.endesha360.SchoolManagementService.dto.SchoolDTO> dtos = schoolService.mapSchoolsToDTOs(schools);
+        return ResponseEntity.ok(dtos);
     }
     
     private static final Logger logger = LoggerFactory.getLogger(SchoolController.class);
@@ -139,9 +141,10 @@ public class SchoolController {
     
     @GetMapping("/pending")
     @Operation(summary = "Get schools pending approval", description = "Internal API for System Admin Services")
-    public ResponseEntity<java.util.List<School>> getPendingSchoolsForAdmin() {
+    public ResponseEntity<java.util.List<com.endesha360.SchoolManagementService.dto.SchoolDTO>> getPendingSchoolsForAdmin() {
         java.util.List<School> schools = schoolService.getPendingApprovalSchools();
-        return ResponseEntity.ok(schools);
+        java.util.List<com.endesha360.SchoolManagementService.dto.SchoolDTO> dtos = schoolService.mapSchoolsToDTOs(schools);
+        return ResponseEntity.ok(dtos);
     }
     
     @GetMapping("/{schoolId}")
@@ -158,9 +161,10 @@ public class SchoolController {
     
     @GetMapping("/all")
     @Operation(summary = "Get all schools", description = "Internal API for System Admin Services")
-    public ResponseEntity<java.util.List<School>> getAllSchoolsForAdmin() {
+    public ResponseEntity<java.util.List<com.endesha360.SchoolManagementService.dto.SchoolDTO>> getAllSchoolsForAdmin() {
         java.util.List<School> schools = schoolService.getAllSchools();
-        return ResponseEntity.ok(schools);
+        java.util.List<com.endesha360.SchoolManagementService.dto.SchoolDTO> dtos = schoolService.mapSchoolsToDTOs(schools);
+        return ResponseEntity.ok(dtos);
     }
     
     @PutMapping("/{schoolId}/approve")

@@ -1,6 +1,6 @@
 package com.endesha360.SystemAdminServices.service;
 
-import com.endesha360.SystemAdminServices.client.SchoolManagementClient;
+import com.endesha360.SystemAdminServices.client.SchoolServiceFeignClient;
 import com.endesha360.SystemAdminServices.client.UserManagementClient;
 import com.endesha360.SystemAdminServices.dto.QuestionStatisticsDTO;
 import org.slf4j.Logger;
@@ -21,7 +21,7 @@ public class DashboardService {
     private QuestionManagementService questionManagementService;
 
     @Autowired
-    private SchoolManagementClient schoolManagementClient;
+    private SchoolServiceFeignClient schoolServiceFeignClient;
 
     @Autowired
     private UserManagementClient userManagementClient;
@@ -76,7 +76,7 @@ public class DashboardService {
         return getSchoolStatistics(null);
     }
     public Map<String, Object> getSchoolStatistics(String token) {
-        var schoolStats = schoolManagementClient.getSchoolStatistics(token);
+    var schoolStats = schoolServiceFeignClient.getSchoolStatistics();
         return Map.of(
             "total", schoolStats.getTotalSchools(),
             "active", schoolStats.getActiveSchools(),
