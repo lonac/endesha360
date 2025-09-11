@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import SchoolView from '../components/SchoolView';
 import { useAuthenticatedFetch } from '../hooks/useAuthenticatedFetch';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -796,7 +797,7 @@ const SchoolManagement = () => {
           <Modal
             isOpen={showViewModal}
             onClose={() => setShowViewModal(false)}
-            title="View School"
+            title="School Details"
           >
             <SchoolView school={selectedSchool} />
           </Modal>
@@ -994,81 +995,5 @@ const SchoolForm = ({ schoolForm, setSchoolForm, onSubmit, onCancel, submitLabel
   );
 };
 
-// School View Component
-const SchoolView = ({ school }) => {
-  // Debug log to inspect school object and status logic
-  console.log('SchoolView school object:', school);
-  console.log('SchoolView approvalStatus:', school.approvalStatus);
-  console.log('SchoolView isApproved:', school.isApproved);
-  console.log('SchoolView isActive:', school.isActive);
-  // Helper to derive status from isApproved/isActive or approvalStatus
-  // Helper to derive status from isApproved/isActive or approvalStatus
-  const getStatus = (school) => {
-    if (typeof school.isApproved === 'boolean' && typeof school.isActive === 'boolean') {
-      if (school.isApproved === true && school.isActive === true) return 'APPROVED';
-      if (school.isApproved === false) return 'REJECTED';
-      return 'PENDING';
-    }
-    // Fallback to approvalStatus if booleans are missing
-    if (school.approvalStatus) return school.approvalStatus;
-    return 'PENDING';
-  };
-
-  const status = getStatus(school);
-  const statusClass =
-    status === 'APPROVED'
-      ? 'bg-green-100 text-green-800'
-      : status === 'REJECTED'
-      ? 'bg-red-100 text-red-800'
-      : 'bg-yellow-100 text-yellow-800';
-
-  return (
-    <div className="space-y-4">
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">School Details</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h4 className="text-md font-medium text-gray-900 mb-2">Basic Information</h4>
-            <div className="space-y-2">
-              <p><span className="font-medium">Name:</span> {school.name}</p>
-              <p><span className="font-medium">Email:</span> {school.email}</p>
-              <p><span className="font-medium">Phone:</span> {school.phoneNumber || 'N/A'}</p>
-              <p><span className="font-medium">Website:</span> {school.website || 'N/A'}</p>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="text-md font-medium text-gray-900 mb-2">Location</h4>
-            <div className="space-y-2">
-              <p><span className="font-medium">Address:</span> {school.address || 'N/A'}</p>
-              <p><span className="font-medium">City:</span> {school.city || 'N/A'}</p>
-              <p><span className="font-medium">Country:</span> {school.country || 'N/A'}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <h4 className="text-md font-medium text-gray-900 mb-2">Owner/Administrator</h4>
-        <div className="space-y-2">
-          <p><span className="font-medium">Name:</span> {school.ownerName || 'N/A'}</p>
-          <p><span className="font-medium">Email:</span> {school.ownerEmail || 'N/A'}</p>
-        </div>
-      </div>
-
-      <div>
-        <h4 className="text-md font-medium text-gray-900 mb-2">Description</h4>
-        <p className="text-gray-700">{school.description || 'No description available'}</p>
-      </div>
-
-      <div>
-        <h4 className="text-md font-medium text-gray-900 mb-2">Status</h4>
-        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusClass}`}>
-          {status}
-        </span>
-      </div>
-    </div>
-  );
-};
 
 export default SchoolManagement;

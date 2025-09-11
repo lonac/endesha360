@@ -20,7 +20,7 @@ const Modal = ({ isOpen, onClose, children, title, className }) => {
           <X size={20} />
         </button>
         {title && (
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 pr-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 pr-8 text-center">
             {title}
           </h2>
         )}
