@@ -7,6 +7,14 @@ const API_ENDPOINTS = {
   SYSTEM_ADMIN_SERVICE: 'http://localhost:8087/api/admin'
 };
 
+// const API_ENDPOINTS = {
+//   USER_SERVICE_AUTH: import.meta.env.VITE_API_USER_AUTH,
+//   USER_SERVICE: import.meta.env.VITE_API_USER,
+//   SCHOOL_SERVICE: import.meta.env.VITE_API_SCHOOL,
+//   ADMIN_SERVICE: import.meta.env.VITE_API_ADMIN,
+//   SYSTEM_ADMIN_SERVICE: import.meta.env.VITE_API_SYSTEM_ADMIN
+// };
+
 class ApiService {
   // Student Registration (User Management Service)
   async registerStudent(userData) {
