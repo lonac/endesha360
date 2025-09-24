@@ -8,13 +8,15 @@ import AdminLayout from '../components/AdminLayout';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
 import Modal from '../components/Modal';
-import SchoolView from '../components/SchoolView';
-import SchoolStatistics from '../components/SchoolStatistics';
-import SchoolFilters from '../components/SchoolFilters';
-import SchoolTable from '../components/SchoolTable';
-import Pagination from '../components/Pagination';
-import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
-import SchoolFormComponent from '../components/SchoolFormComponent';
+
+// SchoolManagement Components
+import SchoolView from '../components/SchoolManagement/SchoolView';
+import SchoolStatistics from '../components/SchoolManagement/SchoolStatistics';
+import SchoolFilters from '../components/SchoolManagement/SchoolFilters';
+import SchoolTable from '../components/SchoolManagement/SchoolTable';
+import Pagination from '../components/SchoolManagement/Pagination';
+import DeleteConfirmationModal from '../components/SchoolManagement/DeleteConfirmationModal';
+import SchoolFormComponent from '../components/SchoolManagement/SchoolFormComponent';
 
 const SchoolManagement = () => {
   const navigate = useNavigate();
