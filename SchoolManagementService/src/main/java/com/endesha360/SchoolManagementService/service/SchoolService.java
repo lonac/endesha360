@@ -1,7 +1,10 @@
 package com.endesha360.SchoolManagementService.service;
 
+import com.endesha360.SchoolManagementService.client.UserManagementClient;
 import com.endesha360.SchoolManagementService.dto.SchoolRegistrationRequest;
 import com.endesha360.SchoolManagementService.dto.SchoolRegistrationResponse;
+import com.endesha360.SchoolManagementService.dto.TenantCreationRequest;
+import com.endesha360.SchoolManagementService.dto.TenantResponse;
 import com.endesha360.SchoolManagementService.entity.School;
 import com.endesha360.SchoolManagementService.exception.SchoolAlreadyExistsException;
 import com.endesha360.SchoolManagementService.exception.SchoolNotFoundException;
@@ -10,6 +13,7 @@ import com.endesha360.SchoolManagementService.repository.SchoolRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,6 +79,9 @@ public class SchoolService {
     
     @Autowired
     private SchoolRepository schoolRepository;
+    
+    @Autowired
+    private UserManagementClient userManagementClient;
     
     /**
      * Register a new school - Step 2 of the registration flow
@@ -167,9 +174,57 @@ public class SchoolService {
         School school = schoolRepository.findById(schoolId)
                 .orElseThrow(() -> new SchoolNotFoundException("School not found with ID: " + schoolId));
         
-        school.setIsApproved(true);
-        schoolRepository.save(school);
-        logger.info("School approved: {}", schoolId);
+        logger.info("Starting school approval process: schoolId={}, tenantCode={}", schoolId, school.getTenantCode());
+        
+        try {
+            // Step 1: Check if tenant already exists in UserManagementService
+            ResponseEntity<Boolean> existsResponse = userManagementClient.tenantExists(school.getTenantCode());
+            boolean tenantExists = existsResponse.getBody() != null && existsResponse.getBody();
+            
+            if (!tenantExists) {
+                // Step 2: Create tenant in UserManagementService using Feign client
+                String tenantDescription = "Tenant for " + school.getName() + " driving school";
+                TenantCreationRequest tenantRequest = new TenantCreationRequest(
+                    school.getName(), 
+                    school.getTenantCode(), 
+                    tenantDescription
+                );
+                
+                ResponseEntity<TenantResponse> createResponse = userManagementClient.createTenant(tenantRequest);
+                
+                if (!createResponse.getStatusCode().is2xxSuccessful()) {
+                    throw new RuntimeException("Failed to create tenant in UserManagementService: " + school.getTenantCode() + 
+                                             " - HTTP Status: " + createResponse.getStatusCode());
+                }
+                
+                logger.info("Tenant created successfully in UserManagementService: {}", school.getTenantCode());
+            } else {
+                logger.info("Tenant already exists in UserManagementService: {}", school.getTenantCode());
+                
+                // Ensure tenant is activated
+                ResponseEntity<String> activateResponse = userManagementClient.activateTenant(school.getTenantCode());
+                if (!activateResponse.getStatusCode().is2xxSuccessful()) {
+                    logger.warn("Failed to activate existing tenant: {} - HTTP Status: {}", 
+                               school.getTenantCode(), activateResponse.getStatusCode());
+                }
+            }
+            
+            // Step 3: Approve the school
+            school.setIsApproved(true);
+            schoolRepository.save(school);
+            
+            logger.info("School approved successfully: schoolId={}, tenantCode={}", schoolId, school.getTenantCode());
+            
+        } catch (Exception e) {
+            logger.error("Error during school approval: schoolId={}, tenantCode={}, error={}", 
+                        schoolId, school.getTenantCode(), e.getMessage(), e);
+            
+            // Rollback: ensure school remains unapproved if tenant creation failed
+            school.setIsApproved(false);
+            schoolRepository.save(school);
+            
+            throw new RuntimeException("School approval failed: " + e.getMessage(), e);
+        }
     }
     
     /**
@@ -207,14 +262,52 @@ public class SchoolService {
         School school = schoolRepository.findById(schoolId)
                 .orElseThrow(() -> new SchoolNotFoundException("School not found with id: " + schoolId));
         
-        school.setIsApproved(false);
-        school.setIsActive(false);
-        if (rejectionReason != null && !rejectionReason.isEmpty()) {
-            school.setRejectionReason(rejectionReason);
-        }
-        schoolRepository.save(school);
+        logger.info("Starting school rejection process: schoolId={}, tenantCode={}", schoolId, school.getTenantCode());
         
-        logger.info("School rejected: {} - Reason: {}", schoolId, rejectionReason);
+        try {
+            // Step 1: Deactivate tenant in UserManagementService if it exists
+            ResponseEntity<Boolean> existsResponse = userManagementClient.tenantExists(school.getTenantCode());
+            boolean tenantExists = existsResponse.getBody() != null && existsResponse.getBody();
+            
+            if (tenantExists) {
+                ResponseEntity<String> deactivateResponse = userManagementClient.deactivateTenant(school.getTenantCode());
+                
+                if (!deactivateResponse.getStatusCode().is2xxSuccessful()) {
+                    logger.warn("Failed to deactivate tenant in UserManagementService: {} - HTTP Status: {}", 
+                               school.getTenantCode(), deactivateResponse.getStatusCode());
+                    // Continue with school rejection even if tenant deactivation fails
+                } else {
+                    logger.info("Tenant deactivated in UserManagementService: {}", school.getTenantCode());
+                }
+            } else {
+                logger.info("Tenant does not exist in UserManagementService: {}", school.getTenantCode());
+            }
+            
+            // Step 2: Reject the school
+            school.setIsApproved(false);
+            school.setIsActive(false);
+            if (rejectionReason != null && !rejectionReason.isEmpty()) {
+                school.setRejectionReason(rejectionReason);
+            }
+            schoolRepository.save(school);
+            
+            logger.info("School rejected successfully: schoolId={}, tenantCode={}, reason={}", 
+                       schoolId, school.getTenantCode(), rejectionReason);
+            
+        } catch (Exception e) {
+            logger.error("Error during school rejection: schoolId={}, tenantCode={}, error={}", 
+                        schoolId, school.getTenantCode(), e.getMessage(), e);
+            
+            // Continue with school rejection even if tenant deactivation fails
+            school.setIsApproved(false);
+            school.setIsActive(false);
+            if (rejectionReason != null && !rejectionReason.isEmpty()) {
+                school.setRejectionReason(rejectionReason);
+            }
+            schoolRepository.save(school);
+            
+            logger.info("School rejected (with tenant deactivation warning): {} - Reason: {}", schoolId, rejectionReason);
+        }
     }
     
     /**

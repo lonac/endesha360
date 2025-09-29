@@ -8,6 +8,7 @@ import Input from '../components/Input';
 import Alert from '../components/Alert';
 import Modal from '../components/Modal';
 import SelectRole from './SelectRole';
+import apiService from '../services/api';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,10 +30,16 @@ const Login = () => {
     setError('');
 
     try {
+      // Step 1: Detect which tenant this user belongs to
+      console.log('Detecting tenant for user:', data.email);
+      const userTenantCode = await apiService.detectUserTenant(data.email);
+      console.log('Detected tenant code:', userTenantCode);
+
+      // Step 2: Login with the detected tenant code
       const response = await login({
         email: data.email,
         password: data.password,
-        tenantCode: 'PLATFORM' // School owners login to PLATFORM tenant
+        tenantCode: userTenantCode // Dynamic tenant detection
       });
       
       // Check user role and redirect accordingly

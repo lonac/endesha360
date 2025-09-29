@@ -6,6 +6,17 @@ Driving School SaaS - Microservices Architecture Analysis.pdf
 UserStories
 DrivingSchoolSaaS*
 
+# Ignore all documentation files (markdown)
+*.md
+docs/
+README.md
+
+# Ignore SQL files
+*.sql
+
+# Ignore shell script files
+*.sh
+
 # Log files
 *.log
 logs/

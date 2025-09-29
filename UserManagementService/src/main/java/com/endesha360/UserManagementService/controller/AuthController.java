@@ -64,6 +64,24 @@ public class AuthController {
         return ResponseEntity.ok(false);
     }
     
+    @PostMapping("/detect-tenant")
+    @Operation(summary = "Detect user tenant", description = "Detect which tenant a user belongs to for dynamic login")
+    public ResponseEntity<java.util.Map<String, String>> detectUserTenant(@RequestBody java.util.Map<String, String> request) {
+        try {
+            String usernameOrEmail = request.get("usernameOrEmail");
+            if (usernameOrEmail == null || usernameOrEmail.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body(java.util.Map.of("error", "usernameOrEmail is required"));
+            }
+            
+            String tenantCode = authenticationService.detectUserTenant(usernameOrEmail.trim());
+            return ResponseEntity.ok(java.util.Map.of("tenantCode", tenantCode));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(java.util.Map.of("error", e.getMessage()));
+        }
+    }
+    
     @GetMapping("/me")
     @Operation(summary = "Get current user info", description = "Get current user information from token")
     public ResponseEntity<LoginResponse.UserInfo> getCurrentUser(HttpServletRequest request) {

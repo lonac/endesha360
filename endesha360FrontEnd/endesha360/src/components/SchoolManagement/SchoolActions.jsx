@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from './Button';
+import Button from '../Button';
 import { Eye, Edit, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 
 const SchoolActions = ({ 

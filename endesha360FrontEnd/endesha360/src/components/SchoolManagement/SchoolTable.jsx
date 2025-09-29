@@ -1,8 +1,8 @@
 import React from 'react';
 import SchoolTableHeader from './SchoolTableHeader';
 import SchoolTableRow from './SchoolTableRow';
-import LoadingSpinner from './LoadingSpinner';
-import EmptyState from './EmptyState';
+import LoadingSpinner from '../LoadingSpinner';
+import EmptyState from '../EmptyState';
 
 const SchoolTable = ({ 
   schools = [],

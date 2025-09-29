@@ -175,6 +175,30 @@ class ApiService {
     }
   }
 
+  async detectUserTenant(usernameOrEmail) {
+    try {
+      const response = await fetch(`${API_ENDPOINTS.USER_SERVICE_AUTH}/detect-tenant`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ usernameOrEmail }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to detect user tenant');
+      }
+      
+      return data.tenantCode;
+    } catch (error) {
+      console.error('Tenant detection error:', error);
+      // Return PLATFORM as fallback for backward compatibility
+      return 'PLATFORM';
+    }
+  }
+
   async getCurrentUser() {
     try {
       const token = this.getToken();
@@ -277,6 +301,78 @@ class ApiService {
     } catch (error) {
       console.error('Get school error:', error);
       throw error;
+    }
+  }
+
+  async getMyStudentCount() {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No authentication token found for student count');
+        throw new Error('No authentication token found');
+      }
+
+      console.log('Calling student count API:', `${API_ENDPOINTS.USER_SERVICE}/school-owners/student-count`);
+      const response = await fetch(`${API_ENDPOINTS.USER_SERVICE}/school-owners/student-count`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      console.log('Student count API response status:', response.status);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          console.log('Student count API returned 404, returning 0');
+          return 0; // No students found
+        }
+        const data = await response.json();
+        console.error('Student count API error response:', data);
+        throw new Error(data.message || 'Failed to get student count');
+      }
+      
+      const data = await response.json();
+      console.log('Student count API success response:', data);
+      return data.count || 0;
+    } catch (error) {
+      console.error('Get student count error:', error);
+      return 0; // Return 0 on error instead of throwing
+    }
+  }
+
+  async getMyRecentActivities(limit = 10) {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No authentication token found for recent activities');
+        throw new Error('No authentication token found');
+      }
+
+      console.log('Calling recent activities API:', `${API_ENDPOINTS.USER_SERVICE}/school-owners/recent-activities`);
+      const response = await fetch(`${API_ENDPOINTS.USER_SERVICE}/school-owners/recent-activities?limit=${limit}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      console.log('Recent activities API response status:', response.status);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          console.log('Recent activities API returned 404, returning empty array');
+          return []; // No activities found
+        }
+        const data = await response.json();
+        console.error('Recent activities API error response:', data);
+        throw new Error(data.message || 'Failed to get recent activities');
+      }
+      
+      const data = await response.json();
+      console.log('Recent activities API success response:', data);
+      return data.activities || [];
+    } catch (error) {
+      console.error('Get recent activities error:', error);
+      return []; // Return empty array on error instead of throwing
     }
   }
 

@@ -1,7 +1,7 @@
 import React from 'react';
-import SearchInput from './SearchInput';
-import CustomSelect from './CustomSelect';
-import Button from './Button';
+import SearchInput from '../SearchInput';
+import CustomSelect from '../CustomSelect';
+import Button from '../Button';
 
 const SchoolFilters = ({
   searchTerm,

@@ -1,6 +1,6 @@
 import React from 'react';
-import Button from './Button';
-import CustomSelect from './CustomSelect';
+import Button from '../Button';
+import CustomSelect from '../CustomSelect';
 
 const Pagination = ({ 
   currentPage, 

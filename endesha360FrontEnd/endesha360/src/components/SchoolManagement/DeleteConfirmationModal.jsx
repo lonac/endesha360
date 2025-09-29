@@ -1,7 +1,7 @@
 import React from 'react';
-import Modal from './Modal';
+import Modal from '../Modal';
 import { Trash2 } from 'lucide-react';
-import Button from './Button';
+import Button from '../Button';
 
 const DeleteConfirmationModal = ({ 
   isOpen, 

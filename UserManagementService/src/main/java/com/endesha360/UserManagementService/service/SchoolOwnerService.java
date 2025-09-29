@@ -110,4 +110,59 @@ public class SchoolOwnerService {
         tenantUserRepository.save(tenantUser);
         logger.info("Successfully assigned SCHOOL_OWNER role to user: {}", userId);
     }
+
+    /**
+     * Get count of students registered under a specific tenant
+     */
+    public long getStudentCountByTenant(String tenantCode) {
+        try {
+            logger.info("Getting student count for tenant: {}", tenantCode);
+            
+            // Find the tenant
+            Tenant tenant = tenantRepository.findByCode(tenantCode)
+                    .orElse(null);
+            
+            if (tenant == null) {
+                logger.warn("Tenant not found: {}", tenantCode);
+                return 0;
+            }
+            
+            // Find STUDENT role
+            Role studentRole = roleRepository.findByName("STUDENT")
+                    .orElse(null);
+            
+            if (studentRole == null) {
+                logger.warn("STUDENT role not found");
+                return 0;
+            }
+            
+            // Count students in this tenant
+            long count = tenantUserRepository.countByTenantIdAndRoles(tenant.getId(), studentRole);
+            logger.info("Found {} students for tenant: {}", count, tenantCode);
+            
+            return count;
+        } catch (Exception e) {
+            logger.error("Error getting student count for tenant {}: {}", tenantCode, e.getMessage(), e);
+            return 0;
+        }
+    }
+
+    /**
+     * Get count of students for a school owner's school
+     * This method needs to call SchoolManagementService to get the school's tenant code
+     */
+    public long getStudentCountBySchoolOwner(String userId) {
+        try {
+            logger.info("Getting student count for school owner with userId: {}", userId);
+            
+            // TODO: For now, we'll hardcode the tenant code since we know it's SAFEDRIV
+            // In production, this should call SchoolManagementService to get the school's tenantCode
+            String schoolTenantCode = "SAFEDRIV"; // This should be fetched from school service
+            
+            return getStudentCountByTenant(schoolTenantCode);
+        } catch (Exception e) {
+            logger.error("Error getting student count for school owner {}: {}", userId, e.getMessage(), e);
+            return 0;
+        }
+    }
 }

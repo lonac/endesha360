@@ -42,6 +42,9 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     
+    @Autowired
+    private ActivityService activityService;
+    
     public UserResponse createUser(UserRegistrationRequest request) {
         // Check if user already exists
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -79,6 +82,32 @@ public class UserService {
         }
         
         tenantUserRepository.save(tenantUser);
+        
+        // Log registration activity based on role
+        if (defaultRole.isPresent()) {
+            String roleName = defaultRole.get().getName();
+            if ("STUDENT".equals(roleName)) {
+                activityService.logActivity(
+                    "STUDENT_REGISTRATION",
+                    String.format("📚 New student joined: %s %s (%s)", 
+                        user.getFirstName(), user.getLastName(), user.getEmail()),
+                    tenant.getCode(),
+                    user.getId().toString(),
+                    String.format("{\"username\":\"%s\",\"email\":\"%s\",\"fullName\":\"%s %s\"}", 
+                        user.getUsername(), user.getEmail(), user.getFirstName(), user.getLastName())
+                );
+            } else if ("INSTRUCTOR".equals(roleName)) {
+                activityService.logActivity(
+                    "INSTRUCTOR_REGISTRATION",
+                    String.format("👨‍🏫 New instructor joined: %s %s (%s)", 
+                        user.getFirstName(), user.getLastName(), user.getEmail()),
+                    tenant.getCode(),
+                    user.getId().toString(),
+                    String.format("{\"username\":\"%s\",\"email\":\"%s\",\"fullName\":\"%s %s\"}", 
+                        user.getUsername(), user.getEmail(), user.getFirstName(), user.getLastName())
+                );
+            }
+        }
         
         return convertToUserResponse(user, tenant.getCode());
     }

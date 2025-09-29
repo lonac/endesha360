@@ -18,6 +18,8 @@ public interface TenantUserRepository extends JpaRepository<TenantUser, Long> {
     
     List<TenantUser> findByUserIdAndIsActiveTrue(Long userId);
     
+    List<TenantUser> findByUserId(Long userId);
+    
     @Query("SELECT tu FROM TenantUser tu JOIN tu.roles r WHERE tu.tenant.id = :tenantId AND r.name = :roleName AND tu.isActive = true")
     List<TenantUser> findByTenantIdAndRoleName(@Param("tenantId") Long tenantId, @Param("roleName") String roleName);
     
@@ -25,4 +27,7 @@ public interface TenantUserRepository extends JpaRepository<TenantUser, Long> {
     Optional<TenantUser> findActiveTenantUser(@Param("userId") Long userId, @Param("tenantId") Long tenantId);
     
     Boolean existsByTenantIdAndUserIdAndIsActiveTrue(Long tenantId, Long userId);
+    
+    @Query("SELECT COUNT(tu) FROM TenantUser tu JOIN tu.roles r WHERE tu.tenant.id = :tenantId AND r = :role AND tu.isActive = true")
+    long countByTenantIdAndRoles(@Param("tenantId") Long tenantId, @Param("role") com.endesha360.UserManagementService.entity.Role role);
 }

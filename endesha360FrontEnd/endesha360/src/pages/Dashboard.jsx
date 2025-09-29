@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { School, Users, BookOpen, BarChart3, Plus, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { School, Users, BookOpen, BarChart3, Plus, CheckCircle, Clock, AlertCircle, UserPlus, UserCheck, LogIn, Edit, Shield, Activity } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
 
 const Dashboard = () => {
-  const { user, getMySchool } = useAuth();
+  const { user, getMySchool, getMyStudentCount, getMyRecentActivities } = useAuth();
   const [school, setSchool] = useState(null);
   const [schoolLoading, setSchoolLoading] = useState(true);
   const [schoolError, setSchoolError] = useState(null);
+  const [studentCount, setStudentCount] = useState(0);
+  const [studentCountLoading, setStudentCountLoading] = useState(false);
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(false);
   // Fetch school info for school owner
   useEffect(() => {
     const fetchSchool = async () => {
@@ -30,6 +34,55 @@ const Dashboard = () => {
       fetchSchool();
     }
   }, [user, getMySchool]);
+
+  // Fetch student count for school owner
+  useEffect(() => {
+    const fetchStudentCount = async () => {
+      if (school && school.isApproved) {
+        console.log("Fetching student count for approved school:", school.name, "tenantCode:", school.tenantCode);
+        setStudentCountLoading(true);
+        try {
+          const count = await getMyStudentCount();
+          console.log("Student count fetched:", count, "type:", typeof count);
+          setStudentCount(count);
+        } catch (err) {
+          console.error("Failed to fetch student count:", err);
+          setStudentCount(0);
+        } finally {
+          setStudentCountLoading(false);
+        }
+      } else {
+        console.log("School not ready for student count fetch. School:", school, "isApproved:", school?.isApproved);
+      }
+    };
+
+    fetchStudentCount();
+  }, [school, getMyStudentCount]);
+
+  // Fetch recent activities for school owner
+  useEffect(() => {
+    const fetchRecentActivities = async () => {
+      if (school && school.isApproved) {
+        console.log("Fetching recent activities for approved school:", school.name);
+        setActivitiesLoading(true);
+        try {
+          const activities = await getMyRecentActivities(10);
+          console.log("Recent activities fetched:", activities);
+          setRecentActivities(activities);
+        } catch (err) {
+          console.error("Failed to fetch recent activities:", err);
+          setRecentActivities([]);
+        } finally {
+          setActivitiesLoading(false);
+        }
+      } else {
+        console.log("School not ready for activities fetch. School:", school, "isApproved:", school?.isApproved);
+      }
+    };
+
+    fetchRecentActivities();
+  }, [school, getMyRecentActivities]);
+
   const navigate = useNavigate();
   const location = useLocation();
   const [showAlert, setShowAlert] = useState(false);
@@ -48,10 +101,52 @@ const Dashboard = () => {
     }
   }, [location.state]);
 
+  // Helper function to get icon for activity type
+  const getIconForActivityType = (type) => {
+    switch (type) {
+      case 'STUDENT_REGISTRATION':
+        return UserPlus;
+      case 'INSTRUCTOR_REGISTRATION':
+        return UserCheck;
+      case 'STUDENT_ACTIVITY':
+        return BookOpen;
+      case 'INSTRUCTOR_ACTIVITY':
+        return Users;
+      case 'SCHOOL_UPDATE':
+        return Edit;
+      case 'SCHOOL_APPROVED':
+        return CheckCircle;
+      case 'SCHOOL_REJECTED':
+        return AlertCircle;
+      case 'SYSTEM':
+        return Shield;
+      default:
+        return Activity;
+    }
+  };
+
+  // Helper function to format relative time
+  const formatRelativeTime = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays} days ago`;
+    
+    return date.toLocaleDateString();
+  };
+
   const stats = [
     {
       name: 'Total Students',
-      value: '0',
+      value: studentCountLoading ? 'Loading...' : studentCount.toString(),
       icon: Users,
       color: 'bg-blue-500'
     },
@@ -311,15 +406,54 @@ const Dashboard = () => {
             {/* Recent Activity */}
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-lg font-semibold text-[#14274E] mb-4">Recent Activity</h3>
-              <div className="text-center py-8">
-                <div className="text-gray-400 mb-2">
-                  <BarChart3 className="h-12 w-12 mx-auto" />
+              
+              {activitiesLoading ? (
+                <div className="text-center py-8">
+                  <div className="text-gray-400 mb-2">
+                    <Activity className="h-12 w-12 mx-auto animate-pulse" />
+                  </div>
+                  <p className="text-[#394867]">Loading activities...</p>
                 </div>
-                <p className="text-[#394867]">No activity yet</p>
-                <p className="text-sm text-[#9BA4B4]">
-                  Register your school to start tracking activity
-                </p>
-              </div>
+              ) : recentActivities.length > 0 ? (
+                <div className="space-y-4">
+                  {recentActivities.map((activity) => {
+                    const IconComponent = getIconForActivityType(activity.activityType);
+                    return (
+                      <div key={activity.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <IconComponent className="h-4 w-4 text-blue-600" />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900">{activity.description}</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {formatRelativeTime(activity.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {recentActivities.length >= 10 && (
+                    <div className="text-center pt-2">
+                      <p className="text-xs text-gray-500">Showing latest 10 activities</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="text-gray-400 mb-2">
+                    <Activity className="h-12 w-12 mx-auto" />
+                  </div>
+                  <p className="text-[#394867]">No recent activity</p>
+                  <p className="text-sm text-[#9BA4B4]">
+                    {school && school.isApproved 
+                      ? "Activities will appear here when students register or login"
+                      : "Activities will appear after your school is approved"
+                    }
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Removed Getting Started section */}

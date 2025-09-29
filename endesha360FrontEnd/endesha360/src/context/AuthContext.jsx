@@ -103,6 +103,28 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Get student count for school owner
+  const getMyStudentCount = async () => {
+    try {
+      const count = await apiService.getMyStudentCount();
+      return count;
+    } catch (error) {
+      console.error('Failed to get student count:', error);
+      return 0;
+    }
+  };
+
+  // Get recent activities for school owner
+  const getMyRecentActivities = async (limit = 10) => {
+    try {
+      const activities = await apiService.getMyRecentActivities(limit);
+      return activities;
+    } catch (error) {
+      console.error('Failed to get recent activities:', error);
+      return [];
+    }
+  };
+
   // Regular user registration (for specific tenants)
   const register = async (userData) => {
     try {
@@ -133,6 +155,8 @@ export const AuthProvider = ({ children }) => {
     registerSchool,
     updateMySchool,
     getMySchool,
+    getMyStudentCount,
+    getMyRecentActivities,
     logout,
     isAuthenticated: !!user,
     loading

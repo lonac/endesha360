@@ -44,6 +44,41 @@ public class AuthenticationService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     
+    @Autowired
+    private ActivityService activityService;
+    
+    /**
+     * Detect which tenant a user belongs to based on their email/username
+     * This is needed for dynamic tenant login
+     */
+    public String detectUserTenant(String usernameOrEmail) {
+        try {
+            // Find user by username or email
+            User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+                    .orElseThrow(() -> new UserNotFoundException("User not found: " + usernameOrEmail));
+            
+            // Find all tenant-user relationships for this user
+            java.util.List<TenantUser> userTenants = tenantUserRepository.findByUserId(user.getId());
+            
+            if (userTenants.isEmpty()) {
+                throw new RuntimeException("User is not associated with any tenant");
+            }
+            
+            // For now, return the first tenant (users should typically belong to one tenant)
+            // In future, we might need to handle multiple tenants
+            String tenantCode = userTenants.get(0).getTenant().getCode();
+            
+            // Log which tenant was detected
+            System.out.println("Detected tenant for user " + usernameOrEmail + ": " + tenantCode);
+            
+            return tenantCode;
+        } catch (Exception e) {
+            // If we can't detect tenant, default to PLATFORM for backward compatibility
+            System.err.println("Could not detect tenant for user " + usernameOrEmail + ", defaulting to PLATFORM: " + e.getMessage());
+            return "PLATFORM";
+        }
+    }
+    
     public LoginResponse authenticate(LoginRequest loginRequest, String ipAddress, String userAgent) {
         // Find tenant
         Tenant tenant = tenantRepository.findByCode(loginRequest.getTenantCode())
@@ -96,6 +131,32 @@ public class AuthenticationService {
         // Update last login
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
+        
+        // Log meaningful login activities (exclude school owners to avoid noise)
+        if (roles.contains("STUDENT")) {
+            // Only log first login of the day to avoid spam
+            java.time.LocalDate today = java.time.LocalDate.now();
+            java.time.LocalDate lastLoginDate = user.getLastLogin() != null ? 
+                user.getLastLogin().toLocalDate() : null;
+            
+            if (lastLoginDate == null || !lastLoginDate.equals(today)) {
+                activityService.logActivity(
+                    "STUDENT_ACTIVITY",
+                    String.format("📖 Student %s %s started learning session", 
+                        user.getFirstName(), user.getLastName()),
+                    tenant.getCode(),
+                    user.getId().toString()
+                );
+            }
+        } else if (roles.contains("INSTRUCTOR")) {
+            activityService.logActivity(
+                "INSTRUCTOR_ACTIVITY",
+                String.format("👨‍🏫 Instructor %s %s is now active", 
+                    user.getFirstName(), user.getLastName()),
+                tenant.getCode(),
+                user.getId().toString()
+            );
+        }
         
         // Create response
         LoginResponse.UserInfo userInfo = new LoginResponse.UserInfo(

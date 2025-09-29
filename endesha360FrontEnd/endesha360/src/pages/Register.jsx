@@ -65,29 +65,64 @@ const Register = () => {
 
       if (role === 'student') {
         // If school owner is adding a student, use their tenantCode
-        if (mode === 'add' && user && user.roles && user.roles.includes('SCHOOL_OWNER') && school && school.tenantCode) {
+        if (mode === 'add' && user && user.roles && user.roles.includes('SCHOOL_OWNER')) {
+          
+          console.log('=== SCHOOL OWNER ADDING STUDENT DEBUG ===');
+          console.log('User:', user);
+          console.log('School:', school);
+          console.log('Mode:', mode);
+          
+          if (!school) {
+            setError('Unable to fetch school information. Please refresh and try again.');
+            setLoading(false);
+            return;
+          }
+          
+          if (!school.tenantCode) {
+            setError('School tenant code not found. Please contact support.');
+            setLoading(false);
+            return;
+          }
+          
+          if (!school.isApproved) {
+            setError('Your school is not yet approved by the admin. Student registration is not available until approval.');
+            setLoading(false);
+            return;
+          }
+          
           userData.tenantCode = school.tenantCode;
-          console.log('Registering student with userData:', userData);
+          console.log('Registering student with tenantCode:', school.tenantCode);
+          console.log('Full userData:', userData);
+          
           await registerStudent(userData);
           setSuccess('Student added successfully!');
+          
+          // Redirect school owner back to dashboard after successful student registration
+          setTimeout(() => {
+            navigate('/dashboard', {
+              state: {
+                message: `Student ${userData.firstName} ${userData.lastName} has been registered successfully!`,
+                type: 'success'
+              }
+            });
+          }, 2000);
         } else {
           userData.tenantCode = 'PLATFORM';
           await registerStudent(userData);
           setSuccess('Student registration successful! You can now login and book your driving lessons.');
+          
+          // Redirect to student dashboard for individual registrations
+          setTimeout(() => {
+            navigate('/student-dashboard');
+          }, 3000);
         }
       } else {
         await registerSchoolOwner(userData);
         setSuccess('School owner registration successful! You can now login to manage your driving school.');
-      }
-
-      // Redirect to dashboard after success, unless school owner is adding a student
-      if (!(mode === 'add' && user && user.roles && user.roles.includes('SCHOOL_OWNER'))) {
+        
+        // Redirect to login for school owner registrations
         setTimeout(() => {
-          if (role === 'student') {
-            navigate('/student-dashboard');
-          } else {
-            navigate('/login');
-          }
+          navigate('/login');
         }, 3000);
       }
     } catch (err) {
