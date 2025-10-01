@@ -124,6 +124,21 @@ public class SchoolController {
         }
     }
     
+    @GetMapping("/by-owner/{ownerUserId}")
+    @Operation(summary = "Get school by owner user ID", description = "Internal API for UserManagementService")
+    public ResponseEntity<School> getSchoolByOwner(
+            @Parameter(description = "Owner user ID")
+            @PathVariable String ownerUserId) {
+        
+        Optional<School> school = schoolService.getSchoolByOwner(ownerUserId);
+        
+        if (school.isPresent()) {
+            return ResponseEntity.ok(school.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
     @GetMapping("/tenant/{tenantCode}")
     @Operation(summary = "Get school by tenant code", description = "Internal API for other services")
     public ResponseEntity<School> getSchoolByTenantCode(

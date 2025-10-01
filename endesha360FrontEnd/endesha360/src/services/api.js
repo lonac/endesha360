@@ -968,6 +968,138 @@ class ApiService {
       throw error;
     }
   }
+
+  // ========================
+  // SCHOOL MARKETING PROFILE
+  // ========================
+
+  // Get marketing profile for current school owner
+  async getMarketingProfile() {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/marketing/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        // Include status code in error message for better handling
+        const errorMessage = data.message || 'Failed to fetch marketing profile';
+        throw new Error(`${response.status}: ${errorMessage}`);
+      }
+      return data;
+    } catch (error) {
+      console.error('Get marketing profile error:', error);
+      throw error;
+    }
+  }
+
+  // Create or update marketing profile
+  async saveMarketingProfile(profileData) {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/marketing/profile`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to save marketing profile');
+      }
+      return data;
+    } catch (error) {
+      console.error('Save marketing profile error:', error);
+      throw error;
+    }
+  }
+
+  // Toggle profile visibility
+  async toggleProfileVisibility(isPublic) {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/marketing/profile/visibility?isPublic=${isPublic}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update profile visibility');
+      }
+      return data;
+    } catch (error) {
+      console.error('Toggle profile visibility error:', error);
+      throw error;
+    }
+  }
+
+  // Get public school directory (no auth required)
+  async getPublicSchoolDirectory() {
+    try {
+      const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/marketing/public/directory`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch school directory');
+      }
+      return data;
+    } catch (error) {
+      console.error('Get public school directory error:', error);
+      throw error;
+    }
+  }
+
+  // Search schools (no auth required)
+  async searchSchools(filters = {}) {
+    try {
+      const params = new URLSearchParams();
+      if (filters.city) params.append('city', filters.city);
+      if (filters.courseType) params.append('courseType', filters.courseType);
+      if (filters.licenseType) params.append('licenseType', filters.licenseType);
+
+      const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/marketing/public/search?${params}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to search schools');
+      }
+      return data;
+    } catch (error) {
+      console.error('Search schools error:', error);
+      throw error;
+    }
+  }
 }
 
 export default new ApiService();

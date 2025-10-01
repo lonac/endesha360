@@ -42,6 +42,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/detect-tenant").permitAll()
                 .requestMatchers("/api/school-owners/register").permitAll()
+                .requestMatchers("/api/tenants/**").permitAll() // Allow internal service-to-service calls
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")

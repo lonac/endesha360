@@ -32,6 +32,7 @@ import SupportLogs from './pages/SupportLogs';
 import SelectRole from './pages/SelectRole';
 import ComingSoon from './pages/ComingSoon';
 import StudentProfile from './pages/student/StudentProfile';
+import SchoolMarketingProfile from './pages/SchoolMarketingProfile';
 
       <Route 
         path="/select-role" 
@@ -222,6 +223,16 @@ const AppContent = () => {
               <SchoolRegistration />
             </Layout>
           </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/school-marketing-profile" 
+        element={
+          <SchoolOwnerProtectedRoute>
+            <Layout>
+              <SchoolMarketingProfile />
+            </Layout>
+          </SchoolOwnerProtectedRoute>
         } 
       />
       <Route 

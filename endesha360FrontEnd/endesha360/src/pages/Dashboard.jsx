@@ -198,6 +198,14 @@ const Dashboard = () => {
       },
       variant: 'secondary'
     }] : []),
+    // Show 'Marketing Profile' if school exists
+    ...(school ? [{
+      title: 'Marketing Profile',
+      description: 'Showcase your school to attract more students',
+      icon: BarChart3,
+      action: () => navigate('/school-marketing-profile'),
+      variant: 'secondary'
+    }] : []),
     {
       title: 'Create Courses',
       description: 'Set up driving courses and programs',

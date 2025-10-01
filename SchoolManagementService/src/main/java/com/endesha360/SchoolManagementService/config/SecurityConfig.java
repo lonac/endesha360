@@ -40,9 +40,12 @@ public class SecurityConfig {
                 .requestMatchers("/api/schools/*/reject").permitAll()  // Reject school
                 .requestMatchers("/api/schools/*").permitAll()  // Get school by ID
                 .requestMatchers("/api/schools/tenant/**").permitAll()  // Get school by tenant code
+                // Marketing profile public endpoints
+                .requestMatchers("/api/schools/marketing/public/**").permitAll()  // Public school directory
                 // Authenticated endpoints
                 .requestMatchers("/api/schools/register").authenticated()  // School registration
                 .requestMatchers("/api/schools/my-school").authenticated()  // Owner's school management
+                .requestMatchers("/api/schools/marketing/**").authenticated()  // Marketing profile management
                 .requestMatchers("/api/schools/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")  // Admin endpoints
                 .anyRequest().authenticated()
             )

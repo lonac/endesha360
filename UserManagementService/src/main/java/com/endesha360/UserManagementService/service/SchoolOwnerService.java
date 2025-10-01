@@ -155,14 +155,54 @@ public class SchoolOwnerService {
         try {
             logger.info("Getting student count for school owner with userId: {}", userId);
             
-            // TODO: For now, we'll hardcode the tenant code since we know it's SAFEDRIV
-            // In production, this should call SchoolManagementService to get the school's tenantCode
-            String schoolTenantCode = "SAFEDRIV"; // This should be fetched from school service
+            // Call SchoolManagementService to get the school's tenant code for this owner
+            String schoolTenantCode = getSchoolTenantCodeByOwner(userId);
+            
+            if (schoolTenantCode == null) {
+                logger.warn("No school found for owner userId: {}", userId);
+                return 0;
+            }
             
             return getStudentCountByTenant(schoolTenantCode);
         } catch (Exception e) {
             logger.error("Error getting student count for school owner {}: {}", userId, e.getMessage(), e);
             return 0;
+        }
+    }
+    
+    /**
+     * Get school tenant code by owner user ID
+     * This makes a call to SchoolManagementService
+     */
+    private String getSchoolTenantCodeByOwner(String userId) {
+        try {
+            // For now, call the SchoolManagementService REST API directly
+            String schoolServiceUrl = "http://localhost:8082/api/schools/by-owner/" + userId;
+            
+            // Use RestTemplate to make the call
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            org.springframework.http.ResponseEntity<java.util.Map> response = restTemplate.getForEntity(schoolServiceUrl, java.util.Map.class);
+            
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                java.util.Map<String, Object> school = response.getBody();
+                String tenantCode = (String) school.get("tenantCode");
+                Boolean isApproved = (Boolean) school.get("isApproved");
+                
+                // Only return tenant code if school is approved
+                if (Boolean.TRUE.equals(isApproved)) {
+                    logger.info("Found approved school with tenant code: {} for owner: {}", tenantCode, userId);
+                    return tenantCode;
+                } else {
+                    logger.info("School found but not approved for owner: {}", userId);
+                    return null;
+                }
+            } else {
+                logger.warn("No school found for owner userId: {}", userId);
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("Error calling SchoolManagementService for owner {}: {}", userId, e.getMessage());
+            return null;
         }
     }
 }
