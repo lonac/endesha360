@@ -145,16 +145,16 @@ const SchoolMarketingProfile = () => {
       }
     } catch (err) {
       console.error('Failed to load profile:', err);
-      // Handle 404 as "no profile yet" - don't show error, just empty form
-      if (err.message && (err.message.includes('404') || 
-                          err.message.includes('not found') || 
-                          err.message.includes('Not Found') ||
-                          err.message.includes('Resource Not Found'))) {
-        console.log('No marketing profile found yet - showing empty form for new profile creation');
-        // Don't set error - just show empty form for creating new profile
+      // Check if it's a server error (5xx) vs client error (4xx)
+      if (err.response && err.response.status >= 500) {
+        setError('Server error occurred. Please try again later.');
+      } else if (err.response && err.response.status === 401) {
+        setError('Authentication failed. Please log in again.');
       } else {
-        // Real errors (auth issues, server problems, etc.)
-        setError('Failed to load marketing profile');
+        // For 4xx errors or network errors, assume no profile exists (new user)
+        console.log('No existing profile found, showing empty form for new user');
+        setProfileData(null);
+        // Form data is already initialized with empty values
       }
     } finally {
       setLoading(false);

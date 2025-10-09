@@ -973,43 +973,42 @@ class ApiService {
   // SCHOOL MARKETING PROFILE
   // ========================
 
-  // Get marketing profile for current school owner
-  async getMarketingProfile() {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
+    // Get marketing profile for current school
+    async getMarketingProfile() {
+      try {
+        const token = localStorage.getItem('token');
+        const school = JSON.parse(localStorage.getItem('school'));
+        if (!token) throw new Error('No authentication token found');
+        if (!school || !school.id) throw new Error('No school information found in local storage');
 
-      const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/marketing/profile`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+        const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/${school.id}/marketing-profile`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
-      const data = await response.json();
-      if (!response.ok) {
-        // Include status code in error message for better handling
-        const errorMessage = data.message || 'Failed to fetch marketing profile';
-        throw new Error(`${response.status}: ${errorMessage}`);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Failed to load marketing profile`);
+        }
+
+        return await response.json();
+      } catch (error) {
+        console.error('Get marketing profile error:', error);
+        throw error;
       }
-      return data;
-    } catch (error) {
-      console.error('Get marketing profile error:', error);
-      throw error;
     }
-  }
 
   // Create or update marketing profile
   async saveMarketingProfile(profileData) {
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
+      const school = JSON.parse(localStorage.getItem('school'));
+      if (!token) throw new Error('No authentication token found');
+      if (!school || !school.id) throw new Error('No school information found in local storage');
 
-      const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/marketing/profile`, {
+      const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/${school.id}/marketing-profile`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -1029,21 +1028,24 @@ class ApiService {
     }
   }
 
-  // Toggle profile visibility
+  // Toggle profile visibility (PATCH)
   async toggleProfileVisibility(isPublic) {
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
+      const school = JSON.parse(localStorage.getItem('school'));
+      if (!token) throw new Error('No authentication token found');
+      if (!school || !school.id) throw new Error('No school information found in local storage');
 
-      const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/marketing/profile/visibility?isPublic=${isPublic}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `${API_ENDPOINTS.SCHOOL_SERVICE}/${school.id}/marketing-profile/visibility?isPublic=${isPublic}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       const data = await response.json();
       if (!response.ok) {
