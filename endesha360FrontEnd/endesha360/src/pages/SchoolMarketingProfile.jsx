@@ -126,7 +126,6 @@ const SchoolMarketingProfile = () => {
       const response = await apiService.getMarketingProfile();
       if (response) {
         setProfileData(response);
-        // Populate form with existing data
         setFormData({
           ...formData,
           ...response,
@@ -145,16 +144,20 @@ const SchoolMarketingProfile = () => {
       }
     } catch (err) {
       console.error('Failed to load profile:', err);
-      // Check if it's a server error (5xx) vs client error (4xx)
-      if (err.response && err.response.status >= 500) {
-        setError('Server error occurred. Please try again later.');
-      } else if (err.response && err.response.status === 401) {
-        setError('Authentication failed. Please log in again.');
-      } else {
-        // For 4xx errors or network errors, assume no profile exists (new user)
-        console.log('No existing profile found, showing empty form for new user');
+      // If error means profile not found, show empty form for new user
+      if (
+        (err.message && err.message.includes('Marketing profile not found')) ||
+        (err.response && err.response.status === 404)
+      ) {
         setProfileData(null);
         // Form data is already initialized with empty values
+        console.log('No existing profile found, showing empty form for new user');
+      } else if (err.response && err.response.status === 401) {
+        setError('Authentication failed. Please log in again.');
+      } else if (err.response && err.response.status >= 500) {
+        setError('Server error occurred. Please try again later.');
+      } else {
+        setError('Failed to load marketing profile.');
       }
     } finally {
       setLoading(false);
@@ -647,7 +650,10 @@ const SchoolMarketingProfile = () => {
                     </div>
                   ))}
                   <button
-                    onClick={() => handleArrayAdd('galleryImages', '')}
+                    onClick={() => setFormData(prev => ({
+                      ...prev,
+                      galleryImages: [...prev.galleryImages, '']
+                    }))}
                     className="flex items-center text-[#00712D] hover:text-[#005a24]"
                   >
                     <Plus className="h-4 w-4 mr-1" />

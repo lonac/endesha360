@@ -42,7 +42,7 @@ public class SchoolMarketingProfileRequest {
     // === Contact & Social Media ===
     private String whatsappNumber;
     private String secondaryPhone;
-    private Map<String, Object> socialMedia;
+    private Map<String, String> socialMedia;
 
     // === Getters and Setters ===
 
@@ -254,11 +254,11 @@ public class SchoolMarketingProfileRequest {
         this.secondaryPhone = secondaryPhone;
     }
 
-    public Map<String, Object> getSocialMedia() {
+    public Map<String, String> getSocialMedia() {
         return socialMedia;
     }
 
-    public void setSocialMedia(Map<String, Object> socialMedia) {
+    public void setSocialMedia(Map<String, String> socialMedia) {
         this.socialMedia = socialMedia;
     }
 }

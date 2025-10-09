@@ -108,7 +108,7 @@ public class SchoolMarketingProfile {
     @CollectionTable(name = "school_social_media", joinColumns = @JoinColumn(name = "profile_id"))
     @MapKeyColumn(name = "platform")
     @Column(name = "url")
-    private Map<String, Object> socialMedia;
+    private Map<String, String> socialMedia;
 
     // === Visibility & Meta ===
     private Boolean isPublic = false;
@@ -345,11 +345,11 @@ public class SchoolMarketingProfile {
         this.secondaryPhone = secondaryPhone;
     }
 
-    public Map<String, Object> getSocialMedia() {
+    public Map<String, String> getSocialMedia() {
         return socialMedia;
     }
 
-    public void setSocialMedia(Map<String, Object> socialMedia) {
+    public void setSocialMedia(Map<String, String> socialMedia) {
         this.socialMedia = socialMedia;
     }
 

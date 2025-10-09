@@ -41,7 +41,7 @@ public class SchoolMarketingProfileResponse {
 
     private String whatsappNumber;
     private String secondaryPhone;
-    private Map<String, Object> socialMedia;
+    private Map<String, String> socialMedia;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -138,8 +138,8 @@ public class SchoolMarketingProfileResponse {
     public String getSecondaryPhone() { return secondaryPhone; }
     public void setSecondaryPhone(String secondaryPhone) { this.secondaryPhone = secondaryPhone; }
 
-    public Map<String, Object> getSocialMedia() { return socialMedia; }
-    public void setSocialMedia(Map<String, Object> socialMedia) { this.socialMedia = socialMedia; }
+    public Map<String, String> getSocialMedia() { return socialMedia; }
+    public void setSocialMedia(Map<String, String> socialMedia) { this.socialMedia = socialMedia; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

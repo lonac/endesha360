@@ -267,6 +267,9 @@ class ApiService {
         throw new Error(data.message || 'School registration failed');
       }
       
+      if (data && data.id) {
+        localStorage.setItem('school', JSON.stringify(data));
+      }
       return data;
     } catch (error) {
       console.error('School registration error:', error);
@@ -292,11 +295,12 @@ class ApiService {
       }
 
       const data = await response.json();
-      
       if (!response.ok) {
         throw new Error(data.message || 'Failed to get school information');
       }
-      
+      if (data && data.id) {
+        localStorage.setItem('school', JSON.stringify(data));
+      }
       return data;
     } catch (error) {
       console.error('Get school error:', error);
@@ -988,6 +992,10 @@ class ApiService {
           },
         });
 
+        if (response.status === 404) {
+          // No marketing profile yet for this school
+          return null;
+        }
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
           throw new Error(errorData.message || `Failed to load marketing profile`);
@@ -1008,13 +1016,21 @@ class ApiService {
       if (!token) throw new Error('No authentication token found');
       if (!school || !school.id) throw new Error('No school information found in local storage');
 
+      // Convert preferredContactMethods array to comma-separated string if needed
+      const profileToSend = {
+        ...profileData,
+        preferredContactMethods: Array.isArray(profileData.preferredContactMethods)
+          ? profileData.preferredContactMethods.join(',')
+          : profileData.preferredContactMethods
+      };
+
       const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/${school.id}/marketing-profile`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(profileData),
+        body: JSON.stringify(profileToSend),
       });
 
       const data = await response.json();
