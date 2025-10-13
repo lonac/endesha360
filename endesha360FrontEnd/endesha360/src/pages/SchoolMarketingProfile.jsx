@@ -229,9 +229,40 @@ const SchoolMarketingProfile = () => {
     setSaving(true);
     setError('');
     setSuccess('');
-    
+
+    // Prepare data to match backend expectations
+    const sanitizeNumber = (val) => {
+      if (val === '' || val === undefined) return null;
+      const num = Number(val);
+      return isNaN(num) ? null : num;
+    };
+
+    // Flatten socialMedia (remove preferredContactMethods if present)
+    const { socialMedia, ...rest } = formData;
+    const socialMediaClean = { ...socialMedia };
+    delete socialMediaClean.preferredContactMethods;
+
+    // Prepare preferredContactMethods as top-level string
+    const preferredContactMethods = Array.isArray(socialMedia.preferredContactMethods)
+      ? socialMedia.preferredContactMethods.join(',')
+      : '';
+
+    // Build payload
+    const payload = {
+      ...rest,
+      socialMedia: socialMediaClean,
+      preferredContactMethods,
+      fleetSize: sanitizeNumber(formData.fleetSize),
+      simulatorCount: sanitizeNumber(formData.simulatorCount),
+      theoryRoomsCount: sanitizeNumber(formData.theoryRoomsCount),
+      parkingSpaces: sanitizeNumber(formData.parkingSpaces),
+      successRate: sanitizeNumber(formData.successRate),
+      totalGraduates: sanitizeNumber(formData.totalGraduates),
+      yearsInOperation: sanitizeNumber(formData.yearsInOperation)
+    };
+
     try {
-      const response = await apiService.saveMarketingProfile(formData);
+      const response = await apiService.saveMarketingProfile(payload);
       setProfileData(response);
       setSuccess('Marketing profile saved successfully!');
     } catch (err) {
@@ -453,7 +484,7 @@ const SchoolMarketingProfile = () => {
                   type="number"
                   min="1"
                   max="52"
-                  value={formData.courseDurationWeeks}
+                  value={formData.courseDurationWeeks ?? ''}
                   onChange={(e) => handleInputChange('courseDurationWeeks', e.target.value)}
                   placeholder="e.g., 8"
                 />
@@ -471,7 +502,7 @@ const SchoolMarketingProfile = () => {
                   label="Fleet Size"
                   type="number"
                   min="0"
-                  value={formData.fleetSize}
+                  value={formData.fleetSize ?? ''}
                   onChange={(e) => handleInputChange('fleetSize', e.target.value)}
                   placeholder="Number of vehicles"
                 />
@@ -480,7 +511,7 @@ const SchoolMarketingProfile = () => {
                   label="Theory Rooms"
                   type="number"
                   min="0"
-                  value={formData.theoryRoomsCount}
+                  value={formData.theoryRoomsCount ?? ''}
                   onChange={(e) => handleInputChange('theoryRoomsCount', e.target.value)}
                   placeholder="Number of classrooms"
                 />
@@ -489,7 +520,7 @@ const SchoolMarketingProfile = () => {
                   label="Parking Spaces"
                   type="number"
                   min="0"
-                  value={formData.parkingSpaces}
+                  value={formData.parkingSpaces ?? ''}
                   onChange={(e) => handleInputChange('parkingSpaces', e.target.value)}
                   placeholder="Available parking spots"
                 />
@@ -498,7 +529,7 @@ const SchoolMarketingProfile = () => {
                   label="Simulator Count"
                   type="number"
                   min="0"
-                  value={formData.simulatorCount}
+                  value={formData.simulatorCount ?? ''}
                   onChange={(e) => handleInputChange('simulatorCount', e.target.value)}
                   placeholder="Number of driving simulators"
                 />
@@ -538,7 +569,7 @@ const SchoolMarketingProfile = () => {
                   Pricing Information
                 </label>
                 <textarea
-                  value={formData.pricingInfo}
+                  value={formData.pricingInfo ?? ''}
                   onChange={(e) => handleInputChange('pricingInfo', e.target.value)}
                   placeholder="Describe your pricing structure, course fees, packages..."
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00712D] focus:border-transparent"
@@ -577,7 +608,7 @@ const SchoolMarketingProfile = () => {
                   Cancellation Policy
                 </label>
                 <textarea
-                  value={formData.cancellationPolicy}
+                  value={formData.cancellationPolicy ?? ''}
                   onChange={(e) => handleInputChange('cancellationPolicy', e.target.value)}
                   placeholder="Describe your cancellation and refund policy..."
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00712D] focus:border-transparent"
@@ -596,7 +627,7 @@ const SchoolMarketingProfile = () => {
                       <span className="w-20 text-sm">{day}:</span>
                       <input
                         type="text"
-                        value={formData.operatingHours[day] || ''}
+                        value={formData.operatingHours[day] ?? ''}
                         onChange={(e) => handleOperatingHoursChange(day, e.target.value)}
                         placeholder="9:00 AM - 5:00 PM"
                         className="flex-1 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#00712D] focus:border-transparent text-sm"
@@ -632,7 +663,7 @@ const SchoolMarketingProfile = () => {
                     <div key={index} className="flex items-center space-x-2">
                       <input
                         type="url"
-                        value={image}
+                        value={image ?? ''}
                         onChange={(e) => {
                           const newImages = [...formData.galleryImages];
                           newImages[index] = e.target.value;
@@ -868,7 +899,7 @@ const SchoolMarketingProfile = () => {
                       <label className="block text-sm text-gray-600 mb-1">Facebook</label>
                       <input
                         type="url"
-                        value={formData.socialMedia.facebook || ''}
+                        value={formData.socialMedia.facebook ?? ''}
                         onChange={(e) => handleSocialMediaChange('facebook', e.target.value)}
                         placeholder="https://facebook.com/yourschool"
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00712D] focus:border-transparent"
@@ -879,7 +910,7 @@ const SchoolMarketingProfile = () => {
                       <label className="block text-sm text-gray-600 mb-1">Instagram</label>
                       <input
                         type="url"
-                        value={formData.socialMedia.instagram || ''}
+                        value={formData.socialMedia.instagram ?? ''}
                         onChange={(e) => handleSocialMediaChange('instagram', e.target.value)}
                         placeholder="https://instagram.com/yourschool"
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00712D] focus:border-transparent"
@@ -890,7 +921,7 @@ const SchoolMarketingProfile = () => {
                       <label className="block text-sm text-gray-600 mb-1">Twitter/X</label>
                       <input
                         type="url"
-                        value={formData.socialMedia.twitter || ''}
+                        value={formData.socialMedia.twitter ?? ''}
                         onChange={(e) => handleSocialMediaChange('twitter', e.target.value)}
                         placeholder="https://twitter.com/yourschool"
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00712D] focus:border-transparent"
@@ -901,7 +932,7 @@ const SchoolMarketingProfile = () => {
                       <label className="block text-sm text-gray-600 mb-1">LinkedIn</label>
                       <input
                         type="url"
-                        value={formData.socialMedia.linkedin || ''}
+                        value={formData.socialMedia.linkedin ?? ''}
                         onChange={(e) => handleSocialMediaChange('linkedin', e.target.value)}
                         placeholder="https://linkedin.com/company/yourschool"
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00712D] focus:border-transparent"
@@ -912,7 +943,7 @@ const SchoolMarketingProfile = () => {
                       <label className="block text-sm text-gray-600 mb-1">YouTube</label>
                       <input
                         type="url"
-                        value={formData.socialMedia.youtube || ''}
+                        value={formData.socialMedia.youtube ?? ''}
                         onChange={(e) => handleSocialMediaChange('youtube', e.target.value)}
                         placeholder="https://youtube.com/channel/yourschool"
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00712D] focus:border-transparent"
@@ -923,7 +954,7 @@ const SchoolMarketingProfile = () => {
                       <label className="block text-sm text-gray-600 mb-1">TikTok</label>
                       <input
                         type="url"
-                        value={formData.socialMedia.tiktok || ''}
+                        value={formData.socialMedia.tiktok ?? ''}
                         onChange={(e) => handleSocialMediaChange('tiktok', e.target.value)}
                         placeholder="https://tiktok.com/@yourschool"
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00712D] focus:border-transparent"
@@ -937,7 +968,7 @@ const SchoolMarketingProfile = () => {
               <Input
                 label="School Website"
                 type="url"
-                value={formData.socialMedia.website || ''}
+                value={formData.socialMedia.website ?? ''}
                 onChange={(e) => handleSocialMediaChange('website', e.target.value)}
                 placeholder="https://yourschool.com"
               />
@@ -948,7 +979,7 @@ const SchoolMarketingProfile = () => {
                   Additional Contact Information
                 </label>
                 <textarea
-                  value={formData.socialMedia.additionalNotes || ''}
+                  value={formData.socialMedia.additionalNotes ?? ''}
                   onChange={(e) => handleSocialMediaChange('additionalNotes', e.target.value)}
                   placeholder="Any additional contact information, office hours notes, or communication preferences..."
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00712D] focus:border-transparent"
