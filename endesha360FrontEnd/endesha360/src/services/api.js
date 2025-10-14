@@ -1052,8 +1052,12 @@ class ApiService {
       if (!token) throw new Error('No authentication token found');
       if (!school || !school.id) throw new Error('No school information found in local storage');
 
+      console.log('Toggle visibility - School ID:', school.id, 'isPublic:', isPublic);
+      const url = `${API_ENDPOINTS.SCHOOL_SERVICE}/${school.id}/marketing-profile/visibility?isPublic=${isPublic}`;
+      console.log('Toggle visibility URL:', url);
+
       const response = await fetch(
-        `${API_ENDPOINTS.SCHOOL_SERVICE}/${school.id}/marketing-profile/visibility?isPublic=${isPublic}`,
+        url,
         {
           method: 'PATCH',
           headers: {
@@ -1063,10 +1067,20 @@ class ApiService {
         }
       );
 
-      const data = await response.json();
+      // Check if response is ok before parsing
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to update profile visibility');
+        let errorMessage = `Failed to update profile visibility (${response.status})`;
+        try {
+          const data = await response.json();
+          errorMessage = data.message || errorMessage;
+        } catch (e) {
+          // If parsing fails, use status text
+          errorMessage = `${errorMessage}: ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
+
+      const data = await response.json();
       return data;
     } catch (error) {
       console.error('Toggle profile visibility error:', error);
@@ -1090,6 +1104,30 @@ class ApiService {
       return data;
     } catch (error) {
       console.error('Get public school directory error:', error);
+      throw error;
+    }
+  }
+
+  // Get public school profile by ID (no auth required)
+  async getPublicSchoolProfile(schoolId) {
+    try {
+      const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/${schoolId}/marketing-profile`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.status === 404) {
+        return null;
+      }
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch school profile');
+      }
+      return data;
+    } catch (error) {
+      console.error('Get public school profile error:', error);
       throw error;
     }
   }

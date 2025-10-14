@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ApprovedSchools from '../components/ApprovedSchools';
+import PartnerSchools from '../components/PartnerSchools';
 import { Link, useNavigate } from 'react-router-dom';
 import { Car, Users, BookOpen, BarChart3, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -171,8 +171,8 @@ const Home = () => {
         </div>
       </section>
 
-  {/* Approved Schools Section */}
-  <ApprovedSchools />
+  {/* Partner Schools Section */}
+  <PartnerSchools />
   {/* CTA Section */}
       <section className="py-20 bg-[#00712D]">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">

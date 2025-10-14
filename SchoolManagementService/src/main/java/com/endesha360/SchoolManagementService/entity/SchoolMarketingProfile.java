@@ -103,6 +103,7 @@ public class SchoolMarketingProfile {
     // === Contact & Social Media ===
     private String whatsappNumber;
     private String secondaryPhone;
+    private String preferredContactMethods;  // Comma-separated: "Phone Call,WhatsApp,Email"
 
     @ElementCollection
     @CollectionTable(name = "school_social_media", joinColumns = @JoinColumn(name = "profile_id"))
@@ -343,6 +344,14 @@ public class SchoolMarketingProfile {
 
     public void setSecondaryPhone(String secondaryPhone) {
         this.secondaryPhone = secondaryPhone;
+    }
+
+    public String getPreferredContactMethods() {
+        return preferredContactMethods;
+    }
+
+    public void setPreferredContactMethods(String preferredContactMethods) {
+        this.preferredContactMethods = preferredContactMethods;
     }
 
     public Map<String, String> getSocialMedia() {

@@ -33,6 +33,7 @@ import SelectRole from './pages/SelectRole';
 import ComingSoon from './pages/ComingSoon';
 import StudentProfile from './pages/student/StudentProfile';
 import SchoolMarketingProfile from './pages/SchoolMarketingProfile';
+import SchoolAdvertisement from './pages/SchoolAdvertisement';
 
       <Route 
         path="/select-role" 
@@ -252,6 +253,14 @@ const AppContent = () => {
             </Layout>
           </StudentProtectedRoute>
         }
+      />
+      <Route 
+        path="/schools/:schoolId" 
+        element={
+          <Layout>
+            <SchoolAdvertisement />
+          </Layout>
+        } 
       />
       {/* Catch all route */}
       <Route path="*" element={<Navigate to="/" replace />} />

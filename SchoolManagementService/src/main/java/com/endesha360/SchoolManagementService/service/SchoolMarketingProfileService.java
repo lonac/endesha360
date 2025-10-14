@@ -64,6 +64,7 @@ public class SchoolMarketingProfileService {
 
         profile.setWhatsappNumber(req.getWhatsappNumber());
         profile.setSecondaryPhone(req.getSecondaryPhone());
+        profile.setPreferredContactMethods(req.getPreferredContactMethods());
         profile.setSocialMedia(req.getSocialMedia());
 
         profileRepository.save(profile);
@@ -83,18 +84,46 @@ public class SchoolMarketingProfileService {
         res.setId(p.getId());
         res.setSchoolId(p.getSchool().getId());
         res.setIsPublic(p.getPublic());
+        
+        // Courses & Services
         res.setCoursesOffered(p.getCoursesOffered());
         res.setLicenseTypes(p.getLicenseTypes());
         res.setSpecializations(p.getSpecializations());
         res.setCourseDurationWeeks(p.getCourseDurationWeeks());
+        
+        // Facilities
+        res.setFleetSize(p.getFleetSize());
+        res.setHasSimulators(p.getHasSimulators());
+        res.setSimulatorCount(p.getSimulatorCount());
+        res.setTheoryRoomsCount(p.getTheoryRoomsCount());
+        res.setParkingSpaces(p.getParkingSpaces());
+        res.setHasOnlineTheory(p.getHasOnlineTheory());
+        res.setPracticalVehicles(p.getPracticalVehicles());
+        
+        // Business Info
         res.setPricingInfo(p.getPricingInfo());
         res.setPaymentMethods(p.getPaymentMethods());
+        res.setCancellationPolicy(p.getCancellationPolicy());
+        res.setOperatingHours(p.getOperatingHours());
+        
+        // Marketing Content
         res.setLogoUrl(p.getLogoUrl());
         res.setGalleryImages(p.getGalleryImages());
+        res.setAchievements(p.getAchievements());
         res.setSuccessRate(p.getSuccessRate());
         res.setTotalGraduates(p.getTotalGraduates());
         res.setYearsInOperation(p.getYearsInOperation());
+        res.setKeywords(p.getKeywords());
+        res.setTargetAudience(p.getTargetAudience());
+        res.setUniqueSellingPoints(p.getUniqueSellingPoints());
+        
+        // Contact & Social
+        res.setWhatsappNumber(p.getWhatsappNumber());
+        res.setSecondaryPhone(p.getSecondaryPhone());
+        res.setPreferredContactMethods(p.getPreferredContactMethods());
         res.setSocialMedia(p.getSocialMedia());
+        
+        // Meta
         res.setCreatedAt(p.getCreatedAt());
         res.setUpdatedAt(p.getUpdatedAt());
         res.setProfileCompletionPercentage(calculateCompletion(p));
@@ -115,5 +144,12 @@ public class SchoolMarketingProfileService {
         if (p.getPaymentMethods() != null && !p.getPaymentMethods().isEmpty()) done++;
         if (p.getKeywords() != null && !p.getKeywords().isEmpty()) done++;
         return (int) Math.round((done / (double) total) * 100);
+    }
+
+    // Get all public profiles for directory
+    public java.util.List<SchoolMarketingProfileResponse> getPublicProfiles() {
+        return profileRepository.findByIsPublic(true).stream()
+                .map(this::toResponse)
+                .collect(java.util.stream.Collectors.toList());
     }
 }

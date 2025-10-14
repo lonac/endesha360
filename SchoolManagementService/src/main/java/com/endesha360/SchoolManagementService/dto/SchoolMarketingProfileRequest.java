@@ -42,6 +42,7 @@ public class SchoolMarketingProfileRequest {
     // === Contact & Social Media ===
     private String whatsappNumber;
     private String secondaryPhone;
+    private String preferredContactMethods;  // Comma-separated: "Phone Call,WhatsApp,Email"
     private Map<String, String> socialMedia;
 
     // === Getters and Setters ===
@@ -252,6 +253,14 @@ public class SchoolMarketingProfileRequest {
 
     public void setSecondaryPhone(String secondaryPhone) {
         this.secondaryPhone = secondaryPhone;
+    }
+
+    public String getPreferredContactMethods() {
+        return preferredContactMethods;
+    }
+
+    public void setPreferredContactMethods(String preferredContactMethods) {
+        this.preferredContactMethods = preferredContactMethods;
     }
 
     public Map<String, String> getSocialMedia() {

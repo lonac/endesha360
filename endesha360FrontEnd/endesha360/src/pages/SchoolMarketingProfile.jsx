@@ -123,6 +123,9 @@ const SchoolMarketingProfile = () => {
   const loadProfile = async () => {
     setLoading(true);
     try {
+      // First, ensure we have the latest school data from the server
+      await apiService.getMySchool();
+      
       const response = await apiService.getMarketingProfile();
       if (response) {
         setProfileData(response);
@@ -274,7 +277,11 @@ const SchoolMarketingProfile = () => {
   };
 
   const toggleVisibility = async () => {
-    if (!profileData) return;
+    // Check if profile exists
+    if (!profileData) {
+      setError('Please save your profile first before making it public.');
+      return;
+    }
     
     try {
       const newVisibility = !profileData.isPublic;
@@ -282,12 +289,12 @@ const SchoolMarketingProfile = () => {
       setProfileData(response);
       setSuccess(
         newVisibility 
-          ? 'Profile is now visible to students!' 
-          : 'Profile is now private'
+          ? 'Profile is now visible to students on the public directory!' 
+          : 'Profile is now private and hidden from public view'
       );
     } catch (err) {
       console.error('Failed to toggle visibility:', err);
-      setError(err.response?.data?.message || 'Failed to update visibility');
+      setError(err.message || 'Failed to update visibility. Please try again.');
     }
   };
 
@@ -329,46 +336,55 @@ const SchoolMarketingProfile = () => {
             </p>
           </div>
           
-          {profileData && (
-            <div className="text-right">
-              <div className="mb-4">
-                <div className="text-sm text-gray-600">Profile Completion</div>
-                <div className="flex items-center">
-                  <div className="w-32 bg-gray-200 rounded-full h-2 mr-3">
-                    <div
-                      className="bg-[#00712D] h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${profileData.profileCompletionPercentage || 0}%` }}
-                    ></div>
+          <div className="text-right">
+            {profileData && (
+              <>
+                <div className="mb-4">
+                  <div className="text-sm text-gray-600">Profile Completion</div>
+                  <div className="flex items-center">
+                    <div className="w-32 bg-gray-200 rounded-full h-2 mr-3">
+                      <div
+                        className="bg-[#00712D] h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${profileData.profileCompletionPercentage || 0}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-medium text-[#00712D]">
+                      {profileData.profileCompletionPercentage || 0}%
+                    </span>
                   </div>
-                  <span className="text-sm font-medium text-[#00712D]">
-                    {profileData.profileCompletionPercentage || 0}%
-                  </span>
                 </div>
+                
+                <Button
+                  onClick={toggleVisibility}
+                  variant={profileData.isPublic ? "outline" : "primary"}
+                  className="mb-2"
+                >
+                  {profileData.isPublic ? (
+                    <>
+                      <EyeOff className="h-4 w-4 mr-2" />
+                      Make Private
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-4 w-4 mr-2" />
+                      Make Public
+                    </>
+                  )}
+                </Button>
+                
+                <div className="text-xs text-gray-500">
+                  {profileData.isPublic ? 'Visible to students in public directory' : 'Only visible to you'}
+                </div>
+              </>
+            )}
+            
+            {!profileData && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-700">
+                <Eye className="h-4 w-4 inline mr-1" />
+                Save your profile first to make it public
               </div>
-              
-              <Button
-                onClick={toggleVisibility}
-                variant={profileData.isPublic ? "outline" : "primary"}
-                className="mb-2"
-              >
-                {profileData.isPublic ? (
-                  <>
-                    <EyeOff className="h-4 w-4 mr-2" />
-                    Make Private
-                  </>
-                ) : (
-                  <>
-                    <Eye className="h-4 w-4 mr-2" />
-                    Make Public
-                  </>
-                )}
-              </Button>
-              
-              <div className="text-xs text-gray-500">
-                {profileData.isPublic ? 'Visible to students' : 'Private profile'}
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {error && <Alert type="error" message={error} className="mb-6" />}
@@ -735,7 +751,7 @@ const SchoolMarketingProfile = () => {
                   Achievements & Awards
                 </label>
                 <textarea
-                  value={formData.achievements}
+                  value={formData.achievements ?? ''}
                   onChange={(e) => handleInputChange('achievements', e.target.value)}
                   placeholder="List your school's achievements, awards, certifications..."
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00712D] focus:border-transparent"
