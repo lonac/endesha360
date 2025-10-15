@@ -81,6 +81,9 @@ public class SchoolMarketingProfile {
     @Column(columnDefinition = "TEXT")
     private String achievements;
 
+    @Column(length = 500)
+    private String tagline;  // Custom tagline/slogan for the school
+
     private Double successRate;
     private Integer totalGraduates;
     private Integer yearsInOperation;
@@ -280,6 +283,14 @@ public class SchoolMarketingProfile {
 
     public void setAchievements(String achievements) {
         this.achievements = achievements;
+    }
+
+    public String getTagline() {
+        return tagline;
+    }
+
+    public void setTagline(String tagline) {
+        this.tagline = tagline;
     }
 
     public Double getSuccessRate() {

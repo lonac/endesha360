@@ -1,24 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import SchoolView from './SchoolManagement/SchoolView';
+import { useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
 const ApprovedSchools = () => {
+  const navigate = useNavigate();
   const [schools, setSchools] = useState([]);
-  const [selectedSchool, setSelectedSchool] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchSchools = async () => {
       try {
-  const response = await fetch('/api/schools/approved');
+        const response = await fetch('/api/schools/approved');
         if (!response.ok) throw new Error('Network response was not ok');
-  const data = await response.json();
-  setSchools(data || []);
+        const data = await response.json();
+        setSchools(data || []);
       } catch (err) {
         setError('Failed to load schools');
+        console.error('Error fetching approved schools:', err);
       } finally {
         setLoading(false);
       }
@@ -72,28 +73,15 @@ const ApprovedSchools = () => {
                     <p className="text-gray-600 text-sm mb-2">{school.city}, {school.country}</p>
                     <p className="text-gray-500 text-xs mb-2 text-center">{school.description}</p>
                     <button
-                      className="text-[#FF9100] text-sm font-medium mt-2"
-                      onClick={() => setSelectedSchool(school)}
+                      className="text-[#FF9100] text-sm font-medium mt-2 hover:text-[#e6820e] transition-colors"
+                      onClick={() => navigate(`/schools/${school.id}`)}
                     >
-                      Explore more
+                      Explore more →
                     </button>
                   </div>
                 </div>
               ))}
             </Slider>
-            {selectedSchool && (
-              <div className="fixed inset-0 bg-black/60 z-50 flex justify-center items-center backdrop-blur-sm py-8" onClick={() => setSelectedSchool(null)}>
-                <div className="bg-white rounded-lg shadow-xl p-6 relative max-w-lg w-full mx-4 animate-fade-in-up max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-                  <button
-                    onClick={() => setSelectedSchool(null)}
-                    className="absolute top-3 right-3 text-gray-400 hover:text-gray-800 hover:bg-gray-100 rounded-full p-1 transition-colors z-10"
-                  >
-                    &times;
-                  </button>
-                  <SchoolView school={selectedSchool} />
-                </div>
-              </div>
-            )}
           </>
         ) : (
           <div className="text-center text-gray-500">No approved schools found.</div>

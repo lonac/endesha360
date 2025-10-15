@@ -32,6 +32,7 @@ public class SchoolMarketingProfileRequest {
     private String logoUrl;
     private List<String> galleryImages;
     private String achievements;
+    private String tagline;  // Custom tagline/slogan
     private Double successRate;
     private Integer totalGraduates;
     private Integer yearsInOperation;
@@ -189,6 +190,14 @@ public class SchoolMarketingProfileRequest {
 
     public void setAchievements(String achievements) {
         this.achievements = achievements;
+    }
+
+    public String getTagline() {
+        return tagline;
+    }
+
+    public void setTagline(String tagline) {
+        this.tagline = tagline;
     }
 
     public Double getSuccessRate() {

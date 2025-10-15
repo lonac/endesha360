@@ -8,6 +8,8 @@ public class SchoolMarketingProfileResponse {
 
     private Long id;
     private Long schoolId;
+    private String schoolName;  // Added: School name from School entity
+    private String tagline;     // Added: Custom tagline/slogan
     private Boolean isPublic;
     private Integer profileCompletionPercentage;
 
@@ -54,6 +56,12 @@ public class SchoolMarketingProfileResponse {
 
     public Long getSchoolId() { return schoolId; }
     public void setSchoolId(Long schoolId) { this.schoolId = schoolId; }
+
+    public String getSchoolName() { return schoolName; }
+    public void setSchoolName(String schoolName) { this.schoolName = schoolName; }
+
+    public String getTagline() { return tagline; }
+    public void setTagline(String tagline) { this.tagline = tagline; }
 
     public Boolean getIsPublic() { return isPublic; }
     public void setIsPublic(Boolean isPublic) { this.isPublic = isPublic; }

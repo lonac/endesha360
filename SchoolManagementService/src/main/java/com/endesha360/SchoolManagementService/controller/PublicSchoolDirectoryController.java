@@ -27,4 +27,23 @@ public class PublicSchoolDirectoryController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @GetMapping("/profile/{schoolId}")
+    public ResponseEntity<?> getPublicProfile(@PathVariable Long schoolId) {
+        try {
+            SchoolMarketingProfileResponse profile = profileService.getProfile(schoolId);
+            
+            // Only return if profile is public
+            if (profile != null && profile.getIsPublic()) {
+                return ResponseEntity.ok(profile);
+            }
+            
+            return ResponseEntity.notFound().build();
+        } catch (RuntimeException e) {
+            if (e.getMessage() != null && e.getMessage().contains("not found")) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

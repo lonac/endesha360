@@ -1111,20 +1111,41 @@ class ApiService {
   // Get public school profile by ID (no auth required)
   async getPublicSchoolProfile(schoolId) {
     try {
-      const response = await fetch(`${API_ENDPOINTS.SCHOOL_SERVICE}/${schoolId}/marketing-profile`, {
+      const url = `${API_ENDPOINTS.SCHOOL_SERVICE}/marketing/public/profile/${schoolId}`;
+      console.log('Fetching public school profile from:', url);
+      
+      const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
+      console.log('Public school profile response status:', response.status);
+
       if (response.status === 404) {
+        console.warn('School profile not found for ID:', schoolId);
         return null;
       }
 
-      const data = await response.json();
+      // Check if response has content before parsing JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Response is not JSON:', contentType);
+        throw new Error('Server returned non-JSON response');
+      }
+
+      const text = await response.text();
+      if (!text) {
+        console.error('Empty response from server');
+        throw new Error('Server returned empty response');
+      }
+
+      const data = JSON.parse(text);
+      
       if (!response.ok) {
         throw new Error(data.message || 'Failed to fetch school profile');
       }
+      
       return data;
     } catch (error) {
       console.error('Get public school profile error:', error);

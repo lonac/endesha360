@@ -55,6 +55,7 @@ public class SchoolMarketingProfileService {
         profile.setLogoUrl(req.getLogoUrl());
         profile.setGalleryImages(req.getGalleryImages());
         profile.setAchievements(req.getAchievements());
+        profile.setTagline(req.getTagline());
         profile.setSuccessRate(req.getSuccessRate());
         profile.setTotalGraduates(req.getTotalGraduates());
         profile.setYearsInOperation(req.getYearsInOperation());
@@ -83,6 +84,8 @@ public class SchoolMarketingProfileService {
         var res = new SchoolMarketingProfileResponse();
         res.setId(p.getId());
         res.setSchoolId(p.getSchool().getId());
+        res.setSchoolName(p.getSchool().getName());  // Get school name from School entity
+        res.setTagline(p.getTagline());
         res.setIsPublic(p.getPublic());
         
         // Courses & Services
@@ -110,6 +113,7 @@ public class SchoolMarketingProfileService {
         res.setLogoUrl(p.getLogoUrl());
         res.setGalleryImages(p.getGalleryImages());
         res.setAchievements(p.getAchievements());
+        res.setTagline(p.getTagline());
         res.setSuccessRate(p.getSuccessRate());
         res.setTotalGraduates(p.getTotalGraduates());
         res.setYearsInOperation(p.getYearsInOperation());
