@@ -1084,6 +1084,10 @@ class ApiService {
       return data;
     } catch (error) {
       console.error('Toggle profile visibility error:', error);
+      // Provide more helpful error message for network failures
+      if (error.message === 'Failed to fetch') {
+        throw new Error('Unable to connect to the server. Please ensure the School Management Service is running on port 8082.');
+      }
       throw error;
     }
   }

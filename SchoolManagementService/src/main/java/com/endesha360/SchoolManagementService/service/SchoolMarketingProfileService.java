@@ -75,7 +75,7 @@ public class SchoolMarketingProfileService {
     public SchoolMarketingProfileResponse toggleVisibility(Long schoolId, boolean isPublic) {
         var profile = profileRepository.findBySchoolId(schoolId)
                 .orElseThrow(() -> new RuntimeException("Profile not found"));
-        profile.setPublic(isPublic);
+        profile.setIsPublic(isPublic);
         profileRepository.save(profile);
         return toResponse(profile);
     }
@@ -86,7 +86,7 @@ public class SchoolMarketingProfileService {
         res.setSchoolId(p.getSchool().getId());
         res.setSchoolName(p.getSchool().getName());  // Get school name from School entity
         res.setTagline(p.getTagline());
-        res.setIsPublic(p.getPublic());
+        res.setIsPublic(p.getIsPublic());
         
         // Courses & Services
         res.setCoursesOffered(p.getCoursesOffered());
