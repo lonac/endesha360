@@ -1,0 +1,35 @@
+.pd-page { padding: 28px; }
+.pd-heading { font-size: 28px; margin: 0 0 4px; }
+.pd-subheading { color: #7b8794; margin: 0 0 18px; }
+.pd-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 0 0 1px rgba(15,23,42,0.03); margin-bottom: 18px; }
+.pd-profile-top { display: flex; align-items: center; gap: 20px; }
+.pd-avatar { width: 96px; height: 96px; border-radius: 50%; background: linear-gradient(135deg,#6dd3ff,#8b6bff); color: #fff; display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px }
+.pd-name-row { display:flex; align-items:center; gap:10px }
+.pd-name { margin:0; font-size:20px }
+.pd-badge { background:#0b1020; color:#fff; padding:6px 10px; border-radius:10px; font-size:12px }
+.pd-role { color:#6b7280; margin-top:6px }
+.pd-contact { margin-top:12px; color:#6b7280 }
+.pd-contact-line { margin-top:6px }
+.pd-right { margin-left:auto; color:#6b7280 }
+.pd-stats-row { display:flex; gap:16px; margin: 8px 0 18px }
+.pd-stat-card { flex:1; background:#fff; border-radius:10px; padding:18px; box-shadow: 0 0 0 1px rgba(15,23,42,0.03) }
+.pd-stat-title { color:#6b7280; font-size:13px }
+.pd-stat-value { font-size:22px; font-weight:700; margin-top:8px }
+.pd-stat-sub { color:#9aa3ad; margin-top:8px; font-size:13px }
+.pd-tabs { margin: 6px 0 18px }
+.pd-tab { background:#fff; border-radius:999px; padding:8px 14px; margin-right:8px; border:1px solid transparent }
+.pd-tab.active { background:#fff; box-shadow:0 1px 0 rgba(0,0,0,0.04); }
+.pd-profile-info { padding:18px }
+.pd-info-header { display:flex; align-items:center; justify-content:space-between }
+.pd-muted { color:#9aa3ad; margin:4px 0 0 }
+.pd-edit { background:#0b1020; color:#fff; padding:10px 14px; border-radius:8px; border:none }
+.pd-form-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:18px }
+.pd-field label { display:block; color:#6b7280; font-size:13px; margin-bottom:6px }
+.pd-field input { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #eef2f6; background:#f8fafb }
+
+@media (max-width: 800px) {
+  .pd-stats-row { flex-direction:column }
+  .pd-form-grid { grid-template-columns:1fr }
+  .pd-profile-top { flex-direction:column; align-items:flex-start }
+  .pd-right { margin-left:0; margin-top:8px }
+}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { LogIn, Eye, EyeOff } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Eye, EyeOff, LockKeyhole, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import Input from '../components/Input';
@@ -71,152 +71,112 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFBE6] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="bg-[#00712D] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-            <LogIn className="h-8 w-8 text-white" />
+    <div className="min-h-screen bg-[#f7f9f1] px-4 py-6 sm:px-8 lg:px-12">
+      <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-6xl overflow-hidden rounded-3xl bg-white shadow-[0_24px_70px_rgba(0,113,45,0.14)]">
+        <aside className="relative hidden w-[44%] overflow-hidden bg-[#00712D] p-10 text-white lg:flex lg:flex-col lg:justify-between">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full border-[34px] border-[#D5ED9F]/20" />
+          <div className="absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-[#FF9100]/20" />
+          <div className="relative z-10">
+            <div className="mb-16 flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-[#00712D]">
+                <LogIn className="h-6 w-6" />
+              </div>
+              <span className="text-xl font-bold tracking-tight">Endesha360</span>
+            </div>
+            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-[#D5ED9F]">Your learning journey</p>
+            <h1 className="max-w-sm text-4xl font-bold leading-tight">Everything your school community needs, in one place.</h1>
+            <p className="mt-5 max-w-sm text-base leading-7 text-white/75">Manage learning, track progress, and stay connected with a simpler school experience.</p>
           </div>
-          <h2 className="text-3xl font-bold text-[#00712D] mb-2">
-            Sign in to Continue
-          </h2>
-          <p className="text-gray-600">
-            Sign in to your Endesha360 account
-          </p>
-        </div>
+          <div className="relative z-10 space-y-4 text-sm text-white/90">
+            {['Personalized student progress', 'Clear school-wide insights', 'Secure access for every user'].map((feature) => (
+              <div key={feature} className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-[#D5ED9F]" />
+                <span>{feature}</span>
+              </div>
+            ))}
+          </div>
+        </aside>
 
-        {/* Alert */}
-        {error && (
-          <Alert 
-            type="error" 
-            message={error} 
-            onClose={() => setError('')}
-          />
-        )}
-
-        {/* Form */}
-        <div className="bg-white p-8 rounded-xl shadow-lg">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Email */}
-            <Input
-              label="Email Address"
-              type="email"
-              required
-              placeholder="Enter your email"
-              {...register('email', {
-                required: 'Email is required',
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address'
-                }
-              })}
-              error={errors.email?.message}
-            />
-
-            {/* Password */}
-            <div className="relative">
-              <Input
-                label="Password"
-                type={showPassword ? 'text' : 'password'}
-                required
-                placeholder="Enter your password"
-                {...register('password', {
-                  required: 'Password is required'
-                })}
-                error={errors.password?.message}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-9 text-gray-400 hover:text-[#00712D]"
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+        <main className="flex flex-1 items-center justify-center px-5 py-10 sm:px-12 lg:px-16">
+          <div className="w-full max-w-md">
+            <div className="mb-8 lg:hidden">
+              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-[#00712D] text-white">
+                <LogIn className="h-6 w-6" />
+              </div>
+              <p className="text-lg font-bold text-[#00712D]">Endesha360</p>
+            </div>
+            <div className="mb-8">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eff8d8] text-[#00712D]">
+                <LockKeyhole className="h-6 w-6" />
+              </div>
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900">Welcome back</h2>
+              <p className="mt-2 text-slate-500">Sign in to continue to your Endesha360 account.</p>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-[#00712D] focus:ring-[#00712D] border-[#D5ED9F] rounded"
-                  {...register('rememberMe')}
+            {error && (
+              <div className="mb-5">
+                <Alert type="error" message={error} onClose={() => setError('')} />
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <Input
+                label="Email address"
+                type="email"
+                required
+                placeholder="you@example.com"
+                {...register('email', {
+                  required: 'Email is required',
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Invalid email address'
+                  }
+                })}
+                error={errors.email?.message}
+              />
+
+              <div className="relative">
+                <Input
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  placeholder="Enter your password"
+                  {...register('password', { required: 'Password is required' })}
+                  error={errors.password?.message}
                 />
-                <label htmlFor="remember-me" className="ml-2 text-sm text-gray-600">
+                <button
+                  type="button"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-9 rounded-md p-1 text-gray-400 transition-colors hover:text-[#00712D] focus:outline-none focus:ring-2 focus:ring-[#00712D]"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <label htmlFor="remember-me" className="flex items-center gap-2 text-sm text-slate-500">
+                  <input id="remember-me" type="checkbox" className="h-4 w-4 rounded border-[#D5ED9F] text-[#00712D] focus:ring-[#00712D]" {...register('rememberMe')} />
                   Remember me
                 </label>
+                <Link to="/forgot-password" className="text-sm font-semibold text-[#00712D] hover:underline">Forgot password?</Link>
               </div>
-              <Link 
-                to="/forgot-password" 
-                className="text-sm font-medium text-[#00712D] hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              loading={loading}
-              className="w-full"
-              size="lg"
-            >
-              {loading ? 'Signing In...' : 'Sign In'}
-            </Button>
-          </form>
+              <Button type="submit" loading={loading} className="group w-full" size="lg">
+                {loading ? 'Signing in...' : 'Sign in'}
+                {!loading && <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />}
+              </Button>
+            </form>
 
-          {/* Register Link */}
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">
-              Don't have an account?{' '}
-              <button
-                type="button"
-                className="font-medium text-[#00712D] hover:underline focus:outline-none bg-transparent"
-                onClick={() => setIsRoleModalOpen(true)}
-              >
-                Sign up here
-              </button>
-            </p>
-          </div>
-        </div>
-
-        {/* Features */}
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-[#D5ED9F]">
-          <h3 className="text-lg font-semibold text-[#00712D] mb-4 text-center">
-            Why Choose Endesha360?
-          </h3>
-          <div className="space-y-3">
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-[#00712D] rounded-full"></div>
-              <span className="text-sm text-gray-600">Complete school management solution</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-[#00712D] rounded-full"></div>
-              <span className="text-sm text-gray-600">Student progress tracking & analytics</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-[#00712D] rounded-full"></div>
-              <span className="text-sm text-gray-600">Automated scheduling & notifications</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-[#00712D] rounded-full"></div>
-              <span className="text-sm text-gray-600">Multi-tenant architecture for scalability</span>
+            <div className="mt-8 border-t border-slate-100 pt-6 text-center">
+              <p className="text-sm text-slate-500">Don't have an account?{' '}
+                <button type="button" className="font-semibold text-[#00712D] hover:underline focus:outline-none" onClick={() => setIsRoleModalOpen(true)}>
+                  Create one
+                </button>
+              </p>
             </div>
           </div>
-        </div>
-
-        {/* Login Help */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-blue-800 mb-2">
-            First time logging in?
-          </h4>
-          <p className="text-sm text-blue-700">
-            Use the email and password you provided during school owner registration. 
-            If you haven't registered yet, click "Register as School Owner" above.
-          </p>
-        </div>
+        </main>
       </div>
 
       {/* Modal for Role Selection */}

@@ -34,6 +34,7 @@ import ComingSoon from './pages/ComingSoon';
 import StudentProfile from './pages/student/StudentProfile';
 import SchoolMarketingProfile from './pages/SchoolMarketingProfile';
 import SchoolAdvertisement from './pages/SchoolAdvertisement';
+import ProfileDashboard from './pages/ProfileDashboard';
 
       <Route 
         path="/select-role" 
@@ -252,6 +253,16 @@ const AppContent = () => {
               <StudentProfile />
             </Layout>
           </StudentProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <ProfileDashboard />
+            </Layout>
+          </ProtectedRoute>
         }
       />
       {/* Public school directory */}
