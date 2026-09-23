@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import Modal from '../../components/Modal';
-import { User, MapPin, Phone, CloudUpload } from 'lucide-react';
+import { User, MapPin, Phone, CloudUpload, Mail, ShieldCheck } from 'lucide-react';
 
 const StudentProfile = () => {
   const { user } = useAuth();
@@ -63,68 +63,75 @@ const StudentProfile = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FFFBE6] p-4">
-      <div className="bg-white border border-[#D5ED9F] p-6 md:p-12 rounded-3xl shadow-2xl max-w-3xl w-full relative">
-        {/* Decorative gradient circle */}
-        <div className="absolute -top-16 -left-16 w-40 h-40 bg-gradient-to-br from-[#D5ED9F] to-[#FFFBE6] rounded-full opacity-30 blur-2xl z-0"></div>
-        {/* Header card (green) */}
-        <div className="relative z-10 mb-6">
-          <div className="bg-[#0b8140] text-white rounded-lg p-4 md:p-6 flex flex-col md:flex-row items-center md:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
+    <div className="min-h-screen bg-[#FFFBE6] px-4 py-8 sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-5xl overflow-hidden rounded-[2rem] border border-[#D5ED9F] bg-white shadow-[0_22px_55px_rgba(0,113,45,0.14)]">
+        <section className="relative overflow-hidden bg-[#00712D] px-6 py-8 text-white sm:px-10 lg:px-12">
+          <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full border-[28px] border-white/10" />
+          <div className="absolute -bottom-24 left-1/3 h-44 w-44 rounded-full bg-[#FF9100]/15" />
+          <div className="relative z-10 flex flex-col gap-7 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-5">
+              <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-3xl border-4 border-white/20 bg-[#D5ED9F]/20 shadow-lg">
                 {user.avatarUrl ? (
-                  <img src={user.avatarUrl} alt="Profile" className="w-full h-full object-cover rounded-full" />
+                  <img src={user.avatarUrl} alt="Profile" className="h-full w-full object-cover" />
                 ) : (
-                  <User className="w-10 h-10 text-white" />
+                  <User className="h-12 w-12 text-[#D5ED9F]" />
                 )}
               </div>
               <div>
-                <div className="font-semibold text-lg md:text-xl">{user.firstName} {user.lastName}</div>
-                <div className="text-sm opacity-90 mt-1 flex items-center gap-2"><MapPin size={14} /> <span className="text-sm">{user.location || 'No location set'}</span></div>
-                <div className="text-sm opacity-90 mt-1 flex items-center gap-2"><Phone size={14} /> <span className="text-sm">{user.phoneNumber || 'No phone'}</span></div>
+                <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#D5ED9F]">Student profile</p>
+                <h1 className="text-2xl font-bold sm:text-3xl">{user.firstName} {user.lastName}</h1>
+                <p className="mt-2 flex items-center gap-2 text-sm text-white/75"><Mail size={15} /> {user.email}</p>
               </div>
             </div>
-            <div className="ml-auto">
-              <Button onClick={() => setIsEditOpen(true)} className="bg-white text-[#0b8140] hover:bg-gray-100 px-4 py-2 rounded-md">Edit</Button>
-            </div>
+            <Button onClick={() => setIsEditOpen(true)} className="self-start bg-white text-[#00712D] shadow-md hover:bg-[#F6FDDC] md:self-center">
+              Edit profile
+            </Button>
           </div>
-        </div>
+          <div className="relative z-10 mt-8 grid max-w-xl grid-cols-1 gap-3 text-sm text-white/85 sm:grid-cols-2">
+            <div className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2"><MapPin size={16} className="text-[#D5ED9F]" /> {user.location || 'No location set'}</div>
+            <div className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2"><Phone size={16} className="text-[#D5ED9F]" /> {user.phoneNumber || 'No phone number'}</div>
+          </div>
+        </section>
 
-        {/* Personal Information section */}
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
-          <h3 className="text-gray-800 font-semibold mb-4">Personal Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <section className="p-6 sm:p-8 lg:p-10">
+          <div className="mb-7 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <label className="block text-sm text-gray-500 mb-2">First Name</label>
-              <Input value={form.firstName} onChange={handleChange('firstName')} className="bg-[#F6FDDC] border-transparent" />
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#FF9100]">Account details</p>
+              <h2 className="mt-1 text-2xl font-bold text-slate-900">Personal information</h2>
+              <p className="mt-1 text-sm text-slate-500">Keep your details up to date for a better experience.</p>
             </div>
-            <div>
-              <label className="block text-sm text-gray-500 mb-2">Last Name</label>
-              <Input value={form.lastName} onChange={handleChange('lastName')} className="bg-[#F6FDDC] border-transparent" />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-500 mb-2">Your Location</label>
-              <Input value={user.location || ''} readOnly className="bg-[#F6FDDC] border-transparent" />
-            </div>
+            <div className="flex items-center gap-2 text-xs font-medium text-[#00712D]"><ShieldCheck size={17} /> Profile is protected</div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-            <div>
-              <label className="block text-sm text-gray-500 mb-2">Your phone number</label>
-              <Input value={user.phoneNumber || ''} readOnly className="bg-[#F6FDDC] border-transparent" />
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div className="rounded-2xl border border-[#D5ED9F] bg-[#FBFEEB] p-4">
+              <Input label="First name" value={form.firstName} onChange={handleChange('firstName')} className="border-[#D5ED9F] bg-white" />
             </div>
-            <div>
-              <label className="block text-sm text-gray-500 mb-2">Profile Picture</label>
-              <div className="border-2 border-dashed border-[#E6F6E0] rounded-md bg-[#F6FFF2] p-6 flex items-center justify-center flex-col text-center text-sm text-gray-500">
-                <CloudUpload size={28} className="text-[#0b8140] mb-2" />
-                <div className="text-xs text-[#0b8140] font-medium">Click to upload or drag & drop</div>
-                <div className="text-xs text-gray-400">Max resolution 200×200px</div>
-              </div>
+            <div className="rounded-2xl border border-[#D5ED9F] bg-[#FBFEEB] p-4">
+              <Input label="Last name" value={form.lastName} onChange={handleChange('lastName')} className="border-[#D5ED9F] bg-white" />
             </div>
-            <div className="md:col-span-3" />
+            <div className="rounded-2xl border border-[#D5ED9F] bg-[#FBFEEB] p-4">
+              <Input label="Location" value={user.location || ''} readOnly placeholder="Add your location" className="border-[#D5ED9F] bg-white" />
+            </div>
+            <div className="rounded-2xl border border-[#D5ED9F] bg-[#FBFEEB] p-4">
+              <Input label="Phone number" value={user.phoneNumber || ''} readOnly placeholder="Add your phone number" className="border-[#D5ED9F] bg-white" />
+            </div>
           </div>
-        </div>
-        <Button onClick={() => navigate(-1)} className="w-full bg-[#FF9100] hover:bg-[#e6820e] py-3 rounded-xl text-lg font-semibold shadow transition-all duration-150">Back to Dashboard</Button>
+
+          <div className="mt-5 rounded-2xl border border-[#D5ED9F] bg-[#FBFEEB] p-4">
+            <p className="mb-3 text-sm font-medium text-[#00712D]">Profile picture</p>
+            <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#B6E388] bg-white px-5 py-8 text-center transition-colors hover:bg-[#F6FDDC]">
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#D5ED9F]/60 text-[#00712D]"><CloudUpload size={24} /></div>
+              <p className="text-sm font-semibold text-[#00712D]">Click to upload or drag and drop</p>
+              <p className="mt-1 text-xs text-slate-400">PNG or JPG, maximum resolution 200 x 200px</p>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Button variant="outline" onClick={() => navigate(-1)} className="w-full sm:w-auto">Back to dashboard</Button>
+            <Button onClick={() => setIsEditOpen(true)} className="w-full sm:w-auto">Update profile</Button>
+          </div>
+        </section>
 
         <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} title="Edit Profile">
           <div className="space-y-3">
