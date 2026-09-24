@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { fetchComprehensiveProgress, fetchTestResults } from '../api/studentProgress';
+import { fetchMyComprehensiveProgress, fetchTestResults } from '../api/studentProgress';
 import { useAuth } from '../context/AuthContext';
 
 const ResultsProgressPage = () => {
@@ -16,10 +16,11 @@ const ResultsProgressPage = () => {
   useEffect(() => {
     if (!user) return;
     setLoading(true);
+    setError(null);
     
     Promise.all([
-      fetchComprehensiveProgress(user.id, token).catch(() => []),
-      fetchTestResults(user.id, token).catch(() => [])
+      fetchMyComprehensiveProgress(token),
+      fetchTestResults(user.id, token)
     ])
     .then(([comprehensive, tests]) => {
       setComprehensiveProgress(comprehensive);

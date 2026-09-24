@@ -40,12 +40,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             .map(SimpleGrantedAuthority::new)
                             .collect(Collectors.toList()));
                     UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(username, null, authorities);
+                            new UsernamePasswordAuthenticationToken(
+                                    new StudentPrincipal(jwtTokenService.getUserIdFromToken(token),
+                                            jwtTokenService.getTenantCodeFromToken(token), username), null, authorities);
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (Exception e) {
-                logger.error("Cannot set user authentication: {}", e);
+                SecurityContextHolder.clearContext();
+                logger.debug("Rejected invalid authentication token");
             }
         }
         filterChain.doFilter(request, response);

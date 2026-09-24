@@ -28,7 +28,6 @@ public class JwtTokenService {
     private int jwtExpirationInMs;
 
     private SecretKey getSigningKey() {
-        logger.debug("Using JWT secret: {}", jwtSecret);
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
@@ -74,13 +73,22 @@ public class JwtTokenService {
     @SuppressWarnings("unchecked")
     public Set<String> getRolesFromToken(String token) {
         Claims claims = getAllClaimsFromToken(token);
-        return Set.copyOf((Set<String>) claims.get("roles"));
+        return stringSet(claims.get("roles"));
     }
 
     @SuppressWarnings("unchecked")
     public Set<String> getPermissionsFromToken(String token) {
         Claims claims = getAllClaimsFromToken(token);
-        return Set.copyOf((Set<String>) claims.get("permissions"));
+        return stringSet(claims.get("permissions"));
+    }
+
+    private Set<String> stringSet(Object value) {
+        if (value == null) return Set.of();
+        if (!(value instanceof java.util.Collection<?> values)
+                || values.stream().anyMatch(v -> !(v instanceof String))) {
+            throw new IllegalArgumentException("Invalid authority claims");
+        }
+        return values.stream().map(String.class::cast).collect(java.util.stream.Collectors.toSet());
     }
 
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {

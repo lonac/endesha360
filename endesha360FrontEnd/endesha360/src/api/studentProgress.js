@@ -31,3 +31,11 @@ export async function fetchTestResults(studentId, token) {
   if (!response.ok) throw new Error('Failed to fetch test results');
   return response.json();
 }
+
+export async function fetchMyComprehensiveProgress(token) {
+  const response = await fetch('/student-management-service/api/student-progress/comprehensive/me', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error('Failed to fetch your course progress');
+  return response.json();
+}

@@ -22,6 +22,13 @@ public class Student {
     @Column(name = "user_id", nullable = false, unique = true)
     private Long userId;
 
+    // Nullable only for legacy records, which are excluded from all scoped queries.
+    @Column(name = "tenant_code", updatable = false)
+    private String tenantCode;
+
+    @Column(name = "instructor_user_id")
+    private Long instructorUserId;
+
     @Column(name = "first_name")
     private String firstName;
 

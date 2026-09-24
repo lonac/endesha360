@@ -1,5 +1,8 @@
 package com.endesha360.student_management_service.service;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import com.endesha360.student_management_service.security.StudentAccess;
 import com.endesha360.student_management_service.client.TestServiceClient;
 import com.endesha360.student_management_service.dto.ExamResultUpdateRequest;
 import com.endesha360.student_management_service.dto.StudentProgressWithResultsDto;
@@ -16,36 +19,59 @@ import java.util.stream.Collectors;
 public class StudentProgressService {
     @Autowired
     private StudentProgressRepository progressRepository;
-    
+
     @Autowired
     private TestServiceClient testServiceClient;
 
+    @Autowired
+    private StudentAccess access;
+
     public StudentProgress saveProgress(StudentProgress progress) {
+        access.teacher();
+        access.requireStudent(progress.getStudentId());
+        if (progress.getId() != null) {
+            StudentProgress existing = progressRepository.findById(progress.getId())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND));
+            access.requireStudent(existing.getStudentId());
+            if (!java.util.Objects.equals(existing.getStudentId(), progress.getStudentId()))
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "Student identity cannot be changed");
+        }
         return progressRepository.save(progress);
     }
 
     public List<StudentProgress> getProgressByStudentId(Long studentId) {
+        access.requireStudent(studentId);
         return progressRepository.findByStudentId(studentId);
     }
 
     public List<StudentProgress> getProgressByCourseId(Long courseId) {
-        return progressRepository.findByCourseId(courseId);
+        return progressRepository.findVisibleByCourse(courseId, access.principal().tenantCode(),
+                access.readerUserId(), access.readerInstructorId());
     }
 
     public Optional<StudentProgress> getProgressById(Long id) {
-        return progressRepository.findById(id);
+        access.principal();
+        return progressRepository.findById(id).map(record -> {
+            access.requireStudent(record.getStudentId());
+            return record;
+        });
     }
 
     public void deleteProgress(Long id) {
-        progressRepository.deleteById(id);
+        access.owner();
+        getProgressById(id).ifPresent(progressRepository::delete);
     }
 
     public void updateProgressAfterExam(ExamResultUpdateRequest request) {
+        access.teacher();
+        access.requireStudent(request.getStudentId());
         // Find existing progress record or create new one
         List<StudentProgress> existingProgress = progressRepository.findByStudentId(request.getStudentId());
-        
+
         StudentProgress progress = existingProgress.stream()
-                .filter(p -> request.getCourseId() != null && request.getCourseId().equals(p.getCourseId()) 
+                .filter(p -> request.getCourseId() != null && request.getCourseId().equals(p.getCourseId())
                            && request.getModuleName() != null && request.getModuleName().equals(p.getModuleName()))
                 .findFirst()
                 .orElse(StudentProgress.builder()
@@ -58,7 +84,7 @@ public class StudentProgressService {
         // Update progress with exam results
         progress.setScore(request.getScore());
         progress.setUpdatedAt(LocalDateTime.now());
-        
+
         if (request.getPassed() != null && request.getPassed()) {
             progress.setStatus(StudentProgress.Status.completed);
         } else if (request.getPassed() != null && !request.getPassed()) {
@@ -68,11 +94,21 @@ public class StudentProgressService {
         progressRepository.save(progress);
     }
 
+    @Autowired
+    private com.endesha360.student_management_service.repository.StudentRepository studentRepository;
+
+    public List<StudentProgressWithResultsDto> getMyComprehensiveProgress() {
+        var principal = access.principal();
+        return studentRepository.findByUserIdAndTenantCode(principal.userId(), principal.tenantCode())
+                .map(student -> getComprehensiveProgress(student.getId())).orElseGet(List::of);
+    }
+
     public List<StudentProgressWithResultsDto> getComprehensiveProgress(Long studentId) {
+        var student = access.requireStudent(studentId);
         List<StudentProgress> progressList = progressRepository.findByStudentId(studentId);
-        
+
         // Get test results from test service
-        List<TestServiceClient.TestResultDto> testResults = getTestResults(studentId);
+        List<TestServiceClient.TestResultDto> testResults = getTestResults(student.getUserId());
 
         return progressList.stream()
                 .map(progress -> {

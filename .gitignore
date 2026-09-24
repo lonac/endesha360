@@ -30,3 +30,7 @@ log/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Keep the student ownership migration and its rollout instructions.
+!student-management-service/SECURITY.md
+!student-management-service/db/001_student_ownership.sql

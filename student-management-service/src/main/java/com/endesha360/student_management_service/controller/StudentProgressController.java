@@ -44,21 +44,17 @@ public class StudentProgressController {
 
     @PostMapping("/update-after-exam")
     public ResponseEntity<String> updateProgressAfterExam(@RequestBody ExamResultUpdateRequest request) {
-        try {
-            progressService.updateProgressAfterExam(request);
-            return ResponseEntity.ok("Progress updated successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error updating progress: " + e.getMessage());
-        }
+        progressService.updateProgressAfterExam(request);
+        return ResponseEntity.ok("Progress updated successfully");
+    }
+
+    @GetMapping("/comprehensive/me")
+    public List<StudentProgressWithResultsDto> getMyComprehensiveProgress() {
+        return progressService.getMyComprehensiveProgress();
     }
 
     @GetMapping("/comprehensive/student/{studentId}")
     public ResponseEntity<List<StudentProgressWithResultsDto>> getComprehensiveProgress(@PathVariable Long studentId) {
-        try {
-            List<StudentProgressWithResultsDto> comprehensiveProgress = progressService.getComprehensiveProgress(studentId);
-            return ResponseEntity.ok(comprehensiveProgress);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok(progressService.getComprehensiveProgress(studentId));
     }
 }
